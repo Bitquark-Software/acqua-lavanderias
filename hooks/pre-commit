@@ -1,0 +1,73 @@
+#!/bin/bash
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "\.(php|js)$")
+
+# SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+
+cat ${SCRIPT_DIR}/pre-commit.banner
+echo -e "\n"
+
+if [[ "$STAGED_FILES" = "" ]]; then
+  exit 0
+fi
+
+PASS=true
+
+echo "Verificando tu codigo:"
+echo -e "\n"
+
+# Check for phpcs
+if ! command -v ./integrador_mercado_libre/vendor/bin/phpcs &> /dev/null; then
+  echo -e "PHPCS no encontrado, ejecuta composer install para instalarlo"
+  exit 1
+fi
+
+echo -e "\n"
+
+# Check for ESLint
+if ! command -v ./integrador_mercado_libre/node_modules/.bin/eslint &> /dev/null; then
+  echo -e "ESLint no encontrado, ejecuta npm install para instalarlo"
+  exit 1
+fi
+
+echo -e "\n"
+
+RULESET=./integrador_mercado_libre/phpcs.xml
+
+for FILE in $STAGED_FILES
+do
+    if [[ "$FILE" =~ \.php$ ]]; then
+        ./integrador_mercado_libre/vendor/bin/phpcbf --standard="$RULESET" "$FILE"
+    elif [[ "$FILE" =~ \.js$ ]]; then
+        ./integrador_mercado_libre/node_modules/.bin/eslint --config ./.eslintrc.js  "$FILE"
+    fi
+
+    if [[ "$FILE" =~ \.php$ ]]; then
+      ./integrador_mercado_libre/vendor/bin/phpcs --standard="$RULESET" "$FILE"
+    fi
+
+    if [[ "$?" == 0 ]]; then
+        echo "Codigo limpio: $FILE"
+        echo -e "\n"
+    else
+        echo "Codigo sucio: $FILE"
+        echo -e "\n"
+        PASS=false
+    fi
+done
+
+echo "PHPCS termino de evaluar tu codigo!"
+
+echo -e "\n"
+
+if ! $PASS; then
+  echo "COMMIT FAILED: Tu commit tiene archivos que no pasaron la revision. Por favor arregla los errores y vuelve a ejecutar git commit."
+  echo -e "\n"
+  exit 1
+else
+  echo "COMMIT REALIZADO"
+  echo -e "\n"
+fi
+
+exit $?
