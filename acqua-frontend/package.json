@@ -4,9 +4,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "prestart": "cp ../hooks/pre-commit ../.git/hooks && cp ../hooks/pre-commit.banner ../.git/hooks",
     "build": "ng build",
+    "prebuild": "cp ../hooks/pre-commit ../.git/hooks && cp ../hooks/pre-commit.banner ../.git/hooks",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "pretest": "cp ../hooks/pre-commit ../.git/hooks && cp ../hooks/pre-commit.banner ../.git/hooks"
   },
   "private": true,
   "dependencies": {

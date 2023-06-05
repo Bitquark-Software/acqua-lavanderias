@@ -18,7 +18,7 @@ echo "Verificando tu codigo:"
 echo -e "\n"
 
 # Check for phpcs
-if ! command -v ./integrador_mercado_libre/vendor/bin/phpcs &> /dev/null; then
+if ! command -v ./acqua-backend/vendor/bin/phpcs &> /dev/null; then
   echo -e "PHPCS no encontrado, ejecuta composer install para instalarlo"
   exit 1
 fi
@@ -26,25 +26,25 @@ fi
 echo -e "\n"
 
 # Check for ESLint
-if ! command -v ./integrador_mercado_libre/node_modules/.bin/eslint &> /dev/null; then
+if ! command -v ./acqua-frontend/node_modules/.bin/eslint &> /dev/null; then
   echo -e "ESLint no encontrado, ejecuta npm install para instalarlo"
   exit 1
 fi
 
 echo -e "\n"
 
-RULESET=./integrador_mercado_libre/phpcs.xml
+RULESET=./acqua-backend/phpcs.xml
 
 for FILE in $STAGED_FILES
 do
     if [[ "$FILE" =~ \.php$ ]]; then
-        ./integrador_mercado_libre/vendor/bin/phpcbf --standard="$RULESET" "$FILE"
+        ./acqua-backend/vendor/bin/phpcbf --standard="$RULESET" "$FILE"
     elif [[ "$FILE" =~ \.js$ ]]; then
-        ./integrador_mercado_libre/node_modules/.bin/eslint --config ./.eslintrc.js  "$FILE"
+        ./acqua-frontend/node_modules/.bin/eslint --config ./.eslintrc.js  "$FILE"
     fi
 
     if [[ "$FILE" =~ \.php$ ]]; then
-      ./integrador_mercado_libre/vendor/bin/phpcs --standard="$RULESET" "$FILE"
+      ./acqua-backend/vendor/bin/phpcs --standard="$RULESET" "$FILE"
     fi
 
     if [[ "$?" == 0 ]]; then
