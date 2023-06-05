@@ -30,7 +30,41 @@
             "prefix": "app",
             "style": "kebab-case"
           }
-        ]
+        ],
+        "no-unused-vars": "error",
+        "no-multiple-empty-lines": [
+          "error",
+          {
+            "max": 1,
+            "maxEOF": 0
+          }
+        ],
+        "semi": ["error", "always"],
+        "no-use-before-define": "error",
+        "no-multi-spaces": "error",
+        "no-empty-function": "error",
+        "no-underscore-dangle": "off",
+        "no-trailing-spaces": "error",
+        "no-undef": "off",
+        "no-unused-expressions": "error",
+        "no-extra-semi": "error",
+        "no-invalid-this": "error",
+        "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
+        "no-warning-comments": ["warn", {"terms": ["todo", "fixme", "xxx"], "location": "start"}],
+        "no-constant-condition": ["error", {"checkLoops": false}],
+        "no-mixed-spaces-and-tabs": "error",
+        "no-var": "error",
+        "prefer-const": "error",
+        "quotes": ["error", "single", {"avoidEscape": true}],
+        "no-redeclare": "error",
+        "no-extra-boolean-cast": "off",
+        "no-console": "off",
+        "comma-dangle": ["error", "always-multiline"],
+        "no-extra-parens": "error",
+        "no-lonely-if": "error",
+        "no-unneeded-ternary": "error",
+        "prefer-template": "error",
+        "spaced-comment": ["error", "always", {"markers": ["/"]}]
       }
     },
     {
@@ -41,7 +75,9 @@
         "plugin:@angular-eslint/template/recommended",
         "plugin:@angular-eslint/template/accessibility"
       ],
-      "rules": {}
+      "rules": {
+        "eol-last": ["error", "always"]
+      }
     }
   ]
 }
