@@ -44,6 +44,13 @@ do
         ./acqua-backend/vendor/bin/phpcbf --standard="$RULESET" "$FILE"
     elif [[ "$FILE" =~ \.ts$ ]]; then
         ./acqua-frontend/node_modules/.bin/eslint --config ./acqua-frontend/.eslintrc.json --quiet --fix "$FILE"
+
+        if [[ $? != 0 ]]; then
+          echo "ESLint encontró errores en el archivo: $FILE"
+          echo -e "\n"
+          PASS=false
+        fi
+
     fi
 
     if [[ "$FILE" =~ \.php$ ]]; then
