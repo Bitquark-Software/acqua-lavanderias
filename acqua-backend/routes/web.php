@@ -18,9 +18,5 @@ Route::get('/', function () {
 
 
 
-    return response()->json("Acqua lavanderias");
-
-
-
-    
+    return response()->json('Acqua lavanderias');
 });
