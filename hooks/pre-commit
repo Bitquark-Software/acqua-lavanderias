@@ -1,6 +1,6 @@
 #!/bin/bash
 
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "\.(php|js)$")
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "\.(php|ts)$")
 
 # SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
@@ -42,8 +42,8 @@ for FILE in $STAGED_FILES
 do
     if [[ "$FILE" =~ \.php$ ]]; then
         ./acqua-backend/vendor/bin/phpcbf --standard="$RULESET" "$FILE"
-    elif [[ "$FILE" =~ \.js$ ]]; then
-        ./acqua-frontend/node_modules/.bin/eslint --config ./.eslintrc.js  "$FILE"
+    elif [[ "$FILE" =~ \.ts$ ]]; then
+        ./acqua-frontend/node_modules/.bin/eslint --config ./.eslintrc.json --quiet --fix "$FILE"
     fi
 
     if [[ "$FILE" =~ \.php$ ]]; then
