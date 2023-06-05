@@ -5,6 +5,9 @@ STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "\.(php
 # SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
+echo ${SCRIPT_DIR}
+echo -e "\n"
+
 cat ${SCRIPT_DIR}/pre-commit.banner
 echo -e "\n"
 
