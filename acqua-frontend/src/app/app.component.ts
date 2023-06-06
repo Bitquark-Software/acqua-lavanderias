@@ -6,9 +6,4 @@ import { Component } from '@angular/core';
 } )
 export class AppComponent {
   title = 'acqua-frontend';
-  constructor(){
-    if( this.title == 'acqua' ){
-      this.title = 'app';
-    }
-  }
 }
