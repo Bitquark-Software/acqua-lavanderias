@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
     styleUrls: ['./app.component.scss'],
 } )
 export class AppComponent {
-    title:string = 'acqua-frontend';
+    title = 'acqua-frontend';
     constructor(){
         if( this.title == 'acqua' ){
             this.title = 'app';
