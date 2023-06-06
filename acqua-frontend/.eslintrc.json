@@ -65,7 +65,7 @@
         "no-unneeded-ternary": "error",
         "prefer-template": "error",
         "spaced-comment": ["error", "always", {"markers": ["/"]}],
-        "indent": ["error", 4],
+        "indent": ["error", 2],
         "@typescript-eslint/no-explicit-any": "error",
         "@typescript-eslint/brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
         "space-in-parens": ["error", "always"],
