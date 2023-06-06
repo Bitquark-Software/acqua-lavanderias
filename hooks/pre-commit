@@ -43,7 +43,7 @@ do
     if [[ "$FILE" =~ \.php$ ]]; then
         ./acqua-backend/vendor/bin/phpcbf --standard="$RULESET" "$FILE"
     elif [[ "$FILE" =~ \.ts$ ]]; then
-        ./acqua-frontend/node_modules/.bin/eslint --config ./acqua-frontend/.eslintrc.json --quiet --fix "$FILE" && git add $FILE
+        ./acqua-frontend/node_modules/.bin/eslint --config ./acqua-frontend/.eslintrc.json --quiet --fix "$FILE" && git add $FILE && git add .
 
         if [[ $? != 0 ]]; then
           echo "ESLint encontró errores en el archivo: $FILE"
