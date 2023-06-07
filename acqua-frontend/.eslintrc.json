@@ -78,11 +78,13 @@
         "*.html"
       ],
       "extends": [
-        "plugin:@angular-eslint/template/recommended",
-        "plugin:@angular-eslint/template/accessibility"
+        "plugin:@angular-eslint/template/recommended"
       ],
       "rules": {
-        "eol-last": ["error", "always"]
+        "eol-last": ["error", "always"],
+        "no-multiple-empty-lines": ["error", { "max": 1 }],
+        "no-trailing-spaces": "error",
+        "indent": ["error", 4]
       }
     }
   ]
