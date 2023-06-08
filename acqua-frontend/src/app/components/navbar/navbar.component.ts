@@ -5,4 +5,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./navbar.component.scss'],
 } )
 export class NavbarComponent {
+  isAdmin = true;
 }

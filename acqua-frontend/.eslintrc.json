@@ -35,7 +35,7 @@
         "no-multiple-empty-lines": [
           "error",
           {
-            "max": 0,
+            "max": 1,
             "maxEOF": 0
           }
         ],
@@ -68,7 +68,6 @@
         "indent": ["error", 2],
         "@typescript-eslint/no-explicit-any": "error",
         "@typescript-eslint/brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
-        "space-in-parens": ["error", "always"],
         "func-call-spacing": ["error", "always"],
         "func-names": "error"
       }
