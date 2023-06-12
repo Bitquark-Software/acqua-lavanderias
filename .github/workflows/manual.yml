@@ -1,0 +1,81 @@
+# Workflow que valida la versión más reciente del frontend, compila los assets y genera un build versionado como release
+
+name: Build and Publish
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types:
+      - closed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Change to app directory
+        run: cd acqua-frontend
+
+      - name: Setup Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.0.4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Verify package.json version
+        id: version_check
+        run: |
+          current_version=$(node -pe "require('./package.json').version")
+          new_version=$(git diff HEAD^ HEAD package.json | grep '^+.*"version":' | awk -F '"' '{print $4}')
+
+          if [ "$new_version" == "" ]; then
+            echo "##[error] No version change detected in package.json"
+            exit 1
+          elif [ "$new_version" == "$current_version" ]; then
+            echo "##[error] New version is the same as the current version"
+            exit 1
+          elif ! [[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "##[error] Invalid version format"
+            exit 1
+          fi
+
+          echo "::set-output name=new_version::$new_version"
+
+      - name: Setup Node.js 16.0.4
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.0.4
+
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli@16.0.4
+
+      - name: Build application
+        run: ng build --prod
+
+      - name: Zip application
+        run: |
+          new_version=${{ steps.version_check.outputs.new_version }}
+          zip -r "${new_version}.zip" dist/
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          BUILD_TOKEN: ${{ secrets.BUILD_TOKEN }}
+        with:
+          tag_name: ${{ steps.version_check.outputs.new_version }}
+          release_name: Release ${{ steps.version_check.outputs.new_version }}
+          draft: false
+          prerelease: false
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: release_artifact
+          path: ${{ steps.version_check.outputs.new_version }}.zip
