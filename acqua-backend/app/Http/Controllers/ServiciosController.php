@@ -50,8 +50,8 @@ class ServiciosController extends Controller
 
         $servicio = Servicio::create([
             'catalogo_id' => $request->catalogo_id,
-            'clave_servicio' => $clave,
-            'nombre_servicio' => $request->nombre_servicio,
+            'clave_servicio' => Str::upper($clave),
+            'nombre_servicio' => Str::upper($request->nombre_servicio),
             'importe' => $request->importe,
             'cantidad_minima' => $request->cantidad_minima,
         ]);
