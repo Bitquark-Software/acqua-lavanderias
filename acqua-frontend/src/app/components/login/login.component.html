@@ -1,0 +1,28 @@
+<div class="w-screen h-screen bg-cover bg-center" style="background-image: url('../../../assets/login-bg.jpg');">
+    <div class="fixed top-0 left-0 w-screen h-screen inset-0 z-10 bg-gradient-to-br from-white via-transparent to-black content-center">
+        <div class="w-11/12 md:w-6/12 m-auto flex flex-col justify-center backdrop-blur-3xl bg-white/60 p-10 rounded-lg mt-48 z-20 border border-white">
+            <h5 class="w-auto text-center font-bold text-primary text-3xl">ACQUA LAVANDERIAS</h5>
+
+            <form class="w-full flex flex-col justify-center items-center mt-9 text-primary" [formGroup]="loginForm" (ngSubmit)="login()">
+                <div class="form-control w-6/12">
+                    <label class="label">
+                      <span class="label-text text-primary">Correo electrónico:</span>
+                    </label>
+                    <input type="email" placeholder="Correo electrónico" class="input input-bordered bg-white focus:outline-none text-primary" formControlName="email"/>
+                    <label class="label">
+                      <span class="label-text-alt text-red-500" *ngIf="email.invalid && (email.dirty || email.touched)">No es un correo electrónico válido</span>
+                    </label>
+                </div>
+
+                <div class="form-control w-6/12">
+                    <label class="label">
+                      <span class="label-text text-primary">Contraseña:</span>
+                    </label>
+                    <input type="password" placeholder="Contraseña" class="input input-bordered bg-white focus:outline-none text-primary" formControlName="password"/>
+                </div>
+
+                <button type="submit" class="btn w-6/12 my-6" [disabled]="!loginForm.valid">Iniciar sesión</button>
+            </form>
+        </div>
+    </div>
+</div>
