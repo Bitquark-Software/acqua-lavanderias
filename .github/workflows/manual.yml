@@ -17,10 +17,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Show current directory
+        run: pwd
+
       - name: Change to app directory
         run: cd acqua-frontend
 
-      - name: Setup Node.js 16
+      - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 16
@@ -47,26 +50,25 @@ jobs:
 
           echo "::set-output name=new_version::$new_version"
 
-      - name: Setup Node.js 16.0.4
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
       - name: Install Angular CLI
-        run: npm install -g @angular/cli@16.0.4
+        run: npm install -g @angular/cli
+
+      - name: Change back to repository root
+        run: cd ..
 
       - name: Build application
-        run: ng build --prod
+        run: ng build --prod --project acqua-frontend
 
       - name: Zip application
         run: |
           new_version=${{ steps.version_check.outputs.new_version }}
-          zip -r "${new_version}.zip" dist/
+          zip -r "app_${new_version}.zip" acqua-frontend/dist/
 
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
         env:
-          BUILD_TOKEN: ${{ secrets.BUILD_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.version_check.outputs.new_version }}
           release_name: Release ${{ steps.version_check.outputs.new_version }}
@@ -77,4 +79,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: release_artifact
-          path: ${{ steps.version_check.outputs.new_version }}.zip
+          path: app_${{ steps.version_check.outputs.new_version }}.zip
