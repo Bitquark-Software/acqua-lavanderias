@@ -31,9 +31,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: acqua-frontend
 
       - name: Verify package.json version
         id: version_check
+        working-directory: acqua-frontend
         run: |
           current_version=$(node -pe "require('./package.json').version")
           new_version=$(git diff HEAD^ HEAD package.json | grep '^+.*"version":' | awk -F '"' '{print $4}')
@@ -52,18 +54,17 @@ jobs:
           echo "::set-output name=new_version::$new_version"
 
       - name: Install Angular CLI
+        working-directory: acqua-frontend
         run: npm install -g @angular/cli
 
-      - name: Change back to repository root
-        run: cd ..
-
       - name: Build application
+        working-directory: acqua-frontend
         run: ng build --prod --project acqua-frontend
 
       - name: Zip application
         run: |
           new_version=${{ steps.version_check.outputs.new_version }}
-          zip -r "app_${new_version}.zip" acqua-frontend/dist/
+          zip -r "${new_version}.zip" acqua-frontend/dist/
 
       - name: Create release
         id: create_release
@@ -80,4 +81,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: release_artifact
-          path: app_${{ steps.version_check.outputs.new_version }}.zip
+          path: ${{ steps.version_check.outputs.new_version }}.zip
