@@ -1,4 +1,5 @@
 # Workflow que valida la versión más reciente del frontend, compila los assets y genera un build versionado como release
+# Si no hubieran cambios del frontend el job debe ignorar los cambios de versión
 
 name: Build and Publish
 
