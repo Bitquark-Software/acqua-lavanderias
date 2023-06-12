@@ -24,14 +24,14 @@ jobs:
           changed_files=$(git diff --name-only HEAD~1 HEAD -- acqua-frontend/)
           if echo "$changed_files" | grep -q '^acqua-frontend/'; then
             current_version=$(node -pe "require('./acqua-frontend/package.json').version")
-            new_version=$(git diff HEAD^ HEAD acqua-frontend/package.json | grep '^+.*"version":' | awk -F '"' '{print $4}')
+            new_version=$(git diff HEAD~1 HEAD acqua-frontend/package.json | grep '^+.*"version":' | awk -F '"' '{print $4}')
 
             if [ "$new_version" == "" ]; then
               echo "##[error] No version change detected in package.json"
               exit 1
             elif [ "$new_version" == "$current_version" ]; then
               echo "##[error] New version is the same as the current version"
-              exit 1
+            exit 1
             elif ! [[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "##[error] Invalid version format"
               exit 1
