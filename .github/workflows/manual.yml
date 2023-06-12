@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js 16
         uses: actions/setup-node@v2
         with:
-          node-version: 16.0.4
+          node-version: 16
 
       - name: Install dependencies
         run: npm install
@@ -50,8 +50,7 @@ jobs:
       - name: Setup Node.js 16.0.4
         uses: actions/setup-node@v2
         with:
-          node-version: 16.0.4
-
+          node-version: 16
       - name: Install Angular CLI
         run: npm install -g @angular/cli@16.0.4
 
