@@ -69,7 +69,7 @@ jobs:
       - name: Build application
         if: steps.version_check.outputs.new_version != ''
         working-directory: acqua-frontend
-        run: ng build --prod --project acqua-frontend
+        run: ng build
 
       - name: Zip application
         if: steps.version_check.outputs.new_version != ''
