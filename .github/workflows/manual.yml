@@ -27,6 +27,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
+          working-directory: acqua-frontend
 
       - name: Install dependencies
         run: npm install
