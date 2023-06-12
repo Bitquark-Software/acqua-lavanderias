@@ -17,56 +17,65 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Show current directory
-        run: pwd
+      - name: Verify package.json version
+        id: version_check
+        run: |
+          changed_files=$(git diff --name-only HEAD^ HEAD)
+          if echo "$changed_files" | grep -q '^acqua-frontend/'; then
+            current_version=$(node -pe "require('./acqua-frontend/package.json').version")
+            new_version=$(git diff HEAD^ HEAD acqua-frontend/package.json | grep '^+.*"version":' | awk -F '"' '{print $4}')
 
-      - name: Change to app directory
-        run: cd acqua-frontend
+            if [ "$new_version" == "" ]; then
+              echo "##[error] No version change detected in package.json"
+              exit 1
+            elif [ "$new_version" == "$current_version" ]; then
+              echo "##[error] New version is the same as the current version"
+              exit 1
+            elif ! [[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "##[error] Invalid version format"
+              exit 1
+            fi
+
+            echo "::set-output name=new_version::$new_version"
+          else
+            echo "No changes in acqua-frontend directory. Skipping version check."
+            echo "::set-output name=new_version::"
+            exit
+          fi
 
       - name: Setup Node.js
+        if: steps.version_check.outputs.new_version != ''
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          working-directory: acqua-frontend
+
+      - name: Change to app directory
+        if: steps.version_check.outputs.new_version != ''
+        run: cd acqua-frontend
 
       - name: Install dependencies
+        if: steps.version_check.outputs.new_version != ''
+        working-directory: acqua-frontend
         run: npm install
-        working-directory: acqua-frontend
-
-      - name: Verify package.json version
-        id: version_check
-        working-directory: acqua-frontend
-        run: |
-          current_version=$(node -pe "require('./package.json').version")
-          new_version=$(git diff HEAD^ HEAD package.json | grep '^+.*"version":' | awk -F '"' '{print $4}')
-
-          if [ "$new_version" == "" ]; then
-            echo "##[error] No version change detected in package.json"
-            exit 1
-          elif [ "$new_version" == "$current_version" ]; then
-            echo "##[error] New version is the same as the current version"
-            exit 1
-          elif ! [[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "##[error] Invalid version format"
-            exit 1
-          fi
-
-          echo "::set-output name=new_version::$new_version"
 
       - name: Install Angular CLI
+        if: steps.version_check.outputs.new_version != ''
         working-directory: acqua-frontend
         run: npm install -g @angular/cli
 
       - name: Build application
+        if: steps.version_check.outputs.new_version != ''
         working-directory: acqua-frontend
         run: ng build --prod --project acqua-frontend
 
       - name: Zip application
+        if: steps.version_check.outputs.new_version != ''
         run: |
           new_version=${{ steps.version_check.outputs.new_version }}
           zip -r "${new_version}.zip" acqua-frontend/dist/
 
       - name: Create release
+        if: steps.version_check.outputs.new_version != ''
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -78,6 +87,7 @@ jobs:
           prerelease: false
 
       - name: Upload artifact
+        if: steps.version_check.outputs.new_version != ''
         uses: actions/upload-artifact@v2
         with:
           name: release_artifact
