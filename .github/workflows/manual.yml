@@ -95,3 +95,10 @@ jobs:
         with:
           name: release_artifact
           path: ${{ steps.version_check.outputs.new_version }}.zip
+      
+      - name: Create backup branch
+        if: steps.version_check.outputs.new_version != ''
+        run: |
+          new_version=${{ steps.version_check.outputs.new_version }}
+          git checkout -b "releases/$new_version" $(git rev-parse develop)
+          git push origin "releases/$new_version"
