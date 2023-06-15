@@ -5,6 +5,13 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 // import { authGuard } from './guards/auth.guard';
 import { CatalogoComponent } from './components/catalogo/catalogo.component';
 import { NuevoCatalogoComponent } from './components/catalogo/nuevo-catalogo/nuevo-catalogo.component';
+import {
+  EditarCatalogoComponent,
+} from './components/catalogo/editar-catalogo/editar-catalogo.component';
+import { VerServiciosComponent } from './components/servicios/ver-servicios/ver-servicios.component';
+import {
+  EditarServicioComponent,
+} from './components/servicios/editar-servicio/editar-servicio.component';
 
 const routes: Routes = [
   {
@@ -18,6 +25,18 @@ const routes: Routes = [
   {
     path: 'nueva-categoria',
     component: NuevoCatalogoComponent,
+  },
+  {
+    path: 'editar-categoria/:id',
+    component: EditarCatalogoComponent,
+  },
+  {
+    path: 'ver-servicios/:categoriaId',
+    component: VerServiciosComponent,
+  },
+  {
+    path: 'editar-servicio/:servicioId',
+    component: EditarServicioComponent,
   },
   {
     path: 'dashboard',

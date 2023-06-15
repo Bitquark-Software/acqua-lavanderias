@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+import { Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HotToastService } from '@ngneat/hot-toast';
@@ -12,13 +14,20 @@ export class NuevoCatalogoComponent {
     nombre: ['', [Validators.required]],
   });
 
-  // eslint-disable-next-line no-unused-vars
-  constructor(private fb: FormBuilder, private toast: HotToastService) {
+  constructor(
+    private fb: FormBuilder,
+    private toast: HotToastService,
+    private location: Location,
+  ) {
     //
   }
 
   get nombre(){
     return this.nuevaCategoriaForm.controls['nombre'];
+  }
+
+  back() {
+    this.location.back();
   }
 
   async registrarCategoria(){
