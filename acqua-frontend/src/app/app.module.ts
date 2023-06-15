@@ -10,6 +10,13 @@ import { DrawerComponent } from './components/drawer/drawer.component';
 import { NuevoCatalogoComponent } from './components/catalogo/nuevo-catalogo/nuevo-catalogo.component';
 
 import { HotToastModule } from '@ngneat/hot-toast';
+import {
+  EditarCatalogoComponent,
+} from './components/catalogo/editar-catalogo/editar-catalogo.component';
+import { VerServiciosComponent } from './components/servicios/ver-servicios/ver-servicios.component';
+import {
+  EditarServicioComponent,
+} from './components/servicios/editar-servicio/editar-servicio.component';
 
 @NgModule ( {
   declarations: [
@@ -19,6 +26,9 @@ import { HotToastModule } from '@ngneat/hot-toast';
     DashboardComponent,
     CatalogoComponent,
     NuevoCatalogoComponent,
+    EditarCatalogoComponent,
+    VerServiciosComponent,
+    EditarServicioComponent,
   ],
   imports: [
     BrowserModule,
