@@ -8,7 +8,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CatalogoComponent } from './components/catalogo/catalogo.component';
 import { DrawerComponent } from './components/drawer/drawer.component';
 import { NuevoCatalogoComponent } from './components/catalogo/nuevo-catalogo/nuevo-catalogo.component';
-
 import { HotToastModule } from '@ngneat/hot-toast';
 import {
   EditarCatalogoComponent,
@@ -17,6 +16,9 @@ import { VerServiciosComponent } from './components/servicios/ver-servicios/ver-
 import {
   EditarServicioComponent,
 } from './components/servicios/editar-servicio/editar-servicio.component';
+import { PersonalComponent } from './components/personal/personal.component';
+import { NuevoUsuarioComponent } from './components/personal/nuevo-usuario/nuevo-usuario.component';
+import { EditarUsuarioComponent } from './components/personal/editar-usuario/editar-usuario.component';
 
 @NgModule ( {
   declarations: [
@@ -29,6 +31,9 @@ import {
     EditarCatalogoComponent,
     VerServiciosComponent,
     EditarServicioComponent,
+    PersonalComponent,
+    NuevoUsuarioComponent,
+    EditarUsuarioComponent,
   ],
   imports: [
     BrowserModule,
