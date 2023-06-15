@@ -1,6 +1,6 @@
 {
   "name": "acqua-frontend",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -23,6 +23,7 @@
     "@angular/platform-browser": "^16.0.0",
     "@angular/platform-browser-dynamic": "^16.0.0",
     "@angular/router": "^16.0.0",
+    "@ngneat/hot-toast": "^5.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.0"
@@ -40,7 +41,7 @@
     "@typescript-eslint/eslint-plugin": "5.59.7",
     "@typescript-eslint/parser": "5.59.7",
     "autoprefixer": "^10.4.14",
-    "daisyui": "^2.51.6",
+    "daisyui": "^3.1.0",
     "eslint": "^8.40.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jasmine-core": "~4.6.0",
