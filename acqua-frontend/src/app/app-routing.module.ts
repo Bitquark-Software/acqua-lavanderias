@@ -12,6 +12,9 @@ import { VerServiciosComponent } from './components/servicios/ver-servicios/ver-
 import {
   EditarServicioComponent,
 } from './components/servicios/editar-servicio/editar-servicio.component';
+import { PersonalComponent } from './components/personal/personal.component';
+import { NuevoUsuarioComponent } from './components/personal/nuevo-usuario/nuevo-usuario.component';
+import { EditarUsuarioComponent } from './components/personal/editar-usuario/editar-usuario.component';
 
 const routes: Routes = [
   {
@@ -42,6 +45,18 @@ const routes: Routes = [
     path: 'dashboard',
     component: DashboardComponent,
     // canActivate: [authGuard],
+  },
+  {
+    path: 'personal',
+    component: PersonalComponent,
+  },
+  {
+    path: 'nuevo-usuario',
+    component: NuevoUsuarioComponent,
+  },
+  {
+    path: 'editar-usuario/:id',
+    component: EditarUsuarioComponent,
   },
   {
     path: '',
