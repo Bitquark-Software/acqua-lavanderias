@@ -15,6 +15,9 @@ import {
 import { PersonalComponent } from './components/personal/personal.component';
 import { NuevoUsuarioComponent } from './components/personal/nuevo-usuario/nuevo-usuario.component';
 import { EditarUsuarioComponent } from './components/personal/editar-usuario/editar-usuario.component';
+import { ClientesComponent } from './components/clientes/clientes.component';
+import { NuevoClienteComponent } from './components/clientes/nuevo-cliente/nuevo-cliente.component';
+import { EditarClienteComponent } from './components/clientes/editar-cliente/editar-cliente.component';
 
 const routes: Routes = [
   {
@@ -57,6 +60,18 @@ const routes: Routes = [
   {
     path: 'editar-usuario/:id',
     component: EditarUsuarioComponent,
+  },
+  {
+    path: 'clientes',
+    component: ClientesComponent,
+  },
+  {
+    path: 'nuevo-cliente',
+    component: NuevoClienteComponent,
+  },
+  {
+    path: 'editar-cliente/:clientId',
+    component: EditarClienteComponent,
   },
   {
     path: '',
