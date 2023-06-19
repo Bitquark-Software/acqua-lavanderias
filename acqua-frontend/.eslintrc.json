@@ -35,7 +35,7 @@
         "no-multiple-empty-lines": [
           "error",
           {
-            "max": 0,
+            "max": 1,
             "maxEOF": 0
           }
         ],
@@ -68,9 +68,8 @@
         "indent": ["error", 2],
         "@typescript-eslint/no-explicit-any": "error",
         "@typescript-eslint/brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
-        "space-in-parens": ["error", "always"],
-        "func-call-spacing": ["error", "always"],
-        "func-names": "error"
+        "func-names": "error",
+        "max-len": ["error", { "code": 105 }]
       }
     },
     {
@@ -78,11 +77,13 @@
         "*.html"
       ],
       "extends": [
-        "plugin:@angular-eslint/template/recommended",
-        "plugin:@angular-eslint/template/accessibility"
+        "plugin:@angular-eslint/template/recommended"
       ],
       "rules": {
-        "eol-last": ["error", "always"]
+        "eol-last": ["error", "always"],
+        "no-multiple-empty-lines": ["error", { "max": 1 }],
+        "no-trailing-spaces": "error",
+        "indent": ["error", 4]
       }
     }
   ]
