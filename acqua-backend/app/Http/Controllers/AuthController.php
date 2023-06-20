@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -19,7 +17,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $accessToken = $user->createToken('example')->accessToken;
+            $accessToken = $user->createToken('login-token')->accessToken;
 
             $userData = [
                 'id' => $user->id,
@@ -27,17 +25,10 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
             ];
-    
-            if ($user->role === 'empleado') {
-                $mensaje = 'Inicio de Sesión Exitoso Empleado';
-            } else {
-                $mensaje = 'Inicio de Sesión Exitoso Administrador';
-            }
             
             return new Response([
                 'access_token' => $accessToken,
                 'datos' => $userData,
-                'mensaje' => $mensaje,
             ], 200);
         }
     
