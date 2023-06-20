@@ -1,0 +1,48 @@
+<app-drawer>
+    <div class="card flex-shrink-0 bg-base-100 w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl" nuevoCatalogo>
+        <h1 class="font-medium text-2xl text-primary dark:text-white">
+            <button class="btn btn-square btn-secondary text-white mr-2" (click)="back()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </button>
+            Editando: {{servicio.nombreServicio}}
+        </h1>
+        <div class="card-body">
+            <form [formGroup]="updateServicioForm" (ngSubmit)="update()">
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text">Nombre del servicio</span>
+                  </label>
+                  <input type="text" placeholder="Nuevo nombre del servicio" class="input input-bordered" formControlName="nombreServicio"/>
+                  <label class="label">
+                    <span class="label-text-alt text-red-500" *ngIf="nombreServicio.invalid && (nombreServicio.dirty || nombreServicio.touched)">No es un nombre válido</span>
+                  </label>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-control">
+                      <label class="label">
+                        <span class="label-text">Cant. Mínima</span>
+                      </label>
+                      <input type="number" placeholder="1" min="1" class="input input-bordered" formControlName="cantidadMinima"/>
+                      <label class="label">
+                        <span class="label-text-alt text-red-500" *ngIf="cantidadMinima.invalid && (cantidadMinima.dirty || cantidadMinima.touched)">La cantidad mínima es 1</span>
+                      </label>
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Importe</span>
+                        </label>
+                        <input type="number" placeholder="1" class="input input-bordered join-item" min="1" formControlName="importe"/>
+                        <label class="label">
+                            <span class="label-text-alt text-red-500" *ngIf="importe.invalid && (importe.dirty || importe.touched)">El importe mínimo es $1</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-control mt-6">
+                  <button type="submit" class="btn btn-success" [disabled]="!updateServicioForm.valid">Actualizar categoría</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</app-drawer>
