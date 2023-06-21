@@ -41,7 +41,7 @@ class UserController extends Controller
         ]);
 
         return response()->json([
-            'message' => "User Creado Exitosamente",
+            'message' => 'User Creado Exitosamente',
             'data' => $user
         ]);
     }
@@ -82,8 +82,8 @@ class UserController extends Controller
         ]);
         
         return response()->json([
-            'message' => "User Actualizado correctamente"
-        ],200);
+            'message' => 'User Actualizado correctamente'
+        ], 200);
     }
 
     /**
@@ -98,7 +98,7 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json([
-            'messaje' => "User Eliminado Correctamente" 
-        ],204);
+            'messaje' => 'User Eliminado Correctamente'
+        ], 204);
     }
 }
