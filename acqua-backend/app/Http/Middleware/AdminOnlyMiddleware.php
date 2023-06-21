@@ -16,10 +16,10 @@ class AdminOnlyMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if($request->user() && $request->user()->role === 'administrador') {
+        if ($request->user() && $request->user()->role === 'administrador') {
             return $next($request);
         }
 
-        return response()->json(['error' => "Acceso no Permitido", 403]);
+        return response()->json(['error' => 'Acceso no Permitido', 403]);
     }
 }
