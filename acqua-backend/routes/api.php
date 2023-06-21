@@ -26,6 +26,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+
 // Middleware para Administrador CRUD Admin,Empledos
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
     Route::resource('/admin/dashboard', UserController::class);
