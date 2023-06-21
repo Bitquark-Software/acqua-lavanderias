@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use App\Http\Middleware\AdminOnlyMiddleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,3 +32,6 @@ Route::post('login', [AuthController::class, 'login'])
 
 Route::post('logout', [AuthController::class, 'logout'])
     ->name('logout');
+Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
+    Route::resource('/admin/dashboard', UserController::class);
+});
