@@ -112,7 +112,7 @@ class ServiciosController extends Controller
     {
         $servicios = Servicio::findOrFail($id);
         $servicios ->delete();
-
+        
         return response()->json(['mensaje' => 'Servicio Eliminado Correctamente'], 204);
     }
 }

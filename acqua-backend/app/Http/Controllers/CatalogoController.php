@@ -83,7 +83,7 @@ class CatalogoController extends Controller
         $catalogo = Catalogo::findOrFail($id);
         $catalogo->servicios()->delete();
         $catalogo->delete();
-        
+
         return response()->json(['mensaje' => 'Catalogo eliminado correctamente'], 204);
     }
 }
