@@ -27,10 +27,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
+// Middleware para Administrador CRUD Admin,Empledos
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
     Route::resource('/admin/dashboard', UserController::class);
 });
-
+// Rutas para Iniciar Sesion
 Route::post('login', [AuthController::class, 'login'])
     ->middleware(['throttle'])
     ->name('login');
