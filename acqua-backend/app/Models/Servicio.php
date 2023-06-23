@@ -17,7 +17,6 @@ class Servicio extends Model
         'cantidad_minima'
     ];
 
-
     public function catalogo()
     {
         return $this->belongsTo(Catalogo::class);

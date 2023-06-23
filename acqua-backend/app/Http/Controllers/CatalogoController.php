@@ -69,7 +69,7 @@ class CatalogoController extends Controller
             'name' => Str::upper($request->input('name'))
         ]);
 
-        return response()->json(['messaje' => 'Catalogo Actualizado...'], 200);
+        return response()->json(['mensaje' => 'Catalogo Actualizado...'], 200);
     }
 
     /**
@@ -83,7 +83,7 @@ class CatalogoController extends Controller
         $catalogo = Catalogo::findOrFail($id);
         $catalogo->servicios()->delete();
         $catalogo->delete();
-        
+
         return response()->json(['mensaje' => 'Catalogo eliminado correctamente'], 204);
     }
 }
