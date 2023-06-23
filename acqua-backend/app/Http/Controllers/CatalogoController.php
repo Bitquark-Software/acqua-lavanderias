@@ -37,7 +37,7 @@ class CatalogoController extends Controller
         return response()->json([
             'message' => 'Catalogo creado exitosamente',
             'data' => $catalogo,
-        ], 201);        
+        ], 201);
     }
 
     /**
@@ -48,7 +48,7 @@ class CatalogoController extends Controller
      */
     public function show($id)
     {
-        return Catalogo::find($id);
+        return Catalogo::with('servicios')->find($id);
     }
 
     /**
@@ -69,7 +69,7 @@ class CatalogoController extends Controller
             'name' => Str::upper($request->input('name'))
         ]);
 
-        return response()->json(["messaje" => "Catalogo Actualizado..."], 200);
+        return response()->json(['messaje' => 'Catalogo Actualizado...'], 200);
     }
 
     /**
@@ -84,6 +84,6 @@ class CatalogoController extends Controller
         $catalogo->servicios()->delete();
         $catalogo->delete();
         
-        return response()->json(["mensaje" => "Catalogo eliminado correctamente"], 204);
+        return response()->json(['mensaje' => 'Catalogo eliminado correctamente'], 204);
     }
 }

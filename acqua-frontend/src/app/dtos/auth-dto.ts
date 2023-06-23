@@ -1,11 +1,15 @@
 import { Rol } from '../enums/Rol.enum';
 
-export class AuthDto {
-  token: string;
-  rol: Rol;
+class DatosSesion
+{
+  id!: number;
+  name!: string;
+  email!: string;
+  role!: Rol;
+}
 
-  constructor(token: string, rol: Rol) {
-    this.token = token;
-    this.rol = rol;
-  }
+export class AuthDto
+{
+  acess_token!: string;
+  datos!: DatosSesion;
 }

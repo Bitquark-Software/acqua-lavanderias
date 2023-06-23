@@ -27,15 +27,15 @@ class ServiciosController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'catalogo_id' => ["required", 'exists:catalogos,id'],
+            'catalogo_id' => ['required', 'exists:catalogos,id'],
             'clave_servicio' => ['required', 'string', 'unique:servicios,clave_servicio'],
-            'nombre_servicio' => ["required", "string"],
-            'importe' => ["required", "numeric", "min:1"],
-            'cantidad_minima' => ["required", "min:1"],
+            'nombre_servicio' => ['required', 'string'],
+            'importe' => ['required', 'numeric', 'min:1'],
+            'cantidad_minima' => ['required', 'min:1'],
         ]);
 
         // Generacion de Clave
-        $entrada = $request->input("clave_servicio");
+        $entrada = $request->input('clave_servicio');
         $palabras = Str::upper($entrada);
         $palabras = explode(' ', $palabras);
 
@@ -57,7 +57,7 @@ class ServiciosController extends Controller
         ]);
 
         return response()->json([
-            'mensaje' => "Servicio Generado Exitosamente",
+            'mensaje' => 'Servicio Generado Exitosamente',
             'data' => $servicio,
         ], 201);
     }
@@ -83,22 +83,40 @@ class ServiciosController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'catalogo_id' => ["required"],
-            'nombre_servicio' => ["required", "string"],
-            'importe' => ["required", "numeric", "min:1"],
-            'cantidad_minima' => ["required", "min:1"],
+            'catalogo_id' => ['required'],
+            'nombre_servicio' => ['required', 'string'],
+            'importe' => ['required', 'numeric', 'min:1'],
+            'cantidad_minima' => ['required', 'min:1'],
         ]);
+
+        // Generacion de Clave
+        $entrada = $request->input('nombre_servicio');
+        $palabras = Str::upper($entrada);
+        $palabras = explode(' ', $palabras);
+
+        // Obtencion de la primera letra de cada palabra
+        $iniciales = collect($palabras)->map(function ($palabra) use ($palabras) {
+            if (count($palabras) > 2) {
+                return Str::substr($palabra, 0, 1);
+            } else {
+                return Str::substr($palabra, 0, 2);
+            }
+        });
+
+        // Unir las iniciales en una sola cadena
+        $clave = $iniciales->implode('');
 
         $servicio = Servicio::findOrFail($id);
         $servicio->catalogo_id = $request->catalogo_id;
-        $servicio->nombre_servicio = $request->nombre_servicio;
+        $servicio->nombre_servicio = Str::upper($request->nombre_servicio);
         $servicio->importe = $request->importe;
         $servicio->cantidad_minima = $request->cantidad_minima;
+        $servicio->clave_servicio = Str::upper($clave);
         $servicio->save();
 
         return response()->json([
-            "messaje" => "Servicio Actualizado...",
-            "data" => $servicio,
+            'messaje' => 'Servicio Actualizado...',
+            'data' => $servicio,
             ], 200);
     }
 
@@ -113,6 +131,6 @@ class ServiciosController extends Controller
         $servicios = Servicio::findOrFail($id);
         $servicios ->delete();
 
-        return response()->json(["mensaje" => "Servicio Eliminado Correctamente"], 204);
+        return response()->json(['mensaje' => 'Servicio Eliminado Correctamente'], 204);
     }
 }
