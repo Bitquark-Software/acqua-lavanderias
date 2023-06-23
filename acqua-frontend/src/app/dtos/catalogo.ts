@@ -1,9 +1,16 @@
-export class Catalogo {
-  id: number;
-  nombre: string;
+import { Servicio } from './servicio';
 
-  constructor(id: number, nombre: string) {
-    this.id = id;
-    this.nombre = nombre;
-  }
+export class Categoria
+{
+  id!: number;
+  name!: string;
+  servicios ?: Servicio[];
+}
+
+export class Catalogo
+{
+  current_page?: number;
+  data?: Categoria[];
+  prev_page_url?: string;
+  next_page_url?: string;
 }
