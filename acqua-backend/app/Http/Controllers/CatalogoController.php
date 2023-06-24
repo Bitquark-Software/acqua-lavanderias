@@ -48,7 +48,7 @@ class CatalogoController extends Controller
      */
     public function show($id)
     {
-        return Catalogo::find($id);
+        return Catalogo::with('servicios')->find($id);
     }
 
     /**

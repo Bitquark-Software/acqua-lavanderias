@@ -3,7 +3,7 @@
     class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl"
     catalogo
   >
-    <div class="flex justify-between px-5">
+    <div class="flex flex-col-reverse md:flex-row justify-between px-5">
       <h1 class="font-medium text-2xl text-primary dark:text-white">
         Catálogo
       </h1>
@@ -13,7 +13,8 @@
     </div>
 
     <div class="overflow-x-auto mt-4">
-      <table class="table table-zebra w-full">
+      <p class="text-center w-full" *ngIf="catalogos.length == 0">Sin registros</p>
+      <table class="table table-zebra w-full" *ngIf="catalogos.length > 0">
         <thead>
           <tr>
             <th>ID</th>
@@ -25,7 +26,7 @@
         <tbody>
           <tr *ngFor="let cat of catalogos">
             <th class="text-primary dark:text-white">{{ cat.id }}</th>
-            <td class="text-primary dark:text-white">{{ cat.nombre }}</td>
+            <td class="text-primary dark:text-white">{{ cat.name }}</td>
             <td>
               <button
                 class="btn btn-sm btn-info btn-square btn-outline m-auto lg:tooltip"
@@ -81,6 +82,7 @@
                 <button
                   class="btn btn-md btn-error btn-square btn-outline m-auto lg:tooltip"
                   data-tip="Eliminar"
+                  (click)="showDeletePopup(cat.id)"
                 >
                   <svg
                     class="m-auto"
@@ -105,6 +107,24 @@
           </tr>
         </tbody>
       </table>
+
+    </div>
+    <div class="w-full flex mt-4 justify-center" *ngIf="catalogos.length > 0 && categoriaStructure">
+      <div class="join">
+        <button class="join-item btn" [disabled]="!categoriaStructure.prev_page_url" (click)="fetchPreviousPage()">«</button>
+        <button class="join-item btn">Pág. {{categoriaStructure.current_page}}</button>
+        <button class="join-item btn" [disabled]="!categoriaStructure.next_page_url" (click)="fetchNextPage()">»</button>
+      </div>
     </div>
   </div>
+  <dialog id="modal_delete_categoria" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Eliminar categoría</h3>
+      <p class="py-4">¿Deseas eliminar la categoría {{categoriaEliminar?.name}}?</p>
+      <div class="modal-action">
+        <button class="btn btn-ghost" (click)="closeDeletePopup()">Cerrar</button>
+        <button class="btn btn-error text-white" (click)="eliminarCategoria(categoriaEliminar?.id ?? 0)">Eliminar</button>
+      </div>
+    </div>
+  </dialog>
 </app-drawer>

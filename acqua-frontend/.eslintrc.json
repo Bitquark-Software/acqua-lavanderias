@@ -67,7 +67,7 @@
         "spaced-comment": ["error", "always", {"markers": ["/"]}],
         "indent": ["error", 2],
         "@typescript-eslint/no-explicit-any": "error",
-        "@typescript-eslint/brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
+        "@typescript-eslint/brace-style": ["error", "allman", { "allowSingleLine": true }],
         "func-names": "error",
         "max-len": ["error", { "code": 105 }]
       }
