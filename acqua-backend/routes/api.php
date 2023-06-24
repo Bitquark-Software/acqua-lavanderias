@@ -7,6 +7,8 @@ use App\Http\Middleware\AdminOnlyMiddleware;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\DireccionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +23,8 @@ use App\Http\Controllers\AuthController;
 
 Route::apiResource('catalogos', CatalogoController::class); // CRUD CATALOGOS
 Route::apiResource('servicios', ServiciosController::class); // CRUD SERVICIOS
+Route::apiResource('clientes', ClienteController::class); // CRUD CLIENTE
+Route::apiResource('direcciones', DireccionController::class); // CRUD DIRECCIONES
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
