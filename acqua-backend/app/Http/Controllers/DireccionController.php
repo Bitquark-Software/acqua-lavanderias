@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\Models\Direccion;
 use Illuminate\Http\Request;
 
@@ -36,12 +37,12 @@ class DireccionController extends Controller
         ]);
 
         $direccion = Direccion::create([
-            'calle' => $request->calle,
-            'numero' => $request->numero,
-            'colonia' => $request->colonia,
-            'ciudad' => $request->ciudad,
-            'codigo_postal' => $request->codigo_postal,
-            'nombre_ubicacion' => $request->nombre_ubicacion,
+            'calle' => Str::upper($request->calle),
+            'numero' => Str::upper($request->numero),
+            'colonia' => Str::upper($request->colonia),
+            'ciudad' => Str::upper($request->ciudad),
+            'codigo_postal' => Str::upper($request->codigo_postal),
+            'nombre_ubicacion' => Str::upper($request->nombre_ubicacion),
             'cliente_id' => $request->cliente_id,
         ]);
 
@@ -82,12 +83,12 @@ class DireccionController extends Controller
 
         $direccion = Direccion::findOrFail($id);
         $direccion->update([
-            'calle' => $request->calle,
-            'numero' => $request->numero,
-            'colonia' => $request->colonia,
-            'ciudad' => $request->ciudad,
-            'codigo_postal' => $request->codigo_postal,
-            'nombre_ubicacion' => $request->nombre_ubicacion,
+            'calle' => Str::upper($request->calle),
+            'numero' => Str::upper($request->numero),
+            'colonia' => Str::upper($request->colonia),
+            'ciudad' => Str::upper($request->ciudad),
+            'codigo_postal' => Str::upper($request->codigo_postal),
+            'nombre_ubicacion' => Str::upper($request->nombre_ubicacion),
         ]);
 
         return response()->json([

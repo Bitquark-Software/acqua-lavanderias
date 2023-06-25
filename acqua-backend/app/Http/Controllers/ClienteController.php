@@ -2,11 +2,64 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
 {
+
+    /**
+     * *Buscar un cliente por su nombre.
+     *
+     * @param  string  $nombre
+     * @return \Illuminate\Http\Response
+     */
+    public function buscarPorNombre(Request $request)
+    {
+        $request->validate([
+            'nombre' => ['string', 'max:255']
+        ]);
+
+        $nombre = trim($request->nombre);
+        $nombreCodificado = Str::title($nombre);
+
+        $cliente = Cliente::where('nombre', 'LIKE', '%' . $nombreCodificado . '%')->get();
+
+        if ($cliente) {
+            return response()->json($cliente, 200);
+        } else {
+            return response()->json([
+                'mensaje' => 'Cliente no encontrado'
+            ], 404);
+        }
+    }
+
+    /**
+     * *Buscar un cliente por su número telefónico.
+     *
+     * @param  string  $telefono
+     * @return \Illuminate\Http\Response
+     */
+    public function buscarPorTelefono(Request $request)
+    {
+        $request->validate([
+            'telefono' => ['string','not_regex:/[^0-9\-]/']
+        ]);
+
+        $telefono = trim($request->input('telefono'));
+
+        $cliente = Cliente::where('telefono', $telefono)->first();
+
+        if ($cliente) {
+            return response()->json($cliente, 200);
+        } else {
+            return response()->json([
+                'mensaje' => 'Cliente no encontrado'
+            ], 404);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -32,7 +85,7 @@ class ClienteController extends Controller
         ]);
 
         $cliente = Cliente::create([
-            'nombre' => $request->nombre,
+            'nombre' => Str::title($request->nombre),
             'email' => $request->email,
             'telefono' => $request->telefono
         ]);
@@ -71,7 +124,7 @@ class ClienteController extends Controller
 
         $cliente = Cliente::findOrFail($id);
         $cliente->update([
-            'nombre' => $request->nombre,
+            'nombre' => Str::title($request->nombre),
             'email' => $request->email,
             'telefono' => $request->telefono
         ]);
