@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-// import { authGuard } from './guards/auth.guard';
+import { authGuard } from './guards/auth.guard';
 import { CatalogoComponent } from './components/catalogo/catalogo.component';
 import { NuevoCatalogoComponent } from './components/catalogo/nuevo-catalogo/nuevo-catalogo.component';
 import {
@@ -18,6 +18,7 @@ import { EditarUsuarioComponent } from './components/personal/editar-usuario/edi
 import { ClientesComponent } from './components/clientes/clientes.component';
 import { NuevoClienteComponent } from './components/clientes/nuevo-cliente/nuevo-cliente.component';
 import { EditarClienteComponent } from './components/clientes/editar-cliente/editar-cliente.component';
+import { NuevoServicioComponent } from './components/servicios/nuevo-servicio/nuevo-servicio.component';
 
 const routes: Routes = [
   {
@@ -27,51 +28,67 @@ const routes: Routes = [
   {
     path: 'categorias',
     component: CatalogoComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'nueva-categoria',
     component: NuevoCatalogoComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'editar-categoria/:id',
     component: EditarCatalogoComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'ver-servicios/:categoriaId',
     component: VerServiciosComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'nuevo-servicio/:categoriaId',
+    component: NuevoServicioComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'editar-servicio/:servicioId',
     component: EditarServicioComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'dashboard',
     component: DashboardComponent,
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'personal',
     component: PersonalComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'nuevo-usuario',
     component: NuevoUsuarioComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'editar-usuario/:id',
     component: EditarUsuarioComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'clientes',
     component: ClientesComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'nuevo-cliente',
     component: NuevoClienteComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'editar-cliente/:clientId',
     component: EditarClienteComponent,
+    canActivate: [authGuard],
   },
   {
     path: '',

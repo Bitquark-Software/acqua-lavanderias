@@ -1,7 +1,6 @@
 <app-drawer>
     <div
       class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl"
-      catalogo
     >
       <div class="flex justify-between px-5">
         <button class="btn btn-square btn-secondary text-white mr-2" (click)="back()">
@@ -9,16 +8,17 @@
                 <path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
         </button>
-        <h1 class="font-medium text-2xl text-primary dark:text-white">
-          {{categoria.nombre}} > Servicios
+        <h1 class="font-medium text-2xl text-primary dark:text-white" *ngIf="categoria">
+          {{categoria.name}} > Servicios
         </h1>
-        <button class="btn btn-success">
+        <button *ngIf="categoria" class="btn btn-success" [routerLink]="['/nuevo-servicio', categoria.id]">
           Nuevo servicio
         </button>
       </div>
   
       <div class="overflow-x-auto mt-4">
-        <table class="table table-zebra w-full">
+        <p class="text-center w-full" *ngIf="servicios.length == 0">Sin registros</p>
+        <table class="table table-zebra w-full" *ngIf="servicios.length > 0">
           <!-- head -->
           <thead>
             <tr>
@@ -33,10 +33,10 @@
           <tbody>
             <tr *ngFor="let servicio of servicios">
               <th class="text-primary dark:text-white">{{ servicio.id }}</th>
-              <td class="text-primary dark:text-white">{{ servicio.claveServicio }}</td>
-              <td class="text-primary dark:text-white">{{ servicio.nombreServicio }}</td>
+              <td class="text-primary dark:text-white">{{ servicio.clave_servicio }}</td>
+              <td class="text-primary dark:text-white">{{ servicio.nombre_servicio }}</td>
               <td class="text-primary dark:text-white">$ {{ servicio.importe }}</td>
-              <td class="text-primary dark:text-white">{{ servicio.cantidadMinima }}</td>
+              <td class="text-primary dark:text-white">{{ servicio.cantidad_minima }}</td>
               <td class="flex flex-col items-center justify-center">
                 <div class="btn-group btn-group-vertical lg:btn-group-horizontal">
                   <button
@@ -65,6 +65,7 @@
                   <button
                     class="btn btn-md btn-error btn-square btn-outline m-auto lg:tooltip"
                     data-tip="Eliminar"
+                    (click)="showDeletePopup(servicio.id ?? 0)"
                   >
                     <svg
                       class="m-auto"
@@ -91,5 +92,15 @@
         </table>
       </div>
     </div>
+    <dialog id="modal_delete_servicio" class="modal modal-bottom sm:modal-middle">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">Eliminar servicio</h3>
+        <p class="py-4">¿Deseas eliminar el servicio {{servicioEliminar?.nombre_servicio}}?</p>
+        <div class="modal-action">
+          <button class="btn btn-ghost" (click)="closeDeletePopup()">Cerrar</button>
+          <button class="btn btn-error text-white" (click)="eliminarCategoria(servicioEliminar?.id ?? 0)">Eliminar</button>
+        </div>
+      </div>
+    </dialog>
   </app-drawer>
   

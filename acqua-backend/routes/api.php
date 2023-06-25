@@ -47,3 +47,6 @@ Route::post('login', [AuthController::class, 'login'])
 
 Route::post('logout', [AuthController::class, 'logout'])
     ->name('logout');
+Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
+    Route::resource('/admin/dashboard', UserController::class);
+});

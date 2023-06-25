@@ -2,45 +2,78 @@
 import { Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Catalogo } from 'src/app/dtos/catalogo';
+import { Categoria } from 'src/app/dtos/catalogo';
 import { Servicio } from 'src/app/dtos/servicio';
+import { CategoriasService } from 'src/app/services/categorias.service';
 
 @Component({
   selector: 'app-ver-servicios',
   templateUrl: './ver-servicios.component.html',
   styleUrls: ['./ver-servicios.component.scss'],
 })
-export class VerServiciosComponent {
-  servicios: Servicio[];
-  categoria: Catalogo;
+export class VerServiciosComponent
+{
+  servicios: Servicio[] = [];
+  categoria!: Categoria;
+  catalogoId!: number;
+  servicioEliminar!: Servicio | null;
 
   constructor(
     private route: ActivatedRoute,
     private location: Location,
-  ){
-    const catalogoId = this.route.snapshot.params['categoriaId'];
-    this.categoria = new Catalogo(catalogoId, 'Lavandería');
-    this.servicios = [
-      {
-        id: 1,
-        cantidadMinima: 3,
-        catalogoId: 1,
-        claveServicio: 'LAVPRE',
-        importe: 80,
-        nombreServicio: 'LAVANDERIA PREMIUM',
-      },
-      {
-        id: 2,
-        cantidadMinima: 3,
-        catalogoId: 1,
-        claveServicio: 'LAVEXP',
-        importe: 60,
-        nombreServicio: 'LAVANDERIA EXPRESS',
-      },
-    ];
+    private categoriaService: CategoriasService,
+  )
+  {
+    this.catalogoId = this.route.snapshot.params['categoriaId'];
+    this.fetchServicios(1);
   }
 
-  back() {
+  fetchServicios(page: number)
+  {
+    this.categoriaService.fetchServiciosByCatalogoId(this.catalogoId, page).subscribe({
+      next: (response) =>
+      {
+        this.categoria = response as Categoria;
+        this.servicios = this.categoria.servicios as Servicio[];
+      },
+    });
+  }
+
+  back()
+  {
     this.location.back();
+  }
+
+  showDeletePopup(id:number)
+  {
+    this.servicioEliminar = this.servicios.find((serv) => serv.id === id) ?? null;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if(this.servicioEliminar)
+    {
+      const popup = document.getElementById('modal_delete_servicio') as HTMLDialogElement;
+      popup.showModal();
+    }
+  }
+
+  closeDeletePopup()
+  {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const popup = document.getElementById('modal_delete_servicio') as HTMLDialogElement;
+    popup.close();
+  }
+
+  eliminarCategoria(id:number)
+  {
+    if(this.servicioEliminar)
+    {
+      this.categoriaService.deleteServicio(id).subscribe({
+        next: () =>
+        {
+          this.fetchServicios(1);
+          this.closeDeletePopup();
+        },
+      });
+    }
   }
 }

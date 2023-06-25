@@ -2,42 +2,59 @@
 import { Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { HotToastService } from '@ngneat/hot-toast';
-import { Catalogo } from 'src/app/dtos/catalogo';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Categoria } from 'src/app/dtos/catalogo';
+import { CategoriasService } from 'src/app/services/categorias.service';
 
 @Component({
   selector: 'app-editar-catalogo',
   templateUrl: './editar-catalogo.component.html',
   styleUrls: ['./editar-catalogo.component.scss'],
 })
-export class EditarCatalogoComponent {
-  catalogo: Catalogo;
+export class EditarCatalogoComponent
+{
+  categoria!: Categoria;
 
-  updateCategoriaForm: FormGroup;
+  updateCategoriaForm: FormGroup = this.fb.group({
+    nombre: ['', Validators.required],
+  });
 
   constructor(
     private route: ActivatedRoute,
-    private toast: HotToastService,
+    private router: Router,
     private fb: FormBuilder,
     private location: Location,
-  ){
+    private categoriaService: CategoriasService,
+  )
+  {
     const catalogoId = this.route.snapshot.params['id'];
-    this.catalogo = new Catalogo(catalogoId, 'Categoria existente');
-    this.updateCategoriaForm = this.fb.group({
-      nombre: [this.catalogo.nombre ?? '', Validators.required],
+    this.categoriaService.fetchCatalogoById(catalogoId).subscribe({
+      next: (response) =>
+      {
+        this.categoria = response as Categoria;
+        this.updateCategoriaForm = this.fb.group({
+          nombre: [this.categoria.name, Validators.required],
+        });
+      },
     });
   }
 
-  async updateCategoria(){
-    this.toast.success('Categoría actualizada', { icon: '✅' });
+  async updateCategoria()
+  {
+    this.categoriaService.actualizarCatalogoPorId(this.categoria.id, {
+      name: this.nombre.value,
+    }).subscribe({
+      next: () => { this.router.navigate(['/categorias']); },
+    });
   }
 
-  back() {
+  back()
+  {
     this.location.back();
   }
 
-  get nombre(){
+  get nombre()
+  {
     return this.updateCategoriaForm.controls['nombre'];
   }
 }

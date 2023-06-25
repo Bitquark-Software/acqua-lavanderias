@@ -22,6 +22,8 @@ import { EditarUsuarioComponent } from './components/personal/editar-usuario/edi
 import { ClientesComponent } from './components/clientes/clientes.component';
 import { NuevoClienteComponent } from './components/clientes/nuevo-cliente/nuevo-cliente.component';
 import { EditarClienteComponent } from './components/clientes/editar-cliente/editar-cliente.component';
+import { HttpClientModule } from '@angular/common/http';
+import { NuevoServicioComponent } from './components/servicios/nuevo-servicio/nuevo-servicio.component';
 
 @NgModule ( {
   declarations: [
@@ -40,10 +42,12 @@ import { EditarClienteComponent } from './components/clientes/editar-cliente/edi
     ClientesComponent,
     NuevoClienteComponent,
     EditarClienteComponent,
+    NuevoServicioComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
     HotToastModule.forRoot({

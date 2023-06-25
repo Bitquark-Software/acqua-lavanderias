@@ -89,11 +89,29 @@ class ServiciosController extends Controller
             'cantidad_minima' => ['required', 'min:1'],
         ]);
 
+        // Generacion de Clave
+        $entrada = $request->input('nombre_servicio');
+        $palabras = Str::upper($entrada);
+        $palabras = explode(' ', $palabras);
+
+        // Obtencion de la primera letra de cada palabra
+        $iniciales = collect($palabras)->map(function ($palabra) use ($palabras) {
+            if (count($palabras) > 2) {
+                return Str::substr($palabra, 0, 1);
+            } else {
+                return Str::substr($palabra, 0, 2);
+            }
+        });
+
+        // Unir las iniciales en una sola cadena
+        $clave = $iniciales->implode('');
+
         $servicio = Servicio::findOrFail($id);
         $servicio->catalogo_id = $request->catalogo_id;
-        $servicio->nombre_servicio = $request->nombre_servicio;
+        $servicio->nombre_servicio = Str::upper($request->nombre_servicio);
         $servicio->importe = $request->importe;
         $servicio->cantidad_minima = $request->cantidad_minima;
+        $servicio->clave_servicio = Str::upper($clave);
         $servicio->save();
 
         return response()->json([
