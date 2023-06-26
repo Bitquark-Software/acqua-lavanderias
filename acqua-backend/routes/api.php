@@ -21,8 +21,10 @@ use App\Http\Controllers\DireccionController;
 |
 */
 
-Route::apiResource('catalogos', CatalogoController::class); // CRUD CATALOGOS
-Route::apiResource('servicios', ServiciosController::class); // CRUD SERVICIOS
+Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
+    Route::apiResource('catalogos', CatalogoController::class); // CRUD CATALOGOS
+    Route::apiResource('servicios', ServiciosController::class); // CRUD SERVICIOS
+});
 
 Route::apiResource('clientes', ClienteController::class); // CRUD CLIENTE
 // Rutas para buscar Clientes por Nombre y Telefono
@@ -47,6 +49,3 @@ Route::post('login', [AuthController::class, 'login'])
 
 Route::post('logout', [AuthController::class, 'logout'])
     ->name('logout');
-Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
-    Route::resource('/admin/dashboard', UserController::class);
-});
