@@ -10,10 +10,10 @@ class Servicio extends Model
     use HasFactory;
 
     protected $fillable = [
-        'catalogo_id', 
-        'clave_servicio', 
-        'nombre_servicio', 
-        'importe', 
+        'catalogo_id',
+        'clave_servicio',
+        'nombre_servicio',
+        'importe',
         'cantidad_minima'
     ];
 
