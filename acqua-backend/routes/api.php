@@ -42,6 +42,13 @@ Route::middleware(CheckAuthResponseMiddleware::class)->group(function () {
         ->name('clientes.buscarPorTelefono');
 });
 
+Route::apiResource('clientes', ClienteController::class); // CRUD CLIENTE
+// Rutas para buscar Clientes por Nombre y Telefono
+Route::post('/clientes/nombre', [ClienteController::class, 'buscarPorNombre'])->name('clientes.buscarPorNombre');
+Route::post('/clientes/telefono', [ClienteController::class, 'buscarPorTelefono'])->name('clientes.buscarPorTelefono');
+
+Route::apiResource('direcciones', DireccionController::class); // CRUD DIRECCIONES
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
