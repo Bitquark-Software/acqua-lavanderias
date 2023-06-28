@@ -27,7 +27,7 @@ Route::middleware(CheckAuthResponseMiddleware::class)->group(function () {
     Route::apiResource('servicios', ServiciosController::class)->only('index', 'show'); //para Empleados
 });
 
-Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
+Route::middleware(['auth:api', CheckAuthResponseMiddleware::class, AdminOnlyMiddleware::class])->group(function () {
     Route::apiResource('catalogos', CatalogoController::class)->except('index', 'show'); // CRUD CATALOGOS
     Route::apiResource('servicios', ServiciosController::class)->except('index', 'show'); // CRUD SERVICIOS
 });
