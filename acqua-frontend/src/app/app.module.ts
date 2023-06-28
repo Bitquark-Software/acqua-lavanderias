@@ -24,6 +24,7 @@ import { NuevoClienteComponent } from './components/clientes/nuevo-cliente/nuevo
 import { EditarClienteComponent } from './components/clientes/editar-cliente/editar-cliente.component';
 import { HttpClientModule } from '@angular/common/http';
 import { NuevoServicioComponent } from './components/servicios/nuevo-servicio/nuevo-servicio.component';
+import { CajaComponent } from './components/caja/caja.component';
 
 @NgModule ( {
   declarations: [
@@ -43,6 +44,7 @@ import { NuevoServicioComponent } from './components/servicios/nuevo-servicio/nu
     NuevoClienteComponent,
     EditarClienteComponent,
     NuevoServicioComponent,
+    CajaComponent,
   ],
   imports: [
     BrowserModule,
