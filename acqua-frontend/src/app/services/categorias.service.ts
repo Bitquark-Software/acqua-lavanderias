@@ -14,7 +14,6 @@ import { Servicio } from '../dtos/servicio';
 })
 export class CategoriasService
 {
-
   constructor(
     private authService: AuthService,
     private toast: HotToastService,

@@ -6,4 +6,6 @@ export class Servicio
   nombre_servicio!: string;
   importe!: number;
   cantidad_minima!: number;
+  subtotal?: number;
+  cantidad?: number;
 }

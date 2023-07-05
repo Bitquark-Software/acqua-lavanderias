@@ -12,7 +12,8 @@ import { Ubicacion } from 'src/app/dtos/ubicacion';
   templateUrl: './editar-cliente.component.html',
   styleUrls: ['./editar-cliente.component.scss'],
 })
-export class EditarClienteComponent {
+export class EditarClienteComponent
+{
   cliente: Cliente;
   ubicaciones: Ubicacion[];
   cursor = 0;
@@ -25,7 +26,8 @@ export class EditarClienteComponent {
     private toast: HotToastService,
     private fb: FormBuilder,
     private location: Location,
-  ){
+  )
+  {
     const clienteId = this.route.snapshot.params['clientId'];
     this.cliente = new Cliente({
       id: clienteId,
@@ -49,64 +51,80 @@ export class EditarClienteComponent {
     });
   }
 
-  async updateCliente(){
+  async updateCliente()
+  {
     this.toast.success('Cliente actualizado', { icon: '✅' });
   }
 
-  async addDireccion(){
+  async addDireccion()
+  {
     this.ubicaciones.push({
       id: Math.floor(Math.random() * 20),
       nombre: this.nombreDireccion.value,
       direccion: this.direccion.value,
       colonia: this.colonia.value,
       codigoPostal: this.codigoPostal.value,
+      ciudad: '',
+      numero: 0,
     });
 
     this.ubicacionForm.reset();
     this.toast.success('Direccion agregada', { icon: '✅' });
   }
 
-  eliminarDireccion(id: number){
+  eliminarDireccion(id: number)
+  {
     const index = this.ubicaciones.findIndex(u => u.id === id);
-    if(index >= 0){
+    if(index >= 0)
+    {
       this.ubicaciones.splice(index, 1);
       this.toast.success('Direccion eliminada', { icon: '✅' });
     }
-    else{
+    else
+    {
       this.toast.warning('Esta ubicacion ya no existe, recargar la página puede ayudar', { icon: '😉' });
     }
   }
 
-  back() {
+  back()
+  {
     this.location.back();
   }
 
-  changeCursor(index:number){
+  changeCursor(index:number)
+  {
     this.cursor = index;
   }
 
   // getters for cliente form
-  get nombre(){
+  get nombre()
+  {
     return this.clienteForm.controls['nombre'];
   }
-  get email(){
+  get email()
+  {
     return this.clienteForm.controls['email'];
   }
-  get telefono(){
+  get telefono()
+  {
     return this.clienteForm.controls['telefono'];
   }
 
   // getters for ubicacion form
-  get direccion(){
+  get direccion()
+  {
     return this.ubicacionForm.controls['direccion'];
   }
-  get colonia(){
+  get colonia()
+  {
     return this.ubicacionForm.controls['colonia'];
   }
-  get codigoPostal(){
+  get codigoPostal()
+  {
     return this.ubicacionForm.controls['codigoPostal'];
   }
-  get nombreDireccion(){
+  get nombreDireccion()
+  {
     return this.ubicacionForm.controls['nombreDireccion'];
   }
 }

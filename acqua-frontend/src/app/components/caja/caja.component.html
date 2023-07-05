@@ -1,66 +1,660 @@
-<div class="w-full h-screen flex flex-col">
-    <div class="grid grid-cols-1 md:grid-cols-2 justify-around">
-        <div class="grid grid-cols-1 p-2">
-            <div class="form-control">
-                <label class="label">
-                  <span class="label-text">Nombre del cliente</span>
-                </label>
-                <input type="text" placeholder="Ingresa el nombre del cliente" class="input input-bordered w-full max-w-md" list="lista-clientes" />
-                <datalist id="lista-clientes">
-                    <option value="cliente">Cliente - 961 100 3141</option>
-                </datalist>
-            </div>
-            <div class="form-control">
-                <label class="label">
-                  <span class="label-text">Agregar servicio</span>
-                </label>
-                <input type="text" (input)="inputServicioChange($event)" (focus)="blurServiceInput($event)" (click)="renderServiciosModal()" placeholder="Click para seleccionar un servicio" class="input input-bordered w-full max-w-md" />
-            </div>
-        </div>
-        <div class="grid grid-cols-1 place-items-end order-first md:order-last">
-            <small class="font-medium text-xs">
-                Ticket: # 00000
-            </small>
-            <div class="flex flex-row items-center gap-2 mt-3">
-                <h1 class="w-fit text-3xl font-bold">
-                    Total:
-                </h1>
-                <input disabled type="text" placeholder="$0" class="input input-bordered input-success input-md xl:input-lg focus:outline-none" />
-            </div>
-        </div>
+<div class="w-full h-screen flex flex-col overflow-y-auto">
+  <div class="grid grid-cols-1 md:grid-cols-2 justify-around">
+    <div class="grid grid-cols-1 p-2">
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Nombre del cliente</span>
+        </label>
+        <input
+          [(ngModel)]="nombreCliente"
+          autocomplete="off"
+          type="text"
+          placeholder="Ingresa el nombre del cliente"
+          class="input input-bordered w-full max-w-md"
+          list="lista-clientes"
+          (input)="buscarCliente()"
+          (change)="shouldPopupNuevoClienteModalOnChange()"
+        />
+        <datalist id="lista-clientes">
+          <option
+            *ngFor="let cliente of coincidenciasClientes"
+            [value]="cliente.id + ':' + cliente.nombre"
+          >
+            {{ cliente.nombre }} - {{ cliente.telefono }}
+          </option>
+        </datalist>
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Agregar servicio</span>
+        </label>
+        <input
+          type="text"
+          (input)="inputServicioChange($event)"
+          (focus)="blurServiceInput($event)"
+          (click)="renderServiciosModal()"
+          placeholder="Click para seleccionar un servicio"
+          class="input input-bordered w-full max-w-md"
+        />
+      </div>
     </div>
+    <div class="grid grid-cols-1 place-items-end order-first md:order-last">
+      <small class="font-medium text-xs"> Ticket: # 00000 </small>
+      <div class="flex flex-row items-center gap-2 mt-3">
+        <h1 class="w-fit text-3xl font-bold">Total:</h1>
+        <input
+          [(ngModel)]="total"
+          readonly
+          type="text"
+          placeholder="$0"
+          class="input input-bordered input-success input-md xl:input-lg focus:outline-none text-success font-bold opacity-100"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 justify-around">
+    <div class="grid grid-cols-1 p-2">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <!-- head -->
+          <thead>
+            <tr>
+              <th>Clave</th>
+              <th>Servicio</th>
+              <th>Precio</th>
+              <th>Kilos</th>
+              <th>Importe</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let serv of serviciosTicket">
+              <th>{{ serv.clave_servicio }}</th>
+              <td>{{ serv.nombre_servicio }}</td>
+              <td class="text-success font-bold">$ {{ serv.importe }}</td>
+              <td>
+                <div class="form-control w-36 m-auto">
+                  <label class="label hidden md:block">
+                    <span class="label-text text-center"
+                      >Cant. Mínima: {{ serv.cantidad_minima }}</span
+                    >
+                  </label>
+                  <input
+                    [(ngModel)]="serv.cantidad"
+                    (change)="
+                      changeCantidadServicio(serv.clave_servicio ?? '', $event)
+                    "
+                    type="number"
+                    min="1"
+                    placeholder="1"
+                    class="input input-bordered w-10/12 m-auto"
+                  />
+                </div>
+              </td>
+              <td class="text-success font-bold">$ {{ serv.subtotal }}</td>
+              <td>
+                <button
+                  class="btn btn-ghost btn-square text-error"
+                  (click)="deleteServicioTicket(serv.clave_servicio ?? '')"
+                >
+                  <svg
+                    width="40px"
+                    height="40px"
+                    aria-hidden="true"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.2"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></path>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div
+      class="grid grid-cols-1 place-items-center justify-center items-center order-first md:order-last mt-3"
+    >
+      <div class="tabs tabs-boxed">
+        <a
+          class="tab"
+          [ngClass]="{
+              'bg-white': tabCursor == 0,
+              'text-black': tabCursor == 0,
+            }"
+          (click)="setTabCursor(0)"
+          >Cobrar</a
+        >
+        <a
+          class="tab"
+          [ngClass]="{
+              'bg-white': tabCursor == 1,
+              'text-black': tabCursor == 1,
+            }"
+          (click)="setTabCursor(1)"
+          >Comentarios</a
+        >
+      </div>
+
+      <div
+        class="grid grid-cols-1 place-items-center justify-center items-center mt-3"
+        *ngIf="tabCursor === 0"
+      >
+        <!-- selector de tipo de pago -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Selecciona el tipo de pago</span>
+          </label>
+          <select class="select select-bordered" [(ngModel)]="tipoDeCredito">
+            <option value="credito">Crédito</option>
+            <option value="contado">Contado</option>
+          </select>
+        </div>
+
+        <!-- Selector de metodo de pago -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Método de pago</span>
+          </label>
+          <select class="select select-bordered" [(ngModel)]="metodoPago">
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+        </div>
+
+        <!-- input para anticipo -->
+        <div class="form-control w-full" *ngIf="tipoDeCredito === 'credito'">
+          <label class="label">
+            <span class="label-text">Anticipo</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            placeholder="0"
+            class="input input-bordered w-full"
+            [(ngModel)]="anticipo"
+            (change)="recalcularTotal()"
+          />
+        </div>
+        <!-- input para saldo pendiente -->
+        <div class="form-control w-full" *ngIf="tipoDeCredito === 'credito'">
+          <label class="label">
+            <span class="label-text">Saldo pendiente</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            readonly
+            placeholder="0"
+            class="input input-bordered w-full"
+            [(ngModel)]="saldoPendiente"
+          />
+        </div>
+        <!-- input para efectivo recibido -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Recibido</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            placeholder="0"
+            class="input input-bordered input-success w-full"
+            [(ngModel)]="recibido"
+            (change)="recalcularTotal()"
+          />
+        </div>
+        <!-- input para cambio a devolver -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Cambio</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            readonly
+            placeholder="0"
+            class="input input-bordered input-warning w-full"
+            [(ngModel)]="cambio"
+          />
+        </div>
+
+        <!-- botones para cerrar venta -->
+        <div class="grid grid-cols-2 gap-2 place-items-center mt-4">
+          <button class="btn btn-outline btn-error">
+            <svg
+              aria-hidden="true"
+              class="w-6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+            Cancelar venta
+          </button>
+
+          <button
+            class="btn btn-success"
+            [disabled]="!shouldEnableFinalizarVenta()"
+          >
+            <svg
+              aria-hidden="true"
+              class="w-6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+            Finalizar venta
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="grid grid-cols-1 place-items-center justify-center items-center mt-4"
+        *ngIf="tabCursor === 1"
+      >
+        <div class="card w-full md:w-10/12 shadow-xl">
+          <div class="card-body">
+            <h1 class="font-bold text-3xl">Chat</h1>
+
+            <div
+              class="grid grid-cols-1 w-full mt-3 max-h-96 overflow-y-scroll"
+              #chatContainer
+            >
+              <p
+                class="text-center text-slate-400 font-thin mb-3"
+                *ngIf="chatHistory.length == 0"
+              >
+                Sin comentarios
+              </p>
+              <div class="chat chat-end" *ngFor="let comentario of chatHistory">
+                <div class="chat-header">
+                  <time class="text-xs opacity-50">{{ comentario.date }}</time>
+                </div>
+                <div
+                  class="chat-bubble"
+                  [ngClass]="{
+                    'opacity-50': comentario.errorState,
+                  }"
+                >
+                  {{ comentario.text }}
+                </div>
+                <div
+                  class="chat-footer opacity-50"
+                  *ngIf="!comentario.errorState"
+                >
+                  {{ comentario.sender }}
+                </div>
+                <div
+                  class="chat-footer opacity-50 text-red-500"
+                  *ngIf="comentario.errorState"
+                >
+                  No se pudo enviar el comentario
+                </div>
+              </div>
+            </div>
+
+            <div class="card-actions justify-center w-full">
+              <div class="join w-full">
+                <input
+                  class="focus input input-bordered join-item rounded-l-xl outline-none w-10/12 focus:outline-none"
+                  placeholder="Agrega un comentario aquí"
+                  [(ngModel)]="chatText"
+                  (keyup.enter)="sendComentario()"
+                />
+                <button
+                  class="btn btn-primary join-item rounded-r-xl text-white lg:px-6 w-4/12"
+                  (click)="sendComentario()"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="w-5 lg:w-11"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <dialog id="modal_categorias_servicios" class="modal">
-    <form method="dialog" class="modal-box w-11/12 max-w-5xl">
-      <h3 *ngIf="isSelectingCategorias" class="font-bold text-lg">Selecciona una categoría</h3>
-      <h3 *ngIf="isSelectingServicios" class="font-bold text-lg">Selecciona un servicio</h3>
-      <div *ngIf="categorias.length > 0" class="w-full p-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" *ngIf="isSelectingCategorias">
-            <div class="card bg-primary text-white" *ngFor="let cat of categorias">
-                <div class="card-body">
-                  <h2 class="card-title justify-center">{{cat.name}}</h2>
-                  <div class="card-actions justify-center">
-                    <button class="btn" (click)="renderServiciosPorCategoria($event, cat.id)">Seleccionar</button>
-                  </div>
-                </div>
+  <form method="dialog" class="modal-box w-11/12 max-w-5xl">
+    <h3 *ngIf="isSelectingCategorias" class="font-bold text-lg">
+      Selecciona una categoría
+    </h3>
+    <h3 *ngIf="isSelectingServicios" class="font-bold text-lg">
+      Selecciona un servicio
+    </h3>
+    <div *ngIf="categorias.length > 0" class="w-full p-4">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+        *ngIf="isSelectingCategorias"
+      >
+        <div class="card bg-primary text-white" *ngFor="let cat of categorias">
+          <div class="card-body">
+            <h2 class="card-title justify-center">{{ cat.name }}</h2>
+            <div class="card-actions justify-center">
+              <button
+                class="btn"
+                (click)="renderServiciosPorCategoria($event, cat.id)"
+              >
+                Seleccionar
+              </button>
             </div>
+          </div>
         </div>
       </div>
-      <div *ngIf="servicios.length > 0" class="w-full p-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" *ngIf="isSelectingServicios">
-            <div class="card bg-primary text-white" *ngFor="let serv of servicios">
-                <div class="card-body">
-                  <h2 class="card-title justify-center">{{serv.nombre_servicio}}</h2>
-                  <div class="card-actions justify-center">
-                    <button class="btn">Agregar</button>
-                  </div>
-                </div>
+    </div>
+    <div *ngIf="servicios.length >= 0" class="w-full p-4">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+        *ngIf="isSelectingServicios"
+      >
+        <div class="card border border-secondary">
+          <div class="card-body">
+            <h2 class="card-title justify-center text-secondary">
+              Volver a categorías
+            </h2>
+            <div class="card-actions justify-center">
+              <button class="btn btn-square text-secondary" (click)="backToCategorias()">
+                <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </button>
             </div>
+          </div>
+        </div>
+        <div class="card bg-primary text-white" *ngFor="let serv of servicios">
+          <div class="card-body">
+            <h2 class="card-title justify-center">
+              {{ serv.nombre_servicio }}
+            </h2>
+            <div class="card-actions justify-center">
+              <button class="btn" (click)="addServicio(serv)">Agregar</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="modal-action">
-        <button class="btn btn-ghost" (click)="resetDialog()">Cerrar</button>
+    </div>
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="resetDialog()">Cerrar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog
+  id="modal_registrar_cliente"
+  class="modal modal-bottom sm:modal-middle"
+  #modalRegistrarCliente
+>
+  <form
+    method="dialog"
+    class="modal-box"
+    (ngSubmit)="closeNuevoClienteModal($event)"
+  >
+    <h3 class="font-bold text-3xl mb-3">Nuevo cliente</h3>
+    <label class="font-light text-slate-900 my-3"
+      >Parece que <b>{{ nombreCliente }}</b> aún no está registrado, vamos a
+      registrarlo.</label
+    >
+
+    <form
+      [formGroup]="nuevoClienteForm"
+      class="w-10/12 py-6 m-auto grid grid-cols-2 gap-4"
+      (ngSubmit)="registrarCliente($event)"
+    >
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text"
+            >Nombre completo <label class="text-red-500">*</label></span
+          >
+        </label>
+        <input
+          type="text"
+          formControlName="nombre"
+          placeholder="Nombre del cliente"
+          class="input input-bordered"
+        />
+        <label
+          class="label"
+          *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)"
+        >
+          <span class="label-text-alt text-red-500">El campo es requerido</span>
+        </label>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text"
+            >Teléfono <label class="text-red-500">*</label></span
+          >
+        </label>
+        <input
+          type="tel"
+          formControlName="telefono"
+          placeholder="Teléfono del cliente"
+          class="input input-bordered"
+        />
+        <label
+          class="label"
+          *ngIf="telefono.invalid && (telefono.dirty || telefono.touched)"
+        >
+          <span class="label-text-alt text-red-500"
+            >El campo solo puede tener 10 dígitos</span
+          >
+        </label>
+      </div>
+
+      <div class="form-control w-full col-span-2">
+        <label class="label">
+          <span class="label-text">Correo electrónico (opcional)</span>
+        </label>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="Correo (opcional)"
+          class="input input-bordered"
+        />
+        <label
+          class="label"
+          *ngIf="email.invalid && (email.dirty || email.touched)"
+        >
+          <span class="label-text-alt text-red-500">No es un correo</span>
+        </label>
+      </div>
+
+      <hr class="divide-y divide-dashed col-span-2" />
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text"
+            >Dirección del cliente <label class="text-red-500">*</label></span
+          >
+        </label>
+        <input
+          type="text"
+          formControlName="direccion"
+          placeholder="Dirección del cliente"
+          class="input input-bordered"
+        />
+        <label
+          class="label"
+          *ngIf="direccion.invalid && (direccion.dirty || direccion.touched)"
+        >
+          <span class="label-text-alt text-red-500"
+            >La dirección es requerida</span
+          >
+        </label>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text"
+            >Número <label class="text-red-500">*</label></span
+          >
+        </label>
+        <input
+          type="tel"
+          formControlName="numero"
+          placeholder="Dirección del cliente"
+          class="input input-bordered"
+        />
+        <label
+          class="label"
+          *ngIf="numero.invalid && (numero.dirty || numero.touched)"
+        >
+          <span class="label-text-alt text-red-500"
+            >El número es requerido y no puede tener letras</span
+          >
+        </label>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text"
+            >Código Postal <label class="text-red-500">*</label></span
+          >
+        </label>
+        <input
+          type="tel"
+          formControlName="codigoPostal"
+          placeholder="C.P"
+          class="input input-bordered"
+        />
+        <label
+          class="label"
+          *ngIf="
+            codigoPostal.invalid && (codigoPostal.dirty || codigoPostal.touched)
+          "
+        >
+          <span class="label-text-alt text-red-500"
+            >No es un código postal válido</span
+          >
+        </label>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text"
+            >Colonia <label class="text-red-500">*</label></span
+          >
+        </label>
+        <input
+          type="text"
+          formControlName="colonia"
+          placeholder="Nombre de la colonia"
+          class="input input-bordered"
+        />
+        <label
+          class="label"
+          *ngIf="colonia.invalid && (colonia.dirty || colonia.touched)"
+        >
+          <span class="label-text-alt text-red-500"
+            >La colonia es requerida</span
+          >
+        </label>
+      </div>
+
+      <div class="form-control w-full col-span-2">
+        <label class="label">
+          <span class="label-text"
+            >Ciudad <label class="text-red-500">*</label></span
+          >
+        </label>
+        <input
+          type="text"
+          formControlName="ciudad"
+          placeholder="Dirección del cliente"
+          class="input input-bordered"
+        />
+        <label
+          class="label"
+          *ngIf="ciudad.invalid && (ciudad.dirty || ciudad.touched)"
+        >
+          <span class="label-text-alt text-red-500"
+            >La ciudad es requerida</span
+          >
+        </label>
+      </div>
+
+      <div class="form-control w-full col-span-2">
+        <label class="label">
+          <span class="label-text"
+            >Nombre de la ubicación <label class="text-red-500">*</label></span
+          >
+        </label>
+        <input
+          type="text"
+          formControlName="nombreDireccion"
+          placeholder="Casa, Oficina, Trabajo, etc.."
+          class="input input-bordered"
+        />
+        <label
+          class="label"
+          *ngIf="
+            nombreDireccion.invalid &&
+            (nombreDireccion.dirty || nombreDireccion.touched)
+          "
+        >
+          <span class="label-text-alt text-red-500"
+            >El nombre de la dirección es requerido</span
+          >
+        </label>
+      </div>
+
+      <div class="col-span-2">
+        <button
+          type="submit"
+          class="btn w-full btn-success col-span-2"
+          [disabled]="!nuevoClienteForm.valid"
+        >
+          Registrar cliente
+        </button>
       </div>
     </form>
+
+    <div class="modal-action">
+      <button class="btn btn-ghost">Salir</button>
+    </div>
+  </form>
 </dialog>
