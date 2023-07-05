@@ -109,7 +109,7 @@
                         <button
                             class="btn btn-md btn-error btn-square btn-outline m-auto lg:tooltip"
                             data-tip="Eliminar"
-                            (click)="eliminarDireccion(ubicacion.id)"
+                            (click)="eliminarDireccion(ubicacion.id ?? 0)"
                         >
                             <svg
                             class="m-auto"

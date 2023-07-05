@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Str;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ClienteController extends Controller
 {
@@ -27,8 +28,11 @@ class ClienteController extends Controller
         $cliente = Cliente::where('nombre', 'LIKE', '%' . $nombreCodificado . '%')->get();
 
         if ($cliente) {
-            return response()->json($cliente, 200);
+            return response()->json([
+                'clientes' => $cliente
+            ], 200);
         } else {
+            Log::info('No encontrados');
             return response()->json([
                 'mensaje' => 'Cliente no encontrado'
             ], 404);
