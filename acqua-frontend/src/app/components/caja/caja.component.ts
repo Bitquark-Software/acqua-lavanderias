@@ -33,6 +33,7 @@ export class CajaComponent
   // clientes
   @ViewChild('modalRegistrarCliente') nuevoClienteDialog!: ElementRef<HTMLDialogElement>;
   nombreCliente = '';
+  clienteSeleccionado!: Cliente;
   coincidenciasClientes: Cliente[] = [];
   isClienteNotFoundPopupOpen = false;
 
@@ -81,6 +82,10 @@ export class CajaComponent
   )
   {
     this.categoriasService.fetchCatalogos().subscribe(
+      {
+        next: (response) => this.categorias = response.data as Categoria[],
+      },
+    );
 
     this.navigateToBottomOfChat();
   }
