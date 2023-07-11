@@ -30,8 +30,11 @@ export class CajaComponent
   // contenido del ticket (tabla)
   serviciosTicket: Servicio[] = [];
 
-  // clientes
+  // modales
   @ViewChild('modalRegistrarCliente') nuevoClienteDialog!: ElementRef<HTMLDialogElement>;
+  @ViewChild('modalConfirmCancelarVenta') modalConfirmCancelarVenta!: ElementRef<HTMLDialogElement>;
+
+  // clientes
   nombreCliente = '';
   clienteSeleccionado!: Cliente;
   coincidenciasClientes: Cliente[] = [];
@@ -200,43 +203,36 @@ export class CajaComponent
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buscarCliente()
   {
-    const { nombre } = this.splitIdAndNombreCliente();
-    this.clientesService.buscarClientePorNombre(nombre).subscribe(
-      {
-        next: (clientes: Cliente[]) =>
+    if(this.nombreCliente != null)
+    {
+      this.clientesService.buscarClientePorNombre(this.nombreCliente).subscribe(
         {
-          if(clientes.length > 0)
+          next: (clientes: Cliente[]) =>
           {
-            this.coincidenciasClientes = clientes;
-          }
+            if(clientes.length > 0)
+            {
+              this.coincidenciasClientes = clientes;
+            }
+          },
         },
-      },
-    );
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  shouldPopupNuevoClienteModalOnChange()
-  {
-    const { id, nombre } = this.splitIdAndNombreCliente();
-
-    if(this.coincidenciasClientes.length === 0 && nombre != null)
-    {
-      this.openNuevoClienteModal();
+      );
     }
-    else if(nombre != null && this.coincidenciasClientes.length > 0)
+    else
     {
-      const cliente = this.coincidenciasClientes.find((c) => c.id?.toString() === id);
-      if(cliente)
-      {
-        this.clienteSeleccionado = cliente;
-      }
-      else
-      {
-        this.toastService.error('Problemas al seleccionar un cliente');
-      }
+      const { nombre } = this.splitIdAndNombreCliente();
+      this.clientesService.buscarClientePorNombre(nombre).subscribe(
+        {
+          next: (clientes: Cliente[]) =>
+          {
+            if(clientes.length > 0)
+            {
+              this.coincidenciasClientes = clientes;
+            }
+          },
+        },
+      );
     }
   }
 
@@ -298,6 +294,20 @@ export class CajaComponent
       this.toastService.warning('El formulario tiene inconsistencias');
     }
 
+  }
+
+  setCliente()
+  {
+    const { id, nombre } = this.splitIdAndNombreCliente();
+    console.log(id, nombre);
+    if(id != null && nombre)
+    {
+      const cliente = this.coincidenciasClientes.find(c => c.id?.toString() === id);
+      if(cliente)
+      {
+        this.clienteSeleccionado = cliente;
+      }
+    }
   }
 
   // getters para el form de registrar cliente
@@ -415,6 +425,11 @@ export class CajaComponent
     {
       this.recalcularInputsCredito();
     }
+
+    if(this.tipoDeCredito === TipoCredito.Contado)
+    {
+      this.recalcularInputsContado();
+    }
   }
 
   private recalcularSaldoPendiente()
@@ -446,6 +461,29 @@ export class CajaComponent
       else
       {
         this.toastService.warning(`El importe recibido es menor al anticipo: ${this.anticipo}`);
+        this.recibido = 0;
+        this.cambio = 0;
+      }
+    }
+    else
+    {
+      this.toastService.warning('No es un valor válido');
+      this.recibido = 0;
+      this.cambio = 0;
+    }
+  }
+
+  private recalcularRecibidoYCambioParaContado()
+  {
+    if(typeof this.recibido === 'number')
+    {
+      if(this.recibido >= this.total)
+      {
+        this.cambio = this.recibido - this.total;
+      }
+      else
+      {
+        this.toastService.warning(`El importe recibido es menor al total: ${this.total}`);
         this.recibido = 0;
         this.cambio = 0;
       }
@@ -500,6 +538,48 @@ export class CajaComponent
     }
   }
 
+  recalcularInputsContado()
+  {
+    if(typeof this.recibido === 'number')
+    {
+      if(parseFloat(this.recibido.toString()) > 0)
+      {
+        if(this.total > 0)
+        {
+          this.recalcularRecibidoYCambioParaContado();
+        }
+        else
+        {
+          this.recibido = 0;
+          this.recalcularRecibidoYCambioParaContado();
+        }
+      }
+      else
+      {
+        this.toastService.warning('Recuerda que el monto recibido tiene que ser mayor a cero pesos');
+        this.recibido = 0;
+        this.recalcularRecibidoYCambioParaContado();
+      }
+    }
+    else
+    {
+      this.toastService.warning('Valor no permitido');
+      this.recibido = 0;
+      this.recalcularRecibidoYCambioParaContado();
+    }
+
+    // Recibido y cambio cuando es a credito
+    if(this.recibido > 0)
+    {
+      this.recalcularRecibidoYCambioParaContado();
+    }
+    else
+    {
+      this.recibido = 0;
+      this.cambio = 0;
+    }
+  }
+
   shouldEnableFinalizarVenta()
   {
     if(this.tipoDeCredito === TipoCredito.Credito)
@@ -530,5 +610,26 @@ export class CajaComponent
   private existeServicio(claveServicio: string)
   {
     return this.serviciosTicket.findIndex((s) => s.clave_servicio === claveServicio);
+  }
+
+  confirmClearCaja()
+  {
+    if(this.modalConfirmCancelarVenta)
+    {
+      this.modalConfirmCancelarVenta.nativeElement.showModal();
+    }
+  }
+
+  clearCaja()
+  {
+    this.serviciosTicket = [];
+    this.total = 0;
+    this.tipoDeCredito = TipoCredito.Credito;
+    this.anticipo = 0;
+    this.saldoPendiente = 0;
+    this.cambio = 0;
+    this.clienteSeleccionado = null as unknown as Cliente;
+    this.coincidenciasClientes = [];
+    this.chatHistory = [];
   }
 }
