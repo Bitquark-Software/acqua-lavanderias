@@ -5,16 +5,24 @@
         <label class="label">
           <span class="label-text">Nombre del cliente</span>
         </label>
-        <input
-          [(ngModel)]="nombreCliente"
-          autocomplete="off"
-          type="text"
-          placeholder="Ingresa el nombre del cliente"
-          class="input input-bordered w-full max-w-md"
-          list="lista-clientes"
-          (input)="buscarCliente()"
-          (change)="shouldPopupNuevoClienteModalOnChange()"
-        />
+        <div class="join">
+          <input
+            class="input input-bordered join-item"
+            [(ngModel)]="nombreCliente"
+            autocomplete="off"
+            type="text"
+            placeholder="Ingresa el nombre del cliente"
+            class="input input-bordered w-full max-w-md"
+            list="lista-clientes"
+            (input)="buscarCliente()"
+            (change)="setCliente()"
+          />
+          <button class="btn btn-primary join-item text-white" (click)="openNuevoClienteModal()">
+            <svg aria-hidden="true" class="w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+        </div>
         <datalist id="lista-clientes">
           <option
             *ngFor="let cliente of coincidenciasClientes"
@@ -232,7 +240,7 @@
 
         <!-- botones para cerrar venta -->
         <div class="grid grid-cols-2 gap-2 place-items-center mt-4">
-          <button class="btn btn-outline btn-error">
+          <button class="btn btn-outline btn-error" (click)="confirmClearCaja()">
             <svg
               aria-hidden="true"
               class="w-6"
@@ -433,11 +441,6 @@
     (ngSubmit)="closeNuevoClienteModal($event)"
   >
     <h3 class="font-bold text-3xl mb-3">Nuevo cliente</h3>
-    <label class="font-light text-slate-900 my-3"
-      >Parece que <b>{{ nombreCliente }}</b> aún no está registrado, vamos a
-      registrarlo.</label
-    >
-
     <form
       [formGroup]="nuevoClienteForm"
       class="w-10/12 py-6 m-auto grid grid-cols-2 gap-4"
@@ -658,3 +661,14 @@
     </div>
   </form>
 </dialog>
+<dialog id="modal_confirmar_limpiar_caja" class="modal modal-bottom sm:modal-middle" #modalConfirmCancelarVenta>
+  <form method="dialog" class="modal-box">
+    <h3 class="font-bold text-lg">Cancelar venta</h3>
+    <p class="py-4">Esta acción no podrá revertirse</p>
+    <div class="modal-action">
+      <button class="btn btn-ghost">Salir</button>
+      <button class="btn btn-error text-white" (click)="clearCaja()">Sí, cancelar</button>
+    </div>
+  </form>
+</dialog>
+

@@ -17,12 +17,12 @@ class CheckAuthResponseMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->bearerToken()) {
-            if (Auth::guard('api')->check()) {
-                return $next($request);
-            }
-        }
+        return $next($request);
+        // if ($request->bearerToken()) {
+        //     if (Auth::guard('api')->check()) {
+        //     }
+        // }
 
-        return response()->json(['error' => 'Unauthorized'], 403);
+        // return response()->json(['error' => 'Unauthorized'], 403);
     }
 }
