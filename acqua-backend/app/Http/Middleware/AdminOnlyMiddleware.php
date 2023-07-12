@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminOnlyMiddleware
 {
@@ -20,6 +21,6 @@ class AdminOnlyMiddleware
             return $next($request);
         }
 
-        return response()->json(['error' => 'Acceso no Permitido', 403]);
+        return response()->json(['error' => 'Acceso no Permitido'], 403);
     }
 }
