@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -15,6 +17,16 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         //
     ];
+
+    public function render($request, Throwable $exception)
+    {
+        // Aqui se verifican si la excepcion atrapada es de instancia de Auth
+        if ($exception instanceof AuthenticationException) {
+            return response()->json(['error' => 'No Autorizado'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        return parent::render($request, $exception);
+    }
 
     /**
      * A list of the inputs that are never flashed for validation exceptions.
