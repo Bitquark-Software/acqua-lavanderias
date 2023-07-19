@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { HotToastService } from '@ngneat/hot-toast';
 import { AuthService } from './auth-service.service';
 import { Observable, Subject, map, takeUntil } from 'rxjs';
-import { Cliente } from '../dtos/cliente';
+import { Cliente, ClienteResponse } from '../dtos/cliente';
 import { API_URL } from '../environments/develop';
 
 @Injectable({
@@ -21,6 +21,18 @@ export class ClientesService
   )
   {
     //
+  }
+
+  fetchClientes(page?: number): Observable<ClienteResponse>
+  {
+    const url = page ? `${API_URL}/clientes?page=${page}` : `${API_URL}/clientes`;
+    return this.httpClient.get<ClienteResponse>(url).pipe(
+      this.toast.observe({
+        loading: 'Obteniendo clientes...',
+        success: () => 'Clientes encontrados',
+        error: (e) => `Error: ${e.error.error ?? 'Desconocido'}`,
+      }),
+    );
   }
 
   buscarClientePorNombre(nombre: string): Observable<Cliente[]>
@@ -74,23 +86,39 @@ export class ClientesService
         error: (e) => `Error: ${e.error.error ?? 'Desconocido'}`,
       }),
     ).subscribe({
-      next: (cliente: Cliente) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      next: (response: any) =>
       {
-        this.httpClient.post(`${API_URL}/direcciones`, {
-          calle: cliente.ubicaciones ? cliente.ubicaciones[0].direccion : '',
-          numero: cliente.ubicaciones ? cliente.ubicaciones[0].numero : 1,
-          colonia: cliente.ubicaciones ? cliente.ubicaciones[0].colonia : '',
-          ciudad: cliente.ubicaciones ? cliente.ubicaciones[0].ciudad : '',
-          codigo_postal: cliente.ubicaciones ? cliente.ubicaciones[0].codigoPostal : 0,
-          nombre_ubicacion: cliente.ubicaciones ? cliente.ubicaciones[0].nombre : 0,
-          cliente_id: cliente.id,
-        }).pipe(
-          this.toast.observe({
-            loading: 'Registrando dirección del cliente...',
-            success: () => 'Dirección registrada',
-            error: (e) => `Error: ${e.error.error ?? 'Desconocido'}`,
-          }),
-        );
+        const clienteResponseItem = response.data as Cliente;
+        if((cliente.ubicaciones?.length ?? 0) > 0)
+        {
+          this.httpClient.post(`${API_URL}/direcciones`, {
+            calle: cliente.ubicaciones ? cliente.ubicaciones[0].direccion : '',
+            numero: cliente.ubicaciones ? cliente.ubicaciones[0].numero.toString() : '0',
+            colonia: cliente.ubicaciones ? cliente.ubicaciones[0].colonia : '',
+            ciudad: cliente.ubicaciones ? cliente.ubicaciones[0].ciudad : '',
+            codigo_postal: cliente.ubicaciones ? cliente.ubicaciones[0].codigoPostal.toString() : '0',
+            nombre_ubicacion: cliente.ubicaciones ? cliente.ubicaciones[0].nombre : 0,
+            cliente_id: clienteResponseItem.id,
+          }).pipe(
+            this.toast.observe({
+              loading: 'Registrando dirección del cliente...',
+              success: () => 'Dirección registrada',
+              error: (e) => `Error: ${e.error.error ?? 'Desconocido'}`,
+            }),
+          ).subscribe(
+            {
+              next: () =>
+              {
+                //
+              },
+              error: (err) =>
+              {
+                console.log(err);
+              },
+            },
+          );
+        }
       },
     });
   }

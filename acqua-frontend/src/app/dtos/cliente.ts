@@ -16,3 +16,11 @@ export class Cliente
     this.ubicaciones = cliente.ubicaciones ?? [];
   }
 }
+
+export class ClienteResponse
+{
+  current_page!: number;
+  data!: Cliente[];
+  prev_page_url ?: string;
+  next_page_url ?: string;
+}

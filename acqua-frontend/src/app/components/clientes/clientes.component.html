@@ -13,7 +13,8 @@
       </div>
   
       <div class="overflow-x-auto mt-4">
-        <table class="table table-zebra w-full">
+        <p class="text-sm text-slate-600 text-center" *ngIf="clientes.length == 0">Sin clientes registrados</p>
+        <table class="table table-zebra w-full" *ngIf="clientes.length > 0">
           <thead>
             <tr>
               <th>ID</th>
@@ -83,6 +84,14 @@
             </tr>
           </tbody>
         </table>
+
+        <div class="w-full flex mt-4 justify-center" *ngIf="clientes.length > 0 && clientesResponse">
+          <div class="join">
+            <button class="join-item btn" [disabled]="!clientesResponse.prev_page_url" (click)="fetchPreviousPage()">«</button>
+            <button class="join-item btn">Pág. {{clientesResponse.current_page}}</button>
+            <button class="join-item btn" [disabled]="!clientesResponse.next_page_url" (click)="fetchNextPage()">»</button>
+          </div>
+        </div>
       </div>
     </div>
   </app-drawer>

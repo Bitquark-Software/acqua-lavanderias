@@ -1,26 +1,55 @@
+/* eslint-disable no-unused-vars */
 import { Component } from '@angular/core';
-import { Cliente } from 'src/app/dtos/cliente';
+import { Cliente, ClienteResponse } from 'src/app/dtos/cliente';
+import { ClientesService } from 'src/app/services/clientes.service';
 
 @Component({
   selector: 'app-clientes',
   templateUrl: './clientes.component.html',
   styleUrls: ['./clientes.component.scss'],
 })
-export class ClientesComponent {
-  clientes: Cliente[];
+export class ClientesComponent
+{
+  clientesResponse!: ClienteResponse;
+  clientes: Cliente[] = [];
 
-  constructor(){
-    this.clientes = [
+  constructor(
+    private clientesService: ClientesService,
+  )
+  {
+    this.fetchClientes();
+  }
+
+  fetchClientes(page?: number)
+  {
+    this.clientesService.fetchClientes(page).subscribe(
       {
-        id: 1,
-        nombre: 'Fernando',
-        email: 'fernando@bitquark.com.mx',
+        next: (response) =>
+        {
+          this.clientesResponse = response;
+          this.clientes = response.data;
+        },
       },
-      {
-        id: 2,
-        nombre: 'André',
-        telefono: '9610000000',
-      },
-    ];
+    );
+  }
+
+  fetchPreviousPage()
+  {
+    if(this.clientesResponse.prev_page_url)
+    {
+      const previousPageNumber = parseInt(this.clientesResponse.prev_page_url
+        .charAt(this.clientesResponse.prev_page_url.length - 1));
+      this.fetchClientes(previousPageNumber);
+    }
+  }
+
+  fetchNextPage()
+  {
+    if(this.clientesResponse.next_page_url)
+    {
+      const nextPageNumber = parseInt(this.clientesResponse.next_page_url
+        .charAt(this.clientesResponse.next_page_url.length - 1));
+      this.fetchClientes(nextPageNumber);
+    }
   }
 }
