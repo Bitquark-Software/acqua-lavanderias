@@ -8,6 +8,7 @@ use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\DireccionController;
 
 /*
@@ -39,6 +40,11 @@ Route::middleware('auth:api')->group(function () {
         ->name('clientes.buscarPorNombre');
     Route::post('/clientes/telefono', [ClienteController::class,'buscarPorTelefono'])
         ->name('clientes.buscarPorTelefono');
+});
+
+Route::middleware('auth:api')->group( function () {
+    // * Comentarios
+    Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
