@@ -36,7 +36,7 @@ class SucursalController extends Controller
         ]);
 
         return response()->json([
-            'menssage' => 'Sucursal Creada Exitosamente',
+            'mensaje' => 'Sucursal Creada Exitosamente',
             'data' => $sucursal
         ],201);
     }
