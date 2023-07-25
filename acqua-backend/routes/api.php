@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DireccionController;
 use App\Http\Controllers\PrendaController;
+use App\Http\Controllers\SucursalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,10 @@ Route::middleware('auth:api')->group(function () {
         ->name('clientes.buscarPorNombre');
     Route::post('/clientes/telefono', [ClienteController::class,'buscarPorTelefono'])
         ->name('clientes.buscarPorTelefono');
+});
+
+Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
+    Route::apiResource('sucursales', SucursalController::class);
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
