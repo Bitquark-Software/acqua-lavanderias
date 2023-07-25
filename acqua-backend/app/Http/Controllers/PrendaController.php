@@ -36,7 +36,7 @@ class PrendaController extends Controller
         ]);
 
         return response()->json([
-            'mensaje' => 'Prenda Agregada Exitosamente',
+            'mensaje' => 'Prenda agregada exitosamente',
             'data' => $prenda
         ], 201);
     }
@@ -68,11 +68,11 @@ class PrendaController extends Controller
         $prenda = Prenda::findOrFail($id);
 
         // Verifica si el Nombre ya existe
-        $verifi = Prenda::where('nombre', $request->nombre)->exists();
+        $verifi = Prenda::where('nombre', Str::upper($request->nombre))->exists();
 
         // Verificar si el nombre ha sido modificado y si ya existe en otro registro
         if ($prenda->nombre != $request->nombre && $verifi) {
-            return response()->json(['error' => 'El Nombre ya Existe. Debe ser único.'], 422);
+            return response()->json(['error' => 'El nombre ya existe, debe ser unico.'], 422);
         }
 
         $prenda->update([
@@ -80,7 +80,7 @@ class PrendaController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Prenda Actualizada correctamente'
+            'mensaje' => 'Prenda actualizada correctamente'
         ], 200);
     }
 
