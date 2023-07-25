@@ -9,6 +9,7 @@ use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DireccionController;
+use App\Http\Controllers\PrendaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,14 +22,16 @@ use App\Http\Controllers\DireccionController;
 |
 */
 
-Route::middleware('auth:api')->group(function () {
-    Route::apiResource('catalogos', CatalogoController::class)->only('index', 'show'); // para Empleados
-    Route::apiResource('servicios', ServiciosController::class)->only('index', 'show'); // para Empleados
+Route::middleware('auth:api')->group(function () { // Para Empleados
+    Route::apiResource('catalogos', CatalogoController::class)->only('index', 'show'); 
+    Route::apiResource('servicios', ServiciosController::class)->only('index', 'show');
+    Route::apiResource('prendas', PrendaController::class)->only('index', 'show'); 
 });
 
 Route::middleware(['auth:api',AdminOnlyMiddleware::class])->group(function () {
     Route::apiResource('catalogos', CatalogoController::class)->except('index', 'show'); // CRUD CATALOGOS
     Route::apiResource('servicios', ServiciosController::class)->except('index', 'show'); // CRUD SERVICIOS
+    Route::apiResource('prendas', PrendaController::class)->except('index', 'show'); // CRUD PRENDAS
 });
 
 Route::middleware('auth:api')->group(function () {
