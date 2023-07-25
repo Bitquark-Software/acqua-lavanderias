@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\DireccionController;
+use App\Http\Controllers\SucursalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,9 @@ Route::middleware('auth:api')->group(function () {
 Route::middleware('auth:api')->group( function () {
     // * Comentarios
     Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
+});
+Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
+    Route::apiResource('sucursales', SucursalController::class);
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
