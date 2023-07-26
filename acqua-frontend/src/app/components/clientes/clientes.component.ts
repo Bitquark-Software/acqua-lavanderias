@@ -52,4 +52,18 @@ export class ClientesComponent
       this.fetchClientes(nextPageNumber);
     }
   }
+
+  eliminarCliente(id:number)
+  {
+    console.log('ID => ', id);
+    if(id)
+    {
+      this.clientesService.eliminarCliente(id).subscribe({
+        next: () =>
+        {
+          this.fetchClientes();
+        },
+      });
+    }
+  }
 }

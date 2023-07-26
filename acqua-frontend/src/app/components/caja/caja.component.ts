@@ -270,17 +270,17 @@ export class CajaComponent
     {
       const ubicacion = this.agregarUbicacion.value ? new Ubicacion({
         ciudad: this.ciudad.value ?? '',
-        codigoPostal: parseInt(this.codigoPostal.value ?? ''),
+        codigo_postal: parseInt(this.codigoPostal.value ?? ''),
         colonia: this.colonia.value ?? '',
-        direccion: this.direccion.value ?? '',
-        nombre: this.nombreDireccion.value ?? '',
+        calle: this.direccion.value ?? '',
+        nombre_ubicacion: this.nombreDireccion.value ?? '',
         numero: parseInt(this.numero.value ?? ''),
       }) : null;
       const cliente = new Cliente({
         email: this.email.value ?? '',
         nombre: this.nombre.value ?? '',
         telefono: this.telefono.value ?? '',
-        ubicaciones: ubicacion ? [ubicacion] : [],
+        direccion: ubicacion ? [ubicacion] : [],
       });
 
       this.clientesService.registrarCliente(cliente);

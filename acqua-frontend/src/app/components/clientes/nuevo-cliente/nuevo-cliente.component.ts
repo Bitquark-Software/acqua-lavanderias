@@ -63,14 +63,14 @@ export class NuevoClienteComponent
         nombre: this.nuevoClienteForm.controls['nombre'].value ?? '',
         email: this.nuevoClienteForm.controls['email'].value ?? '',
         telefono: this.nuevoClienteForm.controls['telefono'].value ?? '',
-        ubicaciones: [
+        direccion: [
           {
             ciudad: this.ubicacionForm.controls['ciudad'].value ?? '',
-            codigoPostal:
+            codigo_postal:
               parseInt(this.ubicacionForm.controls['codigoPostal'].value?.toString() ??'') ?? 0,
             colonia: this.ubicacionForm.controls['colonia'].value ?? '',
-            direccion: this.ubicacionForm.controls['calle'].value ?? '',
-            nombre: this.ubicacionForm.controls['nombreDireccion'].value ?? '',
+            calle: this.ubicacionForm.controls['calle'].value ?? '',
+            nombre_ubicacion: this.ubicacionForm.controls['nombreDireccion'].value ?? '',
             numero:
               parseInt(this.ubicacionForm.controls['numero'].value?.toString() ?? '') ?? '',
           },

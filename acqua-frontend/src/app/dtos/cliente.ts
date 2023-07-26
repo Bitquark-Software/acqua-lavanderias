@@ -6,14 +6,14 @@ export class Cliente
   nombre: string;
   email?: string;
   telefono?: string;
-  ubicaciones?: Ubicacion[];
+  direccion?: Ubicacion[];
 
   constructor(cliente:Partial<Cliente>)
   {
     this.nombre = cliente.nombre ?? '';
     this.email = cliente.email ?? '';
     this.telefono = cliente.telefono ?? '';
-    this.ubicaciones = cliente.ubicaciones ?? [];
+    this.direccion = cliente.direccion ?? [];
   }
 }
 
