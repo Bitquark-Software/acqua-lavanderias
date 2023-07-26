@@ -55,6 +55,7 @@ export class CajaComponent
     nombre: [this.nombreCliente, Validators.required],
     email: ['', Validators.email],
     telefono: ['', [ Validators.required, Validators.pattern('^[0-9]{10}$'), Validators.minLength(10) ]],
+    agregarUbicacion: [true],
     nombreDireccion: ['', Validators.required],
     direccion: ['', Validators.required],
     colonia: ['', Validators.required],
@@ -267,19 +268,19 @@ export class CajaComponent
 
     if(this.nuevoClienteForm.valid)
     {
-      const ubicacion = new Ubicacion({
+      const ubicacion = this.agregarUbicacion.value ? new Ubicacion({
         ciudad: this.ciudad.value ?? '',
-        codigoPostal: parseInt(this.codigoPostal.value ?? ''),
+        codigo_postal: parseInt(this.codigoPostal.value ?? ''),
         colonia: this.colonia.value ?? '',
-        direccion: this.direccion.value ?? '',
-        nombre: this.nombreDireccion.value ?? '',
+        calle: this.direccion.value ?? '',
+        nombre_ubicacion: this.nombreDireccion.value ?? '',
         numero: parseInt(this.numero.value ?? ''),
-      });
+      }) : null;
       const cliente = new Cliente({
         email: this.email.value ?? '',
         nombre: this.nombre.value ?? '',
         telefono: this.telefono.value ?? '',
-        ubicaciones: [ubicacion],
+        direccion: ubicacion ? [ubicacion] : [],
       });
 
       this.clientesService.registrarCliente(cliente);
@@ -346,6 +347,11 @@ export class CajaComponent
   get codigoPostal()
   {
     return this.nuevoClienteForm.controls['codigoPostal'];
+  }
+
+  get agregarUbicacion()
+  {
+    return this.nuevoClienteForm.controls['agregarUbicacion'];
   }
 
   // Items para la tabla
@@ -631,5 +637,47 @@ export class CajaComponent
     this.clienteSeleccionado = null as unknown as Cliente;
     this.coincidenciasClientes = [];
     this.chatHistory = [];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  reRenderUbicacionesForm(event: any)
+  {
+    const checked = event.target.checked;
+    this.nuevoClienteForm = this.fb.group({
+      nombre: [this.nombre.value, Validators.required],
+      email: [this.email.value, Validators.email],
+      telefono:
+        [
+          this.telefono.value,
+          [ Validators.required, Validators.pattern('^[0-9]{10}$'), Validators.minLength(10) ],
+        ],
+      agregarUbicacion: [checked],
+      nombreDireccion: ['', checked ? [Validators.required] : []],
+      direccion: ['', checked ? [Validators.required] : []],
+      colonia: ['', checked ? [Validators.required] : []],
+      ciudad: ['', checked ? [Validators.required] : []],
+      numero: [
+        '',
+        checked ?
+          [Validators.required, Validators.pattern('^[0-9]+$')]
+          :
+          [ Validators.pattern('^[0-9]+$') ]],
+      codigoPostal:
+        ['',
+          checked ?
+            [
+              Validators.required,
+              Validators.pattern('^[0-9]{5}$'),
+              Validators.maxLength(5),
+              Validators.minLength(5),
+            ]
+            :
+            [
+              Validators.pattern('^[0-9]{5}$'),
+              Validators.maxLength(5),
+              Validators.minLength(5),
+            ],
+        ],
+    });
   }
 }

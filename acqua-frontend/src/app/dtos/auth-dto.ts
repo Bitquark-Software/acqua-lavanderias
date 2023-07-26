@@ -10,6 +10,6 @@ class DatosSesion
 
 export class AuthDto
 {
-  acess_token!: string;
+  access_token!: string;
   datos!: DatosSesion;
 }

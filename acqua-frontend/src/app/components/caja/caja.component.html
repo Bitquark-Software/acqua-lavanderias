@@ -508,10 +508,17 @@
 
       <hr class="divide-y divide-dashed col-span-2" />
 
+      <div class="form-control w-full col-span-2">
+        <label class="cursor-pointer label">
+          <span class="label-text">¿El cliente registrará una ubicación?</span>
+          <input type="checkbox" class="toggle toggle-accent" formControlName="agregarUbicacion" (change)="reRenderUbicacionesForm($event)"/>
+        </label>
+      </div>
+
       <div class="form-control w-full">
         <label class="label">
           <span class="label-text"
-            >Dirección del cliente <label class="text-red-500">*</label></span
+            >Dirección del cliente <label class="text-red-500" *ngIf="agregarUbicacion.value">*</label></span
           >
         </label>
         <input
@@ -533,7 +540,7 @@
       <div class="form-control w-full">
         <label class="label">
           <span class="label-text"
-            >Número <label class="text-red-500">*</label></span
+            >Número <label class="text-red-500" *ngIf="agregarUbicacion.value">*</label></span
           >
         </label>
         <input
@@ -555,7 +562,7 @@
       <div class="form-control w-full">
         <label class="label">
           <span class="label-text"
-            >Código Postal <label class="text-red-500">*</label></span
+            >Código Postal <label class="text-red-500" *ngIf="agregarUbicacion.value">*</label></span
           >
         </label>
         <input
@@ -579,7 +586,7 @@
       <div class="form-control w-full">
         <label class="label">
           <span class="label-text"
-            >Colonia <label class="text-red-500">*</label></span
+            >Colonia <label class="text-red-500" *ngIf="agregarUbicacion.value">*</label></span
           >
         </label>
         <input
@@ -601,7 +608,7 @@
       <div class="form-control w-full col-span-2">
         <label class="label">
           <span class="label-text"
-            >Ciudad <label class="text-red-500">*</label></span
+            >Ciudad <label class="text-red-500" *ngIf="agregarUbicacion.value">*</label></span
           >
         </label>
         <input
@@ -623,7 +630,7 @@
       <div class="form-control w-full col-span-2">
         <label class="label">
           <span class="label-text"
-            >Nombre de la ubicación <label class="text-red-500">*</label></span
+            >Nombre de la ubicación <label class="text-red-500" *ngIf="agregarUbicacion.value">*</label></span
           >
         </label>
         <input

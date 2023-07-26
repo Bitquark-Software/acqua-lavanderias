@@ -1,19 +1,19 @@
 export class Ubicacion
 {
   id?: number;
-  nombre: string;
-  direccion: string;
+  nombre_ubicacion: string;
+  calle: string;
   colonia: string;
-  codigoPostal: number;
+  codigo_postal: number;
   ciudad: string;
   numero: number;
 
   constructor(ubicacion: Partial<Ubicacion>)
   {
-    this.nombre = ubicacion.nombre ?? '';
-    this.direccion = ubicacion.direccion ?? '';
+    this.nombre_ubicacion = ubicacion.nombre_ubicacion ?? '';
+    this.calle = ubicacion.calle ?? '';
     this.colonia = ubicacion.colonia ?? '';
-    this.codigoPostal = ubicacion.codigoPostal ?? 0;
+    this.codigo_postal = ubicacion.codigo_postal ?? 0;
     this.ciudad = ubicacion.ciudad ?? '';
     this.numero = ubicacion.numero ?? 0;
   }

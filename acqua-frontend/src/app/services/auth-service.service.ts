@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { Injectable } from '@angular/core';
 import { AuthDto } from '../dtos/auth-dto';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { HotToastService } from '@ngneat/hot-toast';
 import { API_URL } from '../environments/develop';
@@ -51,5 +51,13 @@ export class AuthService
         return response as AuthDto;
       }),
     );
+  }
+
+  getHeaders()
+  {
+    return new HttpHeaders({
+      Authorization: `Bearer ${this.session?.access_token}`,
+      Accept: 'application/json',
+    });
   }
 }

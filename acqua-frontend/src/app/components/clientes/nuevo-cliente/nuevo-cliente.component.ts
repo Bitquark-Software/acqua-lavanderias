@@ -3,23 +3,28 @@ import { Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HotToastService } from '@ngneat/hot-toast';
+import { Cliente } from 'src/app/dtos/cliente';
+import { ClientesService } from 'src/app/services/clientes.service';
 
 @Component({
   selector: 'app-nuevo-cliente',
   templateUrl: './nuevo-cliente.component.html',
   styleUrls: ['./nuevo-cliente.component.scss'],
 })
-export class NuevoClienteComponent {
+export class NuevoClienteComponent
+{
   nuevoClienteForm = this.fb.group({
     nombre: ['', Validators.required],
     email: ['', Validators.email],
-    telefono: ['', Validators.pattern('^[0-9]{10}$')],
+    telefono: ['', [Validators.pattern('^[0-9]{10}$'), Validators.required]],
     addUbicaciones: [false],
   });
 
   ubicacionForm = this.fb.group({
-    direccion: ['', this.addUbicaciones.value ? [Validators.required] : []],
+    calle: ['', this.addUbicaciones.value ? [Validators.required] : []],
+    numero: ['', this.addUbicaciones.value ? [Validators.required] : []],
     colonia: ['', this.addUbicaciones.value ? [Validators.required] : []],
+    ciudad: ['', this.addUbicaciones.value ? [Validators.required] : []],
     codigoPostal:
       ['', this.addUbicaciones.value ? [Validators.required, Validators.pattern('^[0-9]{5}$')] : []],
     nombreDireccion: ['', this.addUbicaciones.value ? [Validators.required] : []],
@@ -29,28 +34,69 @@ export class NuevoClienteComponent {
     private fb: FormBuilder,
     private toast: HotToastService,
     private location: Location,
-  ) {
+    private clientesService: ClientesService,
+  )
+  {
     //
   }
 
-  back() {
+  back()
+  {
     this.location.back();
   }
 
-  async registrar(){
-    this.toast.success('Usuario registrado', { icon: '✅' });
+  async registrar()
+  {
+    let clientePayload: Cliente;
+
+    if(this.nuevoClienteForm.controls['addUbicaciones'].value == false)
+    {
+      clientePayload = {
+        nombre: this.nuevoClienteForm.controls['nombre'].value ?? '',
+        email: this.nuevoClienteForm.controls['email'].value ?? '',
+        telefono: this.nuevoClienteForm.controls['telefono'].value ?? '',
+      };
+    }
+    else
+    {
+      clientePayload = {
+        nombre: this.nuevoClienteForm.controls['nombre'].value ?? '',
+        email: this.nuevoClienteForm.controls['email'].value ?? '',
+        telefono: this.nuevoClienteForm.controls['telefono'].value ?? '',
+        direccion: [
+          {
+            ciudad: this.ubicacionForm.controls['ciudad'].value ?? '',
+            codigo_postal:
+              parseInt(this.ubicacionForm.controls['codigoPostal'].value?.toString() ??'') ?? 0,
+            colonia: this.ubicacionForm.controls['colonia'].value ?? '',
+            calle: this.ubicacionForm.controls['calle'].value ?? '',
+            nombre_ubicacion: this.ubicacionForm.controls['nombreDireccion'].value ?? '',
+            numero:
+              parseInt(this.ubicacionForm.controls['numero'].value?.toString() ?? '') ?? '',
+          },
+        ],
+      };
+    }
+
+    console.log(clientePayload);
+
+    this.clientesService.registrarCliente(clientePayload);
   }
 
-  get addUbicaciones(){
+  get addUbicaciones()
+  {
     return this.nuevoClienteForm.controls['addUbicaciones'];
   }
 
-  reRenderUbicacionesForm(){
+  reRenderUbicacionesForm()
+  {
     this.ubicacionForm = this.fb.group({
-      direccion: ['', this.addUbicaciones.value ? [Validators.required] : []],
+      calle: ['', this.addUbicaciones.value ? [Validators.required] : []],
+      numero: ['', this.addUbicaciones.value ? [Validators.required] : []],
       colonia: ['', this.addUbicaciones.value ? [Validators.required] : []],
+      ciudad: ['', this.addUbicaciones.value ? [Validators.required] : []],
       codigoPostal:
-        ['', this.addUbicaciones.value ? [Validators.required, Validators.pattern('^[0-9]{5}$')] : []],
+      ['', this.addUbicaciones.value ? [Validators.required, Validators.pattern('^[0-9]{5}$')] : []],
       nombreDireccion: ['', this.addUbicaciones.value ? [Validators.required] : []],
     });
   }
