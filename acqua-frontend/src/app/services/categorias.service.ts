@@ -3,7 +3,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth-service.service';
 import { HotToastService } from '@ngneat/hot-toast';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Catalogo, Categoria } from '../dtos/catalogo';
 import { API_URL } from '../environments/develop';
@@ -24,9 +24,7 @@ export class CategoriasService
   {
     const url = page ? `${API_URL}/catalogos?page=${page}`: `${API_URL}/catalogos`;
     return this.httpClient.get<Catalogo>(url, {
-      headers: new HttpHeaders({
-        Authorization: `${this.authService.session?.acess_token}`,
-      }),
+      headers: this.authService.getHeaders(),
     })
       .pipe(
         this.toast.observe({
@@ -42,9 +40,7 @@ export class CategoriasService
   {
     const url = `${API_URL}/catalogos/${id}`;
     return this.httpClient.get<Categoria>(url, {
-      headers: new HttpHeaders({
-        Authorization: `${this.authService.session?.acess_token}`,
-      }),
+      headers: this.authService.getHeaders(),
     })
       .pipe(
         this.toast.observe({
@@ -61,9 +57,7 @@ export class CategoriasService
     return this.httpClient.put<Categoria>(`${API_URL}/catalogos/${id}`, {
       name: categoria.name,
     }, {
-      headers: new HttpHeaders({
-        Authorization: `${this.authService.session?.acess_token}`,
-      }),
+      headers: this.authService.getHeaders(),
     }).pipe(
       this.toast.observe({
         loading: 'Actualizando categoría',
@@ -90,9 +84,7 @@ export class CategoriasService
     return this.httpClient.post(`${API_URL}/catalogos`, {
       name,
     }, {
-      headers: new HttpHeaders({
-        Authorization: `${this.authService.session?.acess_token}`,
-      }),
+      headers: this.authService.getHeaders(),
     }).pipe(
       this.toast.observe({
         loading: 'Publicando categoría...',
@@ -109,9 +101,7 @@ export class CategoriasService
     const url = page ? `${API_URL}/catalogos/${id}?page=${page}`: `${API_URL}/catalogos/${id}`;
 
     return this.httpClient.get<unknown>(url, {
-      headers: new HttpHeaders({
-        Authorization: `${this.authService.session?.acess_token}`,
-      }),
+      headers: this.authService.getHeaders(),
     })
       .pipe(
         this.toast.observe({
@@ -132,9 +122,7 @@ export class CategoriasService
       importe: servicio.importe,
       cantidad_minima: servicio.cantidad_minima,
     }, {
-      headers: new HttpHeaders({
-        Authorization: `${this.authService.session?.acess_token}`,
-      }),
+      headers: this.authService.getHeaders(),
     }).pipe(
       this.toast.observe({
         loading: 'Publicando servicio...',
@@ -149,9 +137,7 @@ export class CategoriasService
   fetchServicioById(id:number): Observable<Servicio>
   {
     return this.httpClient.get<unknown>(`${API_URL}/servicios/${id}`, {
-      headers: new HttpHeaders({
-        Authorization: `${this.authService.session?.acess_token}`,
-      }),
+      headers: this.authService.getHeaders(),
     })
       .pipe(
         this.toast.observe({
@@ -171,9 +157,7 @@ export class CategoriasService
       cantidad_minima: servicio.cantidad_minima,
       catalogo_id: servicio.catalogo_id,
     }, {
-      headers: new HttpHeaders({
-        Authorization: `${this.authService.session?.acess_token}`,
-      }),
+      headers: this.authService.getHeaders(),
     }).pipe(
       this.toast.observe({
         loading: 'Actualizando servicio',

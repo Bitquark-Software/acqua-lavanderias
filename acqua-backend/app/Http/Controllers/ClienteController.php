@@ -108,7 +108,7 @@ class ClienteController extends Controller
      */
     public function show($id)
     {
-        return Cliente::find($id);
+        return Cliente::with('direccion')->find($id);
     }
 
     /**
@@ -122,7 +122,7 @@ class ClienteController extends Controller
     {
         $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
-            'email' => ['email'],
+            'email' => ['nullable'],
             'telefono' => ['required', 'string', 'max:15', 'not_regex:/[^0-9\-]/']
         ]);
 
