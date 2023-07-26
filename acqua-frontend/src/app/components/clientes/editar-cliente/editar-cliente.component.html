@@ -1,6 +1,6 @@
 <app-drawer>
     <div class="card flex-shrink-0 bg-base-100 w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl" nuevoCatalogo>
-        <h1 class="font-medium text-2xl text-primary dark:text-white">
+        <h1 class="font-medium text-2xl text-primary dark:text-white" *ngIf="cliente">
             <button class="btn btn-square btn-secondary text-white mr-2" (click)="back()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -33,7 +33,7 @@
                     >Direcciones</a>
                 </div>
             </div>
-            <form [formGroup]="clienteForm" (ngSubmit)="updateCliente()" *ngIf="cursor === 0">
+            <form [formGroup]="clienteForm" (ngSubmit)="updateCliente()" *ngIf="cursor === 0 && cliente">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control">
                       <label class="label">
@@ -83,15 +83,17 @@
             </form>
 
 
-            <div class="overflow-x-auto my-4" *ngIf="cursor === 1">
+            <div class="overflow-x-auto my-4" *ngIf="cursor === 1 && cliente">
                 <table class="table table-zebra">
                   <thead>
                     <tr>
                       <th>ID</th>
                       <th>Nombre</th>
                       <th>Dirección</th>
+                      <th>Número</th>
                       <th>Colonia</th>
                       <th>Código Postal</th>
+                      <th>Ciudad</th>
                       <th>Eliminar</th>
                     </tr>
                   </thead>
@@ -101,10 +103,12 @@
                   <tbody *ngIf="ubicaciones.length > 0">
                     <tr *ngFor="let ubicacion of ubicaciones">
                       <th>{{ubicacion.id}}</th>
-                      <td>{{ubicacion.nombre}}</td>
-                      <td>{{ubicacion.direccion}}</td>
+                      <td>{{ubicacion.nombre_ubicacion}}</td>
+                      <td>{{ubicacion.calle}}</td>
+                      <td>{{ubicacion.numero}}</td>
                       <td>{{ubicacion.colonia}}</td>
-                      <td>{{ubicacion.codigoPostal}}</td>
+                      <td>{{ubicacion.codigo_postal}}</td>
+                      <td>{{ubicacion.ciudad}}</td>
                       <td>
                         <button
                             class="btn btn-md btn-error btn-square btn-outline m-auto lg:tooltip"
@@ -145,7 +149,18 @@
                           type="text"
                           placeholder="Dirección del cliente"
                           class="input input-bordered text-primary dark:text-white"
-                          formControlName="direccion"
+                          formControlName="calle"
+                        />
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                          <span class="label-text dark:text-white">Número</span>
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="Número"
+                          class="input input-bordered text-primary dark:text-white"
+                          formControlName="numero"
                         />
                     </div>
                     <div class="form-control">
@@ -157,6 +172,17 @@
                           placeholder="Nombre de la colonia"
                           class="input input-bordered text-primary dark:text-white"
                           formControlName="colonia"
+                        />
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                          <span class="label-text dark:text-white">Ciudad</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Nombre de la ciudad"
+                          class="input input-bordered text-primary dark:text-white"
+                          formControlName="ciudad"
                         />
                     </div>
                     <div class="form-control">

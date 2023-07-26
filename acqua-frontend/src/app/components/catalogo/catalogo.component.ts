@@ -56,14 +56,12 @@ export class CatalogoComponent
   {
     this.categoriaEliminar = this.catalogos.find((cat) => cat.id === id) ?? null;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const popup = document.getElementById('modal_delete_categoria') as HTMLDialogElement;
     popup.showModal();
   }
 
   closeDeletePopup()
   {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const popup = document.getElementById('modal_delete_categoria') as HTMLDialogElement;
     popup.close();
   }

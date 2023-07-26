@@ -54,11 +54,11 @@
         </div>
         <div class="form-control">
           <label class="label">
-            <span class="label-text">Teléfono</span>
+            <span class="label-text">Teléfono <span class="text-red-700">*</span></span>
           </label>
           <input
             type="tel"
-            placeholder="Teléfono del cliente (opcional)"
+            placeholder="Teléfono del cliente"
             class="input input-bordered"
             formControlName="telefono"
           />
@@ -69,7 +69,7 @@
               <input type="checkbox" class="toggle toggle-accent" formControlName="addUbicaciones" (change)="reRenderUbicacionesForm()"/>
             </label>
         </div>
-        <div tabindex="0" class="collapse border border-base-300 bg-teal-700 pb-4 text-white" [ngClass]="{ 'collapse-open': addUbicaciones.value === true, 'collapse-close': addUbicaciones.value === false }"> 
+        <div tabindex="0" class="collapse border border-base-300 bg-gray-100 pb-4" [ngClass]="{ 'collapse-open': addUbicaciones.value === true, 'collapse-close': addUbicaciones.value === false }"> 
             <div class="collapse-title text-xl font-medium">
               Ubicación del cliente
               <br>
@@ -80,18 +80,29 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control">
                         <label class="label">
-                          <span class="label-text dark:text-white">Dirección</span>
+                          <span class="label-text dark:text-white">Calle <span class="text-red-700">*</span></span>
                         </label>
                         <input
                           type="text"
                           placeholder="Dirección del cliente"
                           class="input input-bordered text-primary"
-                          formControlName="direccion"
+                          formControlName="calle"
                         />
                     </div>
                     <div class="form-control">
                         <label class="label">
-                          <span class="label-text dark:text-white">Colonia</span>
+                          <span class="label-text dark:text-white">Número <span class="text-red-700">*</span></span>
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="Número de casa"
+                          class="input input-bordered text-primary"
+                          formControlName="numero"
+                        />
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                          <span class="label-text dark:text-white">Colonia <span class="text-red-700">*</span></span>
                         </label>
                         <input
                           type="text"
@@ -102,18 +113,30 @@
                     </div>
                     <div class="form-control">
                         <label class="label">
-                          <span class="label-text dark:text-white">Código postal</span>
+                          <span class="label-text dark:text-white">Ciudad <span class="text-red-700">*</span></span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Nombre de la colonia"
+                          class="input input-bordered text-primary"
+                          formControlName="ciudad"
+                        />
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                          <span class="label-text dark:text-white">Código postal <span class="text-red-700">*</span></span>
                         </label>
                         <input
                           type="tel"
                           placeholder="Código postal"
                           class="input input-bordered text-primary"
                           formControlName="codigoPostal"
+                          maxlength="5"
                         />
                     </div>
                     <div class="form-control">
                         <label class="label">
-                          <span class="label-text dark:text-white">Nombre de la ubicación</span>
+                          <span class="label-text dark:text-white">Nombre de la ubicación <span class="text-red-700">*</span></span>
                         </label>
                         <input
                           type="text"
@@ -121,15 +144,6 @@
                           class="input input-bordered text-primary"
                           formControlName="nombreDireccion"
                         />
-                    </div>
-                    <div class="form-control mt-6">
-                      <button
-                        type="submit"
-                        class="btn btn-success"
-                        [disabled]="!nuevoClienteForm.valid || !ubicacionForm.valid"
-                      >
-                        Registrar cliente
-                      </button>
                     </div>
                 </div>
               </form>
