@@ -10,8 +10,9 @@ class Comentario extends Model
     use HasFactory;
 
     protected $fillable = [
+        'texto',
         'user_id',
-        'texto'
+        'id_ticket',
     ];
 
     public function user()
