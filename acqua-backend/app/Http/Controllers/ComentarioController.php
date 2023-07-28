@@ -6,7 +6,7 @@ use App\Models\Comentario;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Ticket;
+use Illuminate\Database\QueryException;
 
 class ComentarioController extends Controller
 {
@@ -15,19 +15,14 @@ class ComentarioController extends Controller
     {
         $this->validate($request, [
             'texto' => ['required', 'max:255'],
-            'ticket_id' => ['required', 'exists:tickets,id']
+            'id_ticket' => ['required', 'exists:tickets,id']
         ]);
-        // Obtener el ID del usuario autenticado
-        $user_id = Auth::id();
-
-        // Verificar si el ticket existe
-        $ticket = Ticket::findOrFail($request->ticket_id);
 
         // Almacenar resultados
         $comentario = Comentario::create([
-            'user_id' => $user_id,
-            'ticket_id' => $ticket->id,
             'texto' => $request->texto,
+            'user_id' => Auth::id(),
+            'id_ticket' => $request->id_ticket,
         ]);
 
         return response()->json([
