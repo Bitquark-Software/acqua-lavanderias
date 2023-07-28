@@ -51,12 +51,12 @@ Route::middleware('auth:api')->group( function () {
     // * Comentarios
     Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
 
-    Route::apiResource('tickets', TicketController::class)->only('index', 'show');
+    Route::apiResource('tickets', TicketController::class)->only('index', 'show', 'store');
 });
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
     Route::apiResource('sucursales', SucursalController::class);
 
-    Route::apiResource('tickets', TicketController::class)->except('index', 'show');
+    Route::apiResource('tickets', TicketController::class)->except('index', 'show', 'store');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
