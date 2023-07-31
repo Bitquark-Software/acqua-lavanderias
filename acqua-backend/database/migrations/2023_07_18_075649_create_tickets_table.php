@@ -28,7 +28,7 @@ class CreateTicketsTable extends Migration
             $table->decimal('total', 5, 2);
             $table->decimal('anticipo', 5, 2)->default(0.00);
             $table->decimal('restante', 5, 2)->nullable();
-            $table->enum('status', ['LAVADO', 'PLANCHADO', 'RECONTEO', 'ENTREGA']); 
+            $table->enum('status', ['CREADO', 'LAVADO', 'PLANCHADO', 'RECONTEO', 'ENTREGA'])->default('CREADO');
 
             // Restricciones de las llaves foráneas
             $table->foreign('id_cliente')->references('id')->on('clientes');

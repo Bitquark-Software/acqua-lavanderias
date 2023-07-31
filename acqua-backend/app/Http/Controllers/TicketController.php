@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class TicketController extends Controller
 {
@@ -15,7 +16,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        return Ticket::paginate(15);
+        return Ticket::orderBy('created_at', 'desc')->paginate(15);
     }
 
     /**
@@ -36,24 +37,23 @@ class TicketController extends Controller
             'tipo_credito' => ['required','in:CREDITO,CONTADO'],
             'metodo_pago' => ['required','in:EFECTIVO,TARJETA,TRANSFERENCIA'],
             'total' => ['required', 'numeric', 'min:0'],
-            'anticipo' => ['numeric', 'min:0'],
-            'status' => ['required', 'in:LAVADO,PLANCHADO,RECONTEO,ENTREGA']
+            'anticipo' => ['numeric', 'min:0']
         ]);
 
-        $restante = $request->total - $request->anticipo;
+        $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
+        $restante = $request->tipo_credito === 'CREDITO' ? $request->total - $request->anticipo : 0.00;
 
         $ticket = Ticket::create([
             'id_cliente' => $request->id_cliente,
-            'envio_domicilio' => $request->envio_domicilio,
+            'envio_domicilio' => $request->envio_domicilio ?? true,
             'id_direccion' => $request->id_direccion,
             'id_sucursal' => $request->id_sucursal,
-            'incluye_iva' => $request->incluye_iva,
+            'incluye_iva' => $request->incluye_iva ?? false,
             'tipo_credito' => $request->tipo_credito,
             'metodo_pago' => $request->metodo_pago,
             'total' => $request->total,
-            'anticipo' => $request->anticipo,
-            'restante' => round($restante, 2),
-            'status' => $request->status
+            'anticipo' => $anticipo,
+            'restante' => $restante,
         ]);
 
         return response()->json([
@@ -92,24 +92,26 @@ class TicketController extends Controller
             'metodo_pago' => ['required','in:EFECTIVO,TARJETA,TRANSFERENCIA'],
             'total' => ['required', 'numeric', 'min:0'],
             'anticipo' => ['numeric', 'min:0'],
-            'status' => ['required', 'in:LAVADO,PLANCHADO,RECONTEO,ENTREGA']
+            'status' => ['in:CREADO,LAVADO,PLANCHADO,RECONTEO,ENTREGA'],
+            'vencido' => ['boolean']
         ]);
 
-        // Restante
-        $restante = $request->total - $request->anticipo;
+        $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
+        $restante = $request->tipo_credito === 'CREDITO' ? $request->total - $request->anticipo : 0.00;
 
         $ticket = Ticket::findOrFail($id);
         $ticket->update([
-            'envio_domicilio' => $request->envio_domicilio,
+            'envio_domicilio' => $request->envio_domicilio ?? true,
             'id_direccion' => $request->id_direccion,
             'id_sucursal' => $request->id_sucursal,
-            'incluye_iva' => $request->incluye_iva,
+            'incluye_iva' => $request->incluye_iva ?? false,
             'tipo_credito' => $request->tipo_credito,
             'metodo_pago' => $request->metodo_pago,
             'total' => $request->total,
-            'anticipo' => $request->anticipo,
-            'restante' => round($restante, 2),
-            'status' => $request->status
+            'anticipo' => $anticipo,
+            'restante' => $restante,
+            'status' => $request->status ?? 'CREADO',
+            'vencido' => $request->vencido ?? false
         ]);
 
         return response()->json([
