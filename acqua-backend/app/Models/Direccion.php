@@ -25,4 +25,9 @@ class Direccion extends Model
     {
         return $this->belongsTo(Cliente::class);
     }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'id_direccion');
+    }
 }

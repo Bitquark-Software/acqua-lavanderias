@@ -15,4 +15,8 @@ class Sucursal extends Model
         'nombre'
     ];
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'id_sucursal');
+    }
 }

@@ -19,4 +19,9 @@ class Cliente extends Model
     {
         return $this->hasMany(Direccion::class);
     }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'id_cliente');
+    }
 }
