@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\DireccionController;
+use App\Http\Controllers\LavadoraController;
 use App\Http\Controllers\PrendaController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TicketController;
@@ -52,11 +53,16 @@ Route::middleware('auth:api')->group( function () {
     Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
 
     Route::apiResource('tickets', TicketController::class)->only('index', 'show', 'store');
+
+    Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show', 'store');
 });
+
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
     Route::apiResource('sucursales', SucursalController::class);
 
     Route::apiResource('tickets', TicketController::class)->except('index', 'show', 'store');
+
+    Route::apiResource('lavadoras', LavadoraController::class)->except('index', 'show', 'store');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
