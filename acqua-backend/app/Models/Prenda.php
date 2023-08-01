@@ -12,4 +12,9 @@ class Prenda extends Model
     protected $fillable = [
         'nombre'
     ];
+
+    public function prendasTicket()
+    {
+        return $this->hasMany(Prendas_Ticket::class, 'id_prenda');
+    }
 }
