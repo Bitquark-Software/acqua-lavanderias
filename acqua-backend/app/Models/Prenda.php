@@ -12,4 +12,9 @@ class Prenda extends Model
     protected $fillable = [
         'nombre'
     ];
+
+    public function procesos()
+    {
+        return $this->hasMany(Procesos_Ticket::class, 'id_prenda');
+    }
 }

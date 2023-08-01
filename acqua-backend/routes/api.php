@@ -11,6 +11,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\DireccionController;
 use App\Http\Controllers\PrendaController;
+use App\Http\Controllers\PrendasTicketController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TicketController;
 
@@ -48,11 +49,14 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::middleware('auth:api')->group( function () {
-    // * Comentarios
     Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
 
     Route::apiResource('tickets', TicketController::class)->only('index', 'show', 'store');
+
+    Route::get('/prendas_tickets', [PrendasTicketController::class, 'index'])->name('prendasticket.index');
+    Route::post('/prendas_tickets', [PrendasTicketController::class, 'store'])->name('prendasticket.store');
 });
+
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
     Route::apiResource('sucursales', SucursalController::class);
 
