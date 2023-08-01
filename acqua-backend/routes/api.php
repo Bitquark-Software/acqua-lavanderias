@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\DireccionController;
+use App\Http\Controllers\LavadoraController;
 use App\Http\Controllers\PrendaController;
 use App\Http\Controllers\PrendasTicketController;
 use App\Http\Controllers\SucursalController;
@@ -55,12 +56,17 @@ Route::middleware('auth:api')->group( function () {
 
     Route::get('/prendas_tickets', [PrendasTicketController::class, 'index'])->name('prendasticket.index');
     Route::post('/prendas_tickets', [PrendasTicketController::class, 'store'])->name('prendasticket.store');
+
+    Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show', 'store');
+
 });
 
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
     Route::apiResource('sucursales', SucursalController::class);
 
     Route::apiResource('tickets', TicketController::class)->except('index', 'show', 'store');
+
+    Route::apiResource('lavadoras', LavadoraController::class)->except('index', 'show', 'store');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
