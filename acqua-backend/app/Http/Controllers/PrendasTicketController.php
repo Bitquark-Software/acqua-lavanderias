@@ -19,15 +19,15 @@ class PrendasTicketController extends Controller
         $request->validate([
             'id_ticket' => ['required', 'exists:tickets,id'],
             'id_prenda' => ['required', 'exists:prendas,id'],
-            'total_inicial' => ['required', 'numeric'],
-            'total_final' => ['required', 'numeric']
+            'total_inicial' => ['nullable', 'numeric'],
+            'total_final' => ['nullable', 'numeric']
         ]);
 
         $proceso = Prendas_Ticket::create([
             'id_ticket' => $request->id_ticket,
             'id_prenda' => $request->id_prenda,
-            'total_inicial' => $request->total_inicial,
-            'total_final' => $request->total_final
+            'total_inicial' => $request->total_inicial ?? 0,
+            'total_final' => $request->total_final ?? 0
         ]);
 
         return response()->json([

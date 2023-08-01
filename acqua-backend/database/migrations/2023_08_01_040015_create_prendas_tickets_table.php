@@ -17,8 +17,8 @@ class CreatePrendasTicketsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('id_ticket');
             $table->unsignedBigInteger('id_prenda');
-            $table->integer('total_inicial');
-            $table->integer('total_final');
+            $table->integer('total_inicial')->nullable();
+            $table->integer('total_final')->nullable();
 
             $table->foreign('id_ticket')->references('id')->on('tickets');
             $table->foreign('id_prenda')->references('id')->on('prendas');

@@ -32,7 +32,7 @@ class Ticket extends Model
         return $this->hasMany(Comentario::class, 'id_ticket');
     }
 
-    public function precesos()
+    public function prendasTicket()
     {
         return $this->hasMany(Prendas_Ticket::class, 'id_ticket');
     }

@@ -13,8 +13,8 @@ class Prenda extends Model
         'nombre'
     ];
 
-    public function procesos()
+    public function prendasTicket()
     {
-        return $this->hasMany(Procesos_Ticket::class, 'id_prenda');
+        return $this->hasMany(Prendas_Ticket::class, 'id_prenda');
     }
 }
