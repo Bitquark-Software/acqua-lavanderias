@@ -16,7 +16,7 @@ class LavadoraController extends Controller
      */
     public function index()
     {
-        return Lavadora::paginate(8);
+        return Lavadora::all();
     }
 
     /**
