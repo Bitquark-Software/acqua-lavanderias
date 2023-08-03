@@ -53,13 +53,15 @@ class ClienteController extends Controller
 
         $telefono = trim($request->input('telefono'));
 
-        $cliente = Cliente::where('telefono', $telefono)->first();
+        $clientes = Cliente::where('telefono', 'LIKE', '%' . $telefono . '%')->get();
 
-        if ($cliente) {
-            return response()->json($cliente, 200);
+        if ($clientes) {
+            return response()->json([
+                'clientes' => $clientes
+            ], 200);
         } else {
             return response()->json([
-                'mensaje' => 'Cliente no encontrado'
+                'mensaje' => 'Clientes no encontrados'
             ], 404);
         }
     }
