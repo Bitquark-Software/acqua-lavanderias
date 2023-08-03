@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
 import { Categoria } from 'src/app/dtos/catalogo';
 import { Cliente } from 'src/app/dtos/cliente';
@@ -36,6 +37,7 @@ export class CajaComponent
 
   // clientes
   nombreCliente = '';
+  clienteDefault!: Cliente;
   clienteSeleccionado!: Cliente;
   coincidenciasClientes: Cliente[] = [];
   isClienteNotFoundPopupOpen = false;
@@ -83,8 +85,23 @@ export class CajaComponent
     private authService: AuthService,
     private clientesService: ClientesService,
     private fb: FormBuilder,
+    private route: ActivatedRoute,
   )
   {
+    this.route.queryParams.subscribe({
+      next: (arr) =>
+      {
+        if(arr['cliente'])
+        {
+          this.clienteDefault = this.atob(arr['cliente']) as Cliente;
+          if(this.clienteDefault)
+          {
+            this.nombreCliente = `${this.clienteDefault.id}:${this.clienteDefault.nombre}`;
+            this.clienteSeleccionado = this.clienteDefault;
+          }
+        }
+      },
+    });
     this.categoriasService.fetchCatalogos().subscribe(
       {
         next: (response) => this.categorias = response.data as Categoria[],
@@ -300,7 +317,6 @@ export class CajaComponent
   setCliente()
   {
     const { id, nombre } = this.splitIdAndNombreCliente();
-    console.log(id, nombre);
     if(id != null && nombre)
     {
       const cliente = this.coincidenciasClientes.find(c => c.id?.toString() === id);
@@ -679,5 +695,10 @@ export class CajaComponent
             ],
         ],
     });
+  }
+
+  atob(base64: string)
+  {
+    return JSON.parse(atob(base64));
   }
 }

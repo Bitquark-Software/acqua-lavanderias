@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 export enum MetodoPago
 {
-    Efectivo = 'efectivo',
-    Tarjeta = 'tarjeta',
-    Transferencia = 'transferencia'
+    Efectivo = 'EFECTIVO',
+    Tarjeta = 'TARJETA',
+    Transferencia = 'TRANSFERENCIA'
 }

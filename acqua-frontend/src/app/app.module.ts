@@ -25,6 +25,8 @@ import { EditarClienteComponent } from './components/clientes/editar-cliente/edi
 import { HttpClientModule } from '@angular/common/http';
 import { NuevoServicioComponent } from './components/servicios/nuevo-servicio/nuevo-servicio.component';
 import { CajaComponent } from './components/caja/caja.component';
+import { TicketsComponent } from './components/tickets/tickets.component';
+import { DetallesTicketComponent } from './components/tickets/detalles-ticket/detalles-ticket.component';
 
 @NgModule ( {
   declarations: [
@@ -45,6 +47,8 @@ import { CajaComponent } from './components/caja/caja.component';
     EditarClienteComponent,
     NuevoServicioComponent,
     CajaComponent,
+    TicketsComponent,
+    DetallesTicketComponent,
   ],
   imports: [
     BrowserModule,

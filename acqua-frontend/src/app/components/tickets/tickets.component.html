@@ -1,0 +1,180 @@
+<app-drawer>
+  <div class="w-full min-h-full flex flex-col overflow-y-auto mt-3">
+    <div class="w-full flex flex-col gap-3">
+      <div
+        class="p-4 w-11/12 bg-base-100 rounded-lg border shadow-md sm:p-8 m-auto"
+      >
+        <div class="flow-root">
+          <h3 class="font-bold text-3xl ml-2 py-6">Tickets</h3>
+          <div class="form-control w-full z-0 my-6">
+            <input
+              type="text"
+              placeholder="Busca por nombre, teléfono o número de ticket"
+              class="input input-bordered w-full focus:outline-none"
+              [(ngModel)]="busquedaCliente"
+            />
+          </div>
+          <ul role="list">
+            <li
+                class="p-4 rounded-2xl my-2 shadow-sm"
+                *ngFor="let ticket of tickets"
+                [ngClass]="{
+                    'bg-gray-50': ticket.status === 'CREADO',
+                    'bg-teal-50': ticket.status === 'LAVADO',
+                    'bg-stone-200': ticket.status === 'RECONTEO',
+                    'bg-amber-50': ticket.status === 'PLANCHADO',
+                    'bg-lime-50': ticket.status === 'ENTREGA',
+                }"
+            >
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                  <button
+                    class="btn btn-lg btn-circle tooltip p-3"
+                    data-tip="CREADO"
+                    *ngIf="ticket.status === 'CREADO'"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </button>
+                  <button
+                    class="btn btn-primary btn-lg btn-circle tooltip p-3"
+                    data-tip="LAVADO"
+                    *ngIf="ticket.status === 'LAVADO'"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </button>
+                  <button
+                    class="btn btn-secondary btn-lg btn-circle tooltip p-3"
+                    data-tip="RECONTEO"
+                    *ngIf="ticket.status === 'RECONTEO'"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </button>
+                  <button
+                    class="btn btn-warning btn-lg btn-circle tooltip p-3"
+                    data-tip="PLANCHADO"
+                    *ngIf="ticket.status === 'PLANCHADO'"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </button>
+                  <button
+                    class="btn btn-success btn-lg btn-circle tooltip p-3"
+                    data-tip="ENTREGA"
+                    *ngIf="ticket.status === 'ENTREGA'"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="flex-shrink-0">
+                  {{ ticket.id }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    {{ ticket.cliente.nombre }}
+                  </p>
+                  <p class="text-sm text-gray-500 truncate">
+                    {{ ticket.cliente.telefono }}
+                  </p>
+                  <p class="text-sm text-gray-500 truncate">
+                    Fecha: {{ ticket.created_at }}
+                  </p>
+                </div>
+                <div class="inline-flex items-center">
+                  <button
+                    class="btn btn-circle btn-sm join-item p-1 lg:tooltip"
+                    data-tip="Detalles"
+                    [routerLink]="['/ticket', ticket.id]"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                      <path
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-drawer>
