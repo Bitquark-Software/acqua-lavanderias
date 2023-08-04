@@ -14,6 +14,7 @@ use App\Http\Controllers\LavadoraController;
 use App\Http\Controllers\PrendaController;
 use App\Http\Controllers\PrendasTicketController;
 use App\Http\Controllers\SecadoraController;
+use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TicketController;
 
@@ -61,6 +62,9 @@ Route::middleware('auth:api')->group( function () {
     Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show', 'store');
 
     Route::apiResource('secadoras', SecadoraController::class)->only('index', 'show', 'store');
+  
+    Route::get('/proceso', [ProcesoController::class, 'index'])->name('proceso.index');
+    Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
 });
 
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {

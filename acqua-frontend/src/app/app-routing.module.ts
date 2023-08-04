@@ -19,6 +19,8 @@ import { ClientesComponent } from './components/clientes/clientes.component';
 import { NuevoClienteComponent } from './components/clientes/nuevo-cliente/nuevo-cliente.component';
 import { EditarClienteComponent } from './components/clientes/editar-cliente/editar-cliente.component';
 import { NuevoServicioComponent } from './components/servicios/nuevo-servicio/nuevo-servicio.component';
+import { TicketsComponent } from './components/tickets/tickets.component';
+import { DetallesTicketComponent } from './components/tickets/detalles-ticket/detalles-ticket.component';
 
 const routes: Routes = [
   {
@@ -88,6 +90,16 @@ const routes: Routes = [
   {
     path: 'editar-cliente/:clientId',
     component: EditarClienteComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'tickets',
+    component: TicketsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'ticket/:id',
+    component: DetallesTicketComponent,
     canActivate: [authGuard],
   },
   {

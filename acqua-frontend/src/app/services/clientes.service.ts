@@ -26,7 +26,9 @@ export class ClientesService
 
   fetchClienteById(id:number): Observable<Cliente>
   {
-    return this.httpClient.get<Cliente>(`${API_URL}/clientes/${id}`).pipe(
+    return this.httpClient.get<Cliente>(`${API_URL}/clientes/${id}`, {
+      headers: this.authService.getHeaders(),
+    }).pipe(
       this.toast.observe({
         loading: 'Obteniendo datos del cliente...',
         success: () => 'Cliente encontrado',
@@ -91,6 +93,37 @@ export class ClientesService
   {
     const request = this.httpClient.post<Cliente[]>(`${API_URL}/clientes/nombre`, {
       nombre,
+    }, {
+      headers: this.authService.getHeaders(),
+      observe: 'response',
+    }).pipe(
+      takeUntil(this.cancelRequest$),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      map((response: HttpResponse<any>) => response.body.clientes as Cliente[]),
+    );
+
+    return new Observable<Cliente[]>(observer =>
+    {
+      request.subscribe(
+        (clientes: Cliente[]) =>
+        {
+          observer.next(clientes);
+          observer.complete();
+        },
+        error => observer.error(error),
+      );
+
+      return () =>
+      {
+        this.cancelRequest$.next(); // Emite una señal de cancelación al observable
+      };
+    });
+  }
+
+  buscarClientePorTelefono(telefono: string): Observable<Cliente[]>
+  {
+    const request = this.httpClient.post<Cliente[]>(`${API_URL}/clientes/telefono`, {
+      telefono,
     }, {
       headers: this.authService.getHeaders(),
       observe: 'response',
