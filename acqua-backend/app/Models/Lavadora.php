@@ -12,4 +12,9 @@ class Lavadora extends Model
     protected $fillable = [
         'nombre',
     ];
+
+    protected function procesosTicket()
+    {
+        return $this->hasOne(procesoTicket::class, 'id_lavadora');
+    }
 }

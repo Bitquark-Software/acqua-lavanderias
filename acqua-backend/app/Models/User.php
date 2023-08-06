@@ -42,4 +42,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function procesosTicket()
+    {
+        return $this->hasOne(ProcesoTicket::class, 'id_user');
+    }
 }

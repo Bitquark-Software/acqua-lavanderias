@@ -12,4 +12,9 @@ class Proceso extends Model
     protected $fillable = [
         'nombre'
     ];
+
+    public function procesosTicket()
+    {
+        return $this->hasOne(ProcesoTicket::class, 'id_proceso');
+    }
 }
