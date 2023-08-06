@@ -16,6 +16,7 @@ use App\Http\Controllers\PrendasTicketController;
 use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\ProcesoTicketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +63,10 @@ Route::middleware('auth:api')->group( function () {
 
     Route::get('/proceso', [ProcesoController::class, 'index'])->name('proceso.index');
     Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
+
+    Route::get('/proceso-tickets', [ProcesoTicketController::class, 'index'])->name('procesoTicket.index');
+    Route::post('/proceso-tickets', [ProcesoTicketController::class, 'store'])->name('procesoTicket.store');
+    Route::get('/proceso-tickets/{id}', [ProcesoTicketController::class, 'show'])->name('procesoTicket.show');
 });
 
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
