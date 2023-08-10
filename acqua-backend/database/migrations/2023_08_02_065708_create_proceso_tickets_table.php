@@ -19,7 +19,7 @@ class CreateProcesoTicketsTable extends Migration
             $table->unsignedBigInteger('id_proceso');
             $table->dateTime('timestamp_start')->nullable();
             $table->dateTime('timestamp_end')->nullable();
-            $table->foreignId('id_user')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('id_lavadora')->nullable();
             $table->unsignedBigInteger('id_secadora')->nullable();
             $table->timestamps();

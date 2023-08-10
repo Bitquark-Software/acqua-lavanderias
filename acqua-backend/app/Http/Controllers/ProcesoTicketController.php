@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProcesoTicket;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ProcesoTicketController extends Controller
 {
@@ -19,9 +20,8 @@ class ProcesoTicketController extends Controller
             'id_proceso' => ['required', 'exists:procesos,id'],
             'timestamp_start' => ['nullable', 'date_format:Y-m-d H:i:s'],
             'timestamp_end' => ['nullable', 'date_format:Y-m-d H:i:s', 'after:timestamp_start'],            
-            'id_user' => ['required', 'exists:users,id', 'integer'],
             'id_lavadora' => ['nullable', 'exists:lavadoras,id', 'integer'],
-            'id_secadora' => ['nullable', 'exosts:secadoras,id', 'integer'],
+            'id_secadora' => ['nullable', 'exists:secadoras,id', 'integer'],
         ]);
 
         $procesoTicket = ProcesoTicket::create([
@@ -29,10 +29,9 @@ class ProcesoTicketController extends Controller
             'id_proceso' => $request->id_proceso,
             'timestamp_start' => $request->timestamp_start,
             'timestamp_end' => $request->timestamp_end,
-            'id_user' => $request->id_user,
+            'user_id' => $request->user()->id,
             'id_lavadora' => $request->id_lavadora,
             'id_secadora' => $request->id_secadora
-
         ]);
 
         return response()->json([
@@ -44,5 +43,22 @@ class ProcesoTicketController extends Controller
     public function show($id)
     {
         return ProcesoTicket::with('ticket', 'proceso', 'user', 'lavadora', 'secadora')->find($id);
+    }
+
+    public function update(Request $request, $id) 
+    {
+        $request->validate([
+            'timestamp_end' => ['nullable', 'date_format:Y-m-d H:i:s', 'after:timestamp_start'],      
+        ]);
+
+        $procesoTicket = ProcesoTicket::findOrFail($id);
+
+        $procesoTicket->update([
+            'timestamp_end' => $request->timestamp_end
+        ]);
+
+        return response()->json([
+            'mensaje' => 'Proceso ticket actualizado'
+        ], 200);
     }
 }

@@ -63,13 +63,11 @@ Route::middleware('auth:api')->group( function () {
     Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show', 'store');
 
     Route::apiResource('secadoras', SecadoraController::class)->only('index', 'show', 'store');
-  
+
     Route::get('/proceso', [ProcesoController::class, 'index'])->name('proceso.index');
     Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
 
-    Route::get('/proceso-tickets', [ProcesoTicketController::class, 'index'])->name('procesoTicket.index');
-    Route::post('/proceso-tickets', [ProcesoTicketController::class, 'store'])->name('procesoTicket.store');
-    Route::get('/proceso-tickets/{id}', [ProcesoTicketController::class, 'show'])->name('procesoTicket.show');
+    Route::apiResource('proceso-tickets', ProcesoTicketController::class)->except('destroy');
 });
 
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {

@@ -14,7 +14,7 @@ class ProcesoTicket extends Model
         'id_proceso',
         'timestamp_start',
         'timestamp_end',
-        'id_user',
+        'user_id',
         'id_lavadora',
         'id_secadora',
         'id_empleado'
@@ -33,7 +33,7 @@ class ProcesoTicket extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function lavadora()

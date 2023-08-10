@@ -45,6 +45,6 @@ class User extends Authenticatable
 
     public function procesosTicket()
     {
-        return $this->hasOne(ProcesoTicket::class, 'id_user');
+        return $this->hasOne(ProcesoTicket::class, 'user_id');
     }
 }
