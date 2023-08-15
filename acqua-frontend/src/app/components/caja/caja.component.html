@@ -1,4 +1,4 @@
-<div class="w-full h-screen flex flex-col overflow-y-auto">
+<div class="w-full flex flex-col">
   <div class="grid grid-cols-1 md:grid-cols-2 justify-around">
     <div class="grid grid-cols-1 p-2">
       <div class="form-control">
@@ -256,6 +256,21 @@
           </div>
   
           <div class="divider"></div>
+        </div>
+
+        <!-- input para costo de envio -->
+        <div class="form-control w-full" *ngIf="cursorEntrega == 1">
+          <label class="label">
+            <span class="label-text">Importe extra de envío</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            placeholder="0"
+            class="input input-bordered input-success w-full"
+            [(ngModel)]="costoEnvio"
+            (change)="recalcularTotal()"
+          />
         </div>
 
         <!-- input para efectivo recibido -->
@@ -729,27 +744,14 @@
   </form>
 </dialog>
 <dialog #cerrarVenta class="modal modal-bottom sm:modal-middle">
-  <form method="dialog" class="modal-box">
-    <h3 class="font-bold text-3xl ml-2 pt-6">¿En donde se entregará el servicio?</h3>
-    <div class="w-fit m-auto tabs tabs-boxed mt-3">
-      <a
-        class="tab text-primary text-center"
-        [ngClass]="{
-          'bg-white': cursorEntrega == 0,
-        }"
-        (click)="switchMetodoEntrega(0)"
-      >
-        En centro de recolección
-      </a> 
-      <a
-        class="tab text-center text-primary"
-        [ngClass]="{
-          'bg-white': cursorEntrega == 1,
-        }"
-        (click)="switchMetodoEntrega(1)"
-      >
-        A domicilio
-      </a> 
+  <form method="dialog" class="modal-box h-screen w-11/12">
+    <h3 class="font-bold text-3xl ml-2 pt-6">Vista previa de ticket</h3>
+    <p class="font-thin ml-2 text-sm mb-4">Revise en la vista previa que los datos sean correctos</p>
+
+    <!-- ticket aqui -->
+    <ng-container class="w-full shadow-sm rounded-xl" #ticketPreviewContainer></ng-container>
+    <div class="modal-action">
+      <button class="btn" (click)="testPrint($event)">Imprimir ticket</button>
     </div>
   </form>
 </dialog>

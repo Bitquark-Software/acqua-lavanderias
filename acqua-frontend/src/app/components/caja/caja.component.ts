@@ -1,5 +1,12 @@
 /* eslint-disable no-unused-vars */
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  ComponentFactoryResolver,
+  ComponentRef,
+  ElementRef,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
@@ -13,6 +20,8 @@ import { TipoCredito } from 'src/app/enums/TipoCredito.enum';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { CategoriasService } from 'src/app/services/categorias.service';
 import { ClientesService } from 'src/app/services/clientes.service';
+import { TicketPreviewComponent } from '../tickets/ticket-preview/ticket-preview.component';
+import { Ticket } from 'src/app/dtos/ticket';
 
 @Component({
   selector: 'app-caja',
@@ -36,6 +45,13 @@ export class CajaComponent
   @ViewChild('modalConfirmCancelarVenta') modalConfirmCancelarVenta!: ElementRef<HTMLDialogElement>;
   @ViewChild('cerrarVenta') modalCerrarVenta!: ElementRef<HTMLDialogElement>;
 
+  @ViewChild('ticketPreviewContainer',
+    {
+      read: ViewContainerRef,
+    }) ticketPreviewContainer!: ViewContainerRef;
+
+  ticketPreviewRef!: ComponentRef<TicketPreviewComponent>;
+
   // clientes
   nombreCliente = '';
   clienteDefault!: Cliente;
@@ -52,6 +68,7 @@ export class CajaComponent
   recibido = 0;
   cambio = 0;
   total = 0;
+  costoEnvio = 0;
 
   cursorEntrega = 0;
   idSucursal = 0;
@@ -90,6 +107,7 @@ export class CajaComponent
     private clientesService: ClientesService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
+    private ticketPreviewFactory: ComponentFactoryResolver,
   )
   {
     this.route.queryParams.subscribe({
@@ -113,6 +131,11 @@ export class CajaComponent
     );
 
     this.navigateToBottomOfChat();
+
+    setTimeout(() =>
+    {
+      this.finalizarCompra();
+    }, 300);
   }
 
   inputServicioChange(e: Event)
@@ -463,6 +486,8 @@ export class CajaComponent
     {
       tempTotal += parseFloat(s.subtotal?.toString() ?? '1');
     });
+
+    tempTotal += parseFloat(this.costoEnvio.toString());
     this.total = tempTotal;
 
     if(this.tipoDeCredito === TipoCredito.Credito)
@@ -628,22 +653,57 @@ export class CajaComponent
   {
     if(this.tipoDeCredito === TipoCredito.Credito)
     {
-      return (
-        this.total > 0 &&
-        this.clienteSeleccionado != null &&
-        this.serviciosTicket.length >= 1 &&
-        this.anticipo >= 0 &&
-        (this.recibido > 0 && this.recibido >= this.anticipo)
-      );
+      if(this.cursorEntrega == 0)
+      {
+        return (
+          this.total > 0 &&
+          this.clienteSeleccionado != null &&
+          this.serviciosTicket.length >= 1 &&
+          this.anticipo >= 0 &&
+          (this.recibido > 0 && this.recibido >= this.anticipo)
+        );
+      }
+      else if(this.cursorEntrega == 1)
+      {
+        return (
+          this.total > 0 &&
+          this.costoEnvio > 0 &&
+          this.clienteSeleccionado != null &&
+          this.serviciosTicket.length >= 1 &&
+          this.anticipo >= 0 &&
+          (this.recibido > 0 && this.recibido >= this.anticipo)
+        );
+      }
+      else
+      {
+        return false;
+      }
     }
     else if(this.tipoDeCredito === TipoCredito.Contado)
     {
-      return (
-        this.total > 0 &&
-        this.clienteSeleccionado != null &&
-        this.serviciosTicket.length >= 1 &&
-        this.recibido >= this.total
-      );
+      if(this.cursorEntrega == 0)
+      {
+        return (
+          this.total > 0 &&
+          this.clienteSeleccionado != null &&
+          this.serviciosTicket.length >= 1 &&
+          this.recibido >= this.total
+        );
+      }
+      else if(this.cursorEntrega == 1)
+      {
+        return (
+          this.total > 0 &&
+          this.costoEnvio > 0 &&
+          this.clienteSeleccionado != null &&
+          this.serviciosTicket.length >= 1 &&
+          this.recibido >= this.total
+        );
+      }
+      else
+      {
+        return false;
+      }
     }
     else
     {
@@ -749,10 +809,129 @@ export class CajaComponent
   finalizarCompra()
   {
     this.modalCerrarVenta.nativeElement.show();
+
+    this.ticketPreviewContainer.clear();
+
+    const ticketPreviewFactory =
+    this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+    const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+    ticketPreviewRef.instance.ticket = {
+      created_at: new Date().toLocaleString('es-MX', { hour12: true }),
+      id: 234,
+    } as Ticket;
+    this.ticketPreviewRef = ticketPreviewRef;
   }
 
   renderNoUbicacionesAlert(message: string)
   {
     this.toastService.warning(message);
+  }
+
+  testPrint(event: Event)
+  {
+    console.log('Printing ticket...');
+    this.print(event);
+  }
+
+  print(event: Event)
+  {
+    event.preventDefault();
+    const newWindow = window.open('', '_blank');
+
+    if(newWindow)
+    {
+      newWindow.document.write(
+        `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>VISTA PREVIA</title>
+          </head>
+
+          <body>
+            ${this.ticketPreviewRef.location.nativeElement.outerHTML}
+          </body>
+
+          <style>
+            @page { size:  auto; margin: 0px; }
+            * {
+              font-size: 12px;
+              font-family: "Times New Roman";
+            }
+          
+            td,
+            th,
+            tr,
+            table {
+              border-top: 1px solid black;
+              border-collapse: collapse;
+            }
+          
+            td.description,
+            th.description {
+              width: 75px;
+              max-width: 75px;
+            }
+          
+            td.quantity,
+            th.quantity {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            td.price,
+            th.price {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            .centered {
+              text-align: center;
+              align-content: center;
+              font-weight: bold;
+            }
+          
+            .ticket {
+              width: 155px;
+              max-width: 155px;
+            }
+          
+            img {
+              max-width: inherit;
+              width: inherit;
+            }
+          
+            @media print {
+              .hidden-print,
+              .hidden-print * {
+                display: none !important;
+              }
+            }
+
+            .qrcodeImage {
+              display: flex;
+              flex: 1;
+            }
+            
+            /* Add custom styles here */
+            .center {
+              display: flex;
+              flex: 1;
+              justify-content: center;
+            }
+          </style>
+        </html> 
+        `);
+      newWindow.document.close();
+      newWindow.onload = () =>
+      {
+        newWindow.print();
+      };
+    }
   }
 }

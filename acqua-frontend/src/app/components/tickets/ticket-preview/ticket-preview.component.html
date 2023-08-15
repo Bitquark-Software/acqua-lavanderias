@@ -1,0 +1,88 @@
+<div id="ticket-container" style="width: 80mm">
+  <img src="../../../../assets/print-app-logo.png" alt="ACQUA logo" />
+  <p class="centered">ACQUA Lavanderías</p>
+  <p class="centered">RFC: HEGM491024MC7</p>
+  <br>
+  <p class="centered">Diagonal 9 Sur Pte 916 Barrio San Francisco, C.P 29066, Ciudad Tuxtla Gutiérrez, Chiapas Tel: 961-245-4184</p>
+
+  <br>
+
+  <p class="centered">Ticket Nº. {{ticket.id}} &nbsp; FECHA: {{ticket.created_at}}</p>
+
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
+    * * SERVICIOS * *
+  </div>
+
+  <table style="width: 100%; border-top: dotted 2px; border-bottom: dotted 2px;">
+    <colgroup>
+      <col width="40%" />
+      <col width="20%" />
+      <col width="20%" />
+      <col width="20%" />
+    </colgroup>
+    <thead>
+      <th>DESCRIPCION</th>
+      <th>P. UNIT</th>
+      <th>CANT</th>
+      <th>IMPTE</th>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="white-space: wrap; max-width:1px;">
+          LAVANDERIA PREMIUM
+        </td>
+        <td style="white-space: wrap; max-width:1px;">
+          23.00
+        </td>
+        <td style="white-space: wrap; max-width:1px;">
+          3.00
+        </td>
+        <td style="white-space: wrap; max-width:1px;">
+          69.00
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <br>
+  <p style="text-align: right;">Impuestos: 0.00</p>
+  <p style="text-align: right;">Total: $69.00</p>
+  <p style="text-align: right;">Anticipo: $0.00</p>
+  <p style="text-align: right;">Saldo: $0.00</p>
+
+  <br>
+
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
+    <p style="font-weight: bold;">* * DATOS DEL CLIENTE * *</p>
+    <p class="centered">Cliente: LUIS FERNANDO HERNANDEZ MORALES</p>
+  </div>
+
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
+    <p style="font-weight: bold;">* * ENVÍO A DOMICILIO * *</p>
+    <p class="centered">ENTREGAR EN: AVENIDA X, COLONIA Y</p>
+  </div>
+
+  <div style="width: 100%; border-top: dotted 2px; border-bottom: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
+    <p style="font-weight: bold;">* * ANTENDIÓ * *</p>
+    <p class="centered">ADMINISTRADOR</p>
+  </div>
+  <br>
+  <p class="centered">Contrato Aprobado y Registrado en Profeco, Número 199-221 de Fecha 15 de Enero 2021.</p>
+
+  <div class="qrcodeImage">
+    <qrcode
+        [qrdata]="ticketURL"
+        [allowEmptyString]="true"
+        [elementType]="'url'"
+        [cssClass]="'center'"
+        [errorCorrectionLevel]="'M'"
+        [scale]="1"
+        [width]="200"
+    ></qrcode>
+  </div>
+
+  <br>
+
+  <p class="centered">ESTE TICKET NO ES UN COMPROBANTE FISCAL</p>
+
+</div>
