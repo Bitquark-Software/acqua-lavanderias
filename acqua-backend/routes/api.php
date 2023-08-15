@@ -17,6 +17,7 @@ use App\Http\Controllers\SecadoraController;
 use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\ProcesoTicketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,9 +63,11 @@ Route::middleware('auth:api')->group( function () {
     Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show', 'store');
 
     Route::apiResource('secadoras', SecadoraController::class)->only('index', 'show', 'store');
-  
+
     Route::get('/proceso', [ProcesoController::class, 'index'])->name('proceso.index');
     Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
+
+    Route::apiResource('proceso-tickets', ProcesoTicketController::class)->except('destroy');
 });
 
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
