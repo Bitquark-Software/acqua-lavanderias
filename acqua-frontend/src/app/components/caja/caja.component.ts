@@ -34,6 +34,7 @@ export class CajaComponent
   // modales
   @ViewChild('modalRegistrarCliente') nuevoClienteDialog!: ElementRef<HTMLDialogElement>;
   @ViewChild('modalConfirmCancelarVenta') modalConfirmCancelarVenta!: ElementRef<HTMLDialogElement>;
+  @ViewChild('cerrarVenta') modalCerrarVenta!: ElementRef<HTMLDialogElement>;
 
   // clientes
   nombreCliente = '';
@@ -52,6 +53,9 @@ export class CajaComponent
   cambio = 0;
   total = 0;
 
+  cursorEntrega = 0;
+  idSucursal = 0;
+  idDireccionEnvio = 0;
   // Nuevo Cliente
   nuevoClienteForm = this.fb.group({
     nombre: [this.nombreCliente, Validators.required],
@@ -97,7 +101,7 @@ export class CajaComponent
           if(this.clienteDefault)
           {
             this.nombreCliente = `${this.clienteDefault.id}:${this.clienteDefault.nombre}`;
-            this.clienteSeleccionado = this.clienteDefault;
+            this.setCliente();
           }
         }
       },
@@ -322,7 +326,25 @@ export class CajaComponent
       const cliente = this.coincidenciasClientes.find(c => c.id?.toString() === id);
       if(cliente)
       {
-        this.clienteSeleccionado = cliente;
+        this.clientesService.fetchClienteById(cliente.id ?? 0).subscribe(
+          {
+            next: (clienteConDirecciones) =>
+            {
+              this.clienteSeleccionado = clienteConDirecciones;
+            },
+          },
+        );
+      }
+      else if(this.clienteDefault)
+      {
+        this.clientesService.fetchClienteById(this.clienteDefault.id ?? 0).subscribe(
+          {
+            next: (clienteConDirecciones) =>
+            {
+              this.clienteSeleccionado = clienteConDirecciones;
+            },
+          },
+        );
       }
     }
   }
@@ -700,5 +722,37 @@ export class CajaComponent
   atob(base64: string)
   {
     return JSON.parse(atob(base64));
+  }
+
+  switchMetodoEntrega(cursor:number)
+  {
+    if(!this.clienteSeleccionado)
+    {
+      this.cursorEntrega = 0;
+      this.renderNoUbicacionesAlert('Para habilitar esta opción primero selecciona a un cliente');
+      return;
+    }
+
+    if(this.clienteSeleccionado)
+    {
+      console.log(this.clienteSeleccionado);
+      if(!this.clienteSeleccionado.direccion?.length)
+      {
+        this.renderNoUbicacionesAlert('Este cliente no tiene direcciones registradas');
+        this.cursorEntrega = 0;
+        return;
+      }
+    }
+    this.cursorEntrega = cursor;
+  }
+
+  finalizarCompra()
+  {
+    this.modalCerrarVenta.nativeElement.show();
+  }
+
+  renderNoUbicacionesAlert(message: string)
+  {
+    this.toastService.warning(message);
   }
 }
