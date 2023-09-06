@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class TicketController extends Controller
 {
@@ -19,13 +20,76 @@ class TicketController extends Controller
         return Ticket::orderBy('created_at', 'desc')->paginate(15);
     }
 
+    public function generateReport() : JsonResponse
+    {
+
+        try {
+            $inicioFechaConsulta = request('fecha_inicio') ?? null;
+            $finFechaConsulta = request('fecha_fin') ?? null;
+
+            if (empty($inicioFechaConsulta) && empty($finFechaConsulta)) {
+                // Fecha Inicio y Final no Proporcinadas
+                $inicioFechaConsulta = Carbon::now()->startOfDay();
+                $finFechaConsulta = Carbon::now()->endOfDay();
+
+            } else {
+                /// Fechas Proporcinadas
+                $inicioFechaConsulta = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_inicio'))->startOfDay();
+                $finFechaConsulta = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_fin'))->endOfDay();
+            }
+
+            // * Consulta para metodo de pago "Contado" Pagado
+            $montoTicketsPagadosAContado = Ticket::where('restante', 0)
+                ->where('tipo_credito', 'contado')
+                ->where('vencido', false)
+                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('total');
+
+            // * Consulta para metodo de pago "Credito" Total
+            $montoTicketsTotalACredito = Ticket::where('restante', '>=', 0)
+                ->where('tipo_credito', 'credito')
+                ->where('vencido', false)
+                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('total');
+
+            // * Consulta para metodo de pago "Credito" Pagado
+            $montoTicketsACreditoPagado = Ticket::where('restante', 0)
+                ->where('tipo_credito', 'credito')
+                ->where('vencido', false)
+                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('anticipo');
+
+            // * Consulta para metodo de pago "Credito" Pendiente
+            $montoTicketsACreditoPendiente = Ticket::where('restante', '>=', 0)
+                ->where('tipo_credito', 'credito')
+                ->where('vencido', false)
+                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('restante');
+
+            return response()->json([
+                'totalingresos' => $montoTicketsPagadosAContado + $montoTicketsTotalACredito,
+                'montocobrado' => $montoTicketsPagadosAContado + $montoTicketsACreditoPagado,
+                'montoporcobrar' => (int) $montoTicketsACreditoPendiente
+            ], 200);
+            
+        } catch (\Exception $e) {
+            // Fecha no valida
+            return response()->json(
+                [
+                    'mensaje' => 'La fecha no es válida'
+                ],
+                400
+            );
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) : JsonResponse
+    public function store(Request $request): JsonResponse
     {
 
         $request->validate([
@@ -81,7 +145,7 @@ class TicketController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id) : JsonResponse
     {
         $request->validate([
             'envio_domicilio' => ['boolean'],
@@ -126,7 +190,7 @@ class TicketController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id) : JsonResponse
     {
         $ticket = Ticket::findOrFail($id);
         $ticket->comentarios()->delete();
