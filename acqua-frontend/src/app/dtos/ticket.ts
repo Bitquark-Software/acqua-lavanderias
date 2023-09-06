@@ -32,3 +32,11 @@ export class Ticket
   vencido!: boolean;
   created_at!: Date | string;
 }
+
+export class TicketResponse
+{
+  current_page!: number;
+  data!: Ticket[];
+  prev_page_url ?: string;
+  next_page_url ?: string;
+}

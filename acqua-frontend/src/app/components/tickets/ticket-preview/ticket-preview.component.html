@@ -1,15 +1,12 @@
 <div id="ticket-container" style="width: 80mm">
-  <img src="../../../../assets/print-app-logo.png" alt="ACQUA logo" />
+  <img style="margin: 0 !important; width: 40mm !important; height: auto !important; text-align: center;" src="../../../../assets/print-app-logo.png" class="qrcodeImage center" alt="ACQUA logo" />
   <p class="centered">ACQUA Lavanderías</p>
   <p class="centered">RFC: HEGM491024MC7</p>
-  <br>
   <p class="centered">Diagonal 9 Sur Pte 916 Barrio San Francisco, C.P 29066, Ciudad Tuxtla Gutiérrez, Chiapas Tel: 961-245-4184</p>
-
-  <br>
 
   <p class="centered">Ticket Nº. {{ticket.id}} &nbsp; FECHA: {{ticket.created_at}}</p>
 
-  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center; font-weight: bold;">
     * * SERVICIOS * *
   </div>
 
@@ -27,49 +24,66 @@
       <th>IMPTE</th>
     </thead>
     <tbody>
-      <tr>
+      <tr *ngFor="let st of serviciosTicket">
         <td style="white-space: wrap; max-width:1px;">
-          LAVANDERIA PREMIUM
+          {{st.nombre_servicio}}
         </td>
         <td style="white-space: wrap; max-width:1px;">
-          23.00
+          {{st.importe}}
         </td>
         <td style="white-space: wrap; max-width:1px;">
-          3.00
+          {{st.cantidad}}
         </td>
         <td style="white-space: wrap; max-width:1px;">
-          69.00
+          {{st.subtotal}}
         </td>
       </tr>
     </tbody>
   </table>
 
-  <br>
-  <p style="text-align: right;">Impuestos: 0.00</p>
-  <p style="text-align: right;">Total: $69.00</p>
-  <p style="text-align: right;">Anticipo: $0.00</p>
-  <p style="text-align: right;">Saldo: $0.00</p>
-
-  <br>
+  <p style="text-align: right;" *ngIf="inclye_iva">Impuestos: 0.00</p>
+  <p style="text-align: right;">Total: ${{total.toFixed(2)}}</p>
+  <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO'">Anticipo: ${{anticipo.toFixed(2)}}</p>
+  <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO'">Saldo: ${{saldoPendiente.toFixed(2)}}</p>
+  <p style="text-align: right;" *ngIf="metodoPago == 'EFECTIVO'">--------------------</p>
+  <p style="text-align: right;" *ngIf="metodoPago == 'EFECTIVO'">Recibido: ${{recibido.toFixed(2)}}</p>
+  <p style="text-align: right;" *ngIf="metodoPago == 'EFECTIVO'">Cambio: ${{cambio.toFixed(2)}}</p>
 
   <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
     <p style="font-weight: bold;">* * DATOS DEL CLIENTE * *</p>
-    <p class="centered">Cliente: LUIS FERNANDO HERNANDEZ MORALES</p>
+    <p class="centered">Cliente: {{cliente.nombre.toUpperCase()}}</p>
   </div>
 
-  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;" *ngIf="tipoEntrega == 'ENVIO'">
     <p style="font-weight: bold;">* * ENVÍO A DOMICILIO * *</p>
     <p class="centered">ENTREGAR EN: AVENIDA X, COLONIA Y</p>
+  </div>
+
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;" *ngIf="tipoEntrega == 'SUCURSAL'">
+    <p style="font-weight: bold;">* * CENTRO DE RECOLECCIÓN * *</p>
+    <p class="centered">ENTREGAR EN: MATRIZ</p>
   </div>
 
   <div style="width: 100%; border-top: dotted 2px; border-bottom: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
     <p style="font-weight: bold;">* * ANTENDIÓ * *</p>
     <p class="centered">ADMINISTRADOR</p>
   </div>
-  <br>
+  
   <p class="centered">Contrato Aprobado y Registrado en Profeco, Número 199-221 de Fecha 15 de Enero 2021.</p>
 
-  <div class="qrcodeImage">
+  <div class="qrcodeImage center" *ngIf="esTicketCliente" style="margin: 0 auto!important; text-align: center;">
+    <qrcode
+        [qrdata]="ticketURLCliente"
+        [allowEmptyString]="true"
+        [elementType]="'url'"
+        [cssClass]="'center'"
+        [errorCorrectionLevel]="'M'"
+        [scale]="1"
+        [width]="150"
+    ></qrcode>
+  </div>
+
+  <div class="qrcodeImage center" *ngIf="!esTicketCliente" style="margin: 0 auto !important; text-align: center;">
     <qrcode
         [qrdata]="ticketURL"
         [allowEmptyString]="true"
@@ -77,12 +91,8 @@
         [cssClass]="'center'"
         [errorCorrectionLevel]="'M'"
         [scale]="1"
-        [width]="200"
+        [width]="150"
     ></qrcode>
   </div>
-
-  <br>
-
   <p class="centered">ESTE TICKET NO ES UN COMPROBANTE FISCAL</p>
-
 </div>

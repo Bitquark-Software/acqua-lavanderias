@@ -16,7 +16,7 @@ class PrendaController extends Controller
      */
     public function index()
     {
-        return Prenda::paginate(8);
+        return Prenda::orderBy('nombre', 'ASC')->get();
     }
 
     /**

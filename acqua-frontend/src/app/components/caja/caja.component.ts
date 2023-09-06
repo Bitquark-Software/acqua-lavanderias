@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-vars */
 import {
   Component,
@@ -8,7 +9,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
 import { Categoria } from 'src/app/dtos/catalogo';
 import { Cliente } from 'src/app/dtos/cliente';
@@ -22,6 +23,8 @@ import { CategoriasService } from 'src/app/services/categorias.service';
 import { ClientesService } from 'src/app/services/clientes.service';
 import { TicketPreviewComponent } from '../tickets/ticket-preview/ticket-preview.component';
 import { Ticket } from 'src/app/dtos/ticket';
+import { TicketService } from 'src/app/services/ticket.service';
+import { Sucursal } from 'src/app/dtos/sucursal';
 
 @Component({
   selector: 'app-caja',
@@ -69,6 +72,7 @@ export class CajaComponent
   cambio = 0;
   total = 0;
   costoEnvio = 0;
+  incluir_iva = false;
 
   cursorEntrega = 0;
   idSucursal = 0;
@@ -100,6 +104,11 @@ export class CajaComponent
   chatText = '';
   chatHistory: Comentario[] = [];
 
+  ticket!: Ticket;
+
+  // Sucursales
+  sucursales: Sucursal[] = [];
+
   constructor(
     private categoriasService: CategoriasService,
     private toastService: HotToastService,
@@ -107,7 +116,9 @@ export class CajaComponent
     private clientesService: ClientesService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
+    private router: Router,
     private ticketPreviewFactory: ComponentFactoryResolver,
+    private ticketService: TicketService,
   )
   {
     this.route.queryParams.subscribe({
@@ -130,12 +141,14 @@ export class CajaComponent
       },
     );
 
-    this.navigateToBottomOfChat();
+    this.fetchSucursales();
 
-    setTimeout(() =>
-    {
-      this.finalizarCompra();
-    }, 300);
+    this.navigateToBottomOfChat();
+  }
+
+  fetchSucursales()
+  {
+    this.ticketService.getSucursales().subscribe({ next: (sucursales) => this.sucursales = sucursales });
   }
 
   inputServicioChange(e: Event)
@@ -225,7 +238,7 @@ export class CajaComponent
         {
           date: new Date().toISOString(),
           sender: this.authService.session?.datos.name ?? '',
-          text: this.chatText,
+          texto: this.chatText,
         },
       );
       this.chatText = '';
@@ -660,6 +673,7 @@ export class CajaComponent
           this.clienteSeleccionado != null &&
           this.serviciosTicket.length >= 1 &&
           this.anticipo >= 0 &&
+          this.idSucursal != 0 &&
           (this.recibido > 0 && this.recibido >= this.anticipo)
         );
       }
@@ -670,6 +684,7 @@ export class CajaComponent
           this.costoEnvio > 0 &&
           this.clienteSeleccionado != null &&
           this.serviciosTicket.length >= 1 &&
+          this.idDireccionEnvio != 0 &&
           this.anticipo >= 0 &&
           (this.recibido > 0 && this.recibido >= this.anticipo)
         );
@@ -687,6 +702,7 @@ export class CajaComponent
           this.total > 0 &&
           this.clienteSeleccionado != null &&
           this.serviciosTicket.length >= 1 &&
+          this.idSucursal != 0 &&
           this.recibido >= this.total
         );
       }
@@ -696,6 +712,7 @@ export class CajaComponent
           this.total > 0 &&
           this.costoEnvio > 0 &&
           this.clienteSeleccionado != null &&
+          this.idDireccionEnvio != 0 &&
           this.serviciosTicket.length >= 1 &&
           this.recibido >= this.total
         );
@@ -735,6 +752,9 @@ export class CajaComponent
     this.clienteSeleccionado = null as unknown as Cliente;
     this.coincidenciasClientes = [];
     this.chatHistory = [];
+    this.cursorEntrega = 0;
+    this.idSucursal = 0;
+    this.idDireccionEnvio = 0;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -795,7 +815,6 @@ export class CajaComponent
 
     if(this.clienteSeleccionado)
     {
-      console.log(this.clienteSeleccionado);
       if(!this.clienteSeleccionado.direccion?.length)
       {
         this.renderNoUbicacionesAlert('Este cliente no tiene direcciones registradas');
@@ -808,6 +827,19 @@ export class CajaComponent
 
   finalizarCompra()
   {
+    const tempTicket = {
+      id_cliente: this.clienteSeleccionado.id,
+      envio_domicilio: this.cursorEntrega == 1,
+      id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
+      id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
+      incluye_iva: this.incluir_iva,
+      tipo_credito: this.tipoDeCredito,
+      metodo_pago: this.metodoPago,
+      total: this.total,
+      anticipo: this.anticipo,
+      restante: this.saldoPendiente,
+    } as Ticket;
+
     this.modalCerrarVenta.nativeElement.show();
 
     this.ticketPreviewContainer.clear();
@@ -815,10 +847,19 @@ export class CajaComponent
     const ticketPreviewFactory =
     this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
     const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
-    ticketPreviewRef.instance.ticket = {
-      created_at: new Date().toLocaleString('es-MX', { hour12: true }),
-      id: 234,
-    } as Ticket;
+    ticketPreviewRef.instance.ticket = tempTicket;
+    ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+    ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+    ticketPreviewRef.instance.setAnticipo(this.anticipo);
+    ticketPreviewRef.instance.setIncluyeIva(this.incluir_iva);
+    ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
+    ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
+    ticketPreviewRef.instance.setTotal(this.total);
+    ticketPreviewRef.instance.setCambio(this.cambio);
+    ticketPreviewRef.instance.setRecibido(this.recibido);
+    ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
+    ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
+    ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
     this.ticketPreviewRef = ticketPreviewRef;
   }
 
@@ -827,15 +868,102 @@ export class CajaComponent
     this.toastService.warning(message);
   }
 
-  testPrint(event: Event)
-  {
-    console.log('Printing ticket...');
-    this.print(event);
-  }
-
-  print(event: Event)
+  setupPreviewForServicio(event: Event)
   {
     event.preventDefault();
+    const tempTicket = {
+      id_cliente: this.clienteSeleccionado.id,
+      envio_domicilio: this.cursorEntrega == 1,
+      id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
+      id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
+      incluye_iva: this.incluir_iva,
+      tipo_credito: this.tipoDeCredito,
+      metodo_pago: this.metodoPago,
+      total: this.total,
+      anticipo: this.anticipo,
+      restante: this.saldoPendiente,
+    } as Ticket;
+
+    this.modalCerrarVenta.nativeElement.show();
+
+    this.ticketPreviewContainer.clear();
+
+    const ticketPreviewFactory =
+    this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+    const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+    ticketPreviewRef.instance.ticket = tempTicket;
+    ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+    ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+    ticketPreviewRef.instance.setAnticipo(this.anticipo);
+    ticketPreviewRef.instance.setIncluyeIva(this.incluir_iva);
+    ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
+    ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
+    ticketPreviewRef.instance.setTotal(this.total);
+    ticketPreviewRef.instance.setCambio(this.cambio);
+    ticketPreviewRef.instance.setRecibido(this.recibido);
+    ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
+    ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
+    ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
+    this.ticketPreviewRef.instance.esTicketCliente = false;
+    this.ticketPreviewRef.instance.setTipoTicket(false);
+    this.ticketPreviewRef = ticketPreviewRef;
+
+    setTimeout(() =>
+    {
+      this.printServicio(event);
+    }, 300);
+  }
+
+  setupPreviewForCliente(event: Event)
+  {
+    event.preventDefault();
+    const tempTicket = {
+      id_cliente: this.clienteSeleccionado.id,
+      envio_domicilio: this.cursorEntrega == 1,
+      id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
+      id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
+      incluye_iva: this.incluir_iva,
+      tipo_credito: this.tipoDeCredito,
+      metodo_pago: this.metodoPago,
+      total: this.total,
+      anticipo: this.anticipo,
+      restante: this.saldoPendiente,
+    } as Ticket;
+
+    this.modalCerrarVenta.nativeElement.show();
+
+    this.ticketPreviewContainer.clear();
+
+    const ticketPreviewFactory =
+    this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+    const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+    ticketPreviewRef.instance.ticket = tempTicket;
+    ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+    ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+    ticketPreviewRef.instance.setAnticipo(this.anticipo);
+    ticketPreviewRef.instance.setIncluyeIva(this.incluir_iva);
+    ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
+    ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
+    ticketPreviewRef.instance.setTotal(this.total);
+    ticketPreviewRef.instance.setCambio(this.cambio);
+    ticketPreviewRef.instance.setRecibido(this.recibido);
+    ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
+    ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
+    ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
+    this.ticketPreviewRef.instance.esTicketCliente = true;
+    this.ticketPreviewRef.instance.setTipoTicket(true);
+    this.ticketPreviewRef = ticketPreviewRef;
+
+    setTimeout(() =>
+    {
+      this.printCliente(event);
+    }, 300);
+  }
+
+  printCliente(event: Event)
+  {
+    event.preventDefault();
+
     const newWindow = window.open('', '_blank');
 
     if(newWindow)
@@ -848,7 +976,7 @@ export class CajaComponent
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
-            <title>VISTA PREVIA</title>
+            <title>TICKET DEL CLIENTE</title>
           </head>
 
           <body>
@@ -933,5 +1061,147 @@ export class CajaComponent
         newWindow.print();
       };
     }
+  }
+
+  printServicio(event: Event)
+  {
+    event.preventDefault();
+
+    const newWindow = window.open('', '_blank');
+
+    if(newWindow)
+    {
+      newWindow.document.write(
+        `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>TICKET DE SERVICIO</title>
+          </head>
+
+          <body>
+            ${this.ticketPreviewRef.location.nativeElement.outerHTML}
+          </body>
+
+          <style>
+            @page { size:  auto; margin: 0px; }
+            * {
+              font-size: 12px;
+              font-family: "Times New Roman";
+            }
+          
+            td,
+            th,
+            tr,
+            table {
+              border-top: 1px solid black;
+              border-collapse: collapse;
+            }
+          
+            td.description,
+            th.description {
+              width: 75px;
+              max-width: 75px;
+            }
+          
+            td.quantity,
+            th.quantity {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            td.price,
+            th.price {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            .centered {
+              text-align: center;
+              align-content: center;
+              font-weight: bold;
+            }
+          
+            .ticket {
+              width: 155px;
+              max-width: 155px;
+            }
+          
+            img {
+              max-width: inherit;
+              width: inherit;
+            }
+          
+            @media print {
+              .hidden-print,
+              .hidden-print * {
+                display: none !important;
+              }
+            }
+
+            .qrcodeImage {
+              display: flex;
+              flex: 1;
+            }
+            
+            /* Add custom styles here */
+            .center {
+              display: flex;
+              flex: 1;
+              justify-content: center;
+            }
+          </style>
+        </html> 
+        `);
+      newWindow.document.close();
+      newWindow.onload = () =>
+      {
+        newWindow.print();
+      };
+    }
+  }
+
+  saveTicket()
+  {
+    this.ticket = {
+      id_cliente: this.clienteSeleccionado.id,
+      envio_domicilio: this.cursorEntrega == 1,
+      id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
+      id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
+      incluye_iva: this.incluir_iva,
+      tipo_credito: this.tipoDeCredito,
+      metodo_pago: this.metodoPago,
+      total: this.total,
+      anticipo: this.anticipo,
+      restante: this.saldoPendiente,
+    } as Ticket;
+
+    const loadingToast = this.toastService.loading('Creando ticket');
+
+    this.ticketService.registrarTicket(this.ticket, this.serviciosTicket).subscribe({
+      next: (ticketResponse: any) =>
+      {
+        loadingToast.close();
+        this.chatHistory.forEach(c =>
+        {
+          if(!c.id)
+          {
+            this.ticketService.agregarComentario(c, ticketResponse.data.id);
+          }
+        });
+        this.toastService.success('¡Ticket creado!');
+        this.clearCaja();
+      },
+      error: (err) =>
+      {
+        loadingToast.close();
+        this.toastService.error(`${err.error.message ?? 'No se pudo crear el ticket' }`);
+      },
+    });
   }
 }

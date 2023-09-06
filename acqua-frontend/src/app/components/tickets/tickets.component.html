@@ -12,9 +12,11 @@
               placeholder="Busca por nombre, teléfono o número de ticket"
               class="input input-bordered w-full focus:outline-none"
               [(ngModel)]="busquedaCliente"
+              (input)="handleInputChange()"
             />
           </div>
           <ul role="list">
+            <li *ngIf="tickets.length == 0">Sin tickets</li>
             <li
                 class="p-4 rounded-2xl my-2 shadow-sm"
                 *ngFor="let ticket of tickets"
@@ -129,8 +131,8 @@
                     </svg>
                   </button>
                 </div>
-                <div class="flex-shrink-0">
-                  {{ ticket.id }}
+                <div class="flex-shrink-0 font-bold text-sm">
+                  #{{ ticket.id }}
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-gray-900 truncate">

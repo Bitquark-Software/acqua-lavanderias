@@ -1,9 +1,36 @@
+<div class="absolute z-20 top-0 left-0 w-screen h-screen bg-base-100 flex flex-col items-center justify-center" *ngIf="isLoading">
+  <span class="loading loading-ring loading-lg"></span>
+  <h1 class="font-bold text-3xl">Cargando detalles del ticket...</h1>
+</div>
+
 <button class="z-20 absolute right-6 bottom-6 ml-6 btn btn-warning btn-circle btn-lg p-3 tooltip" data-tip="comentarios" (click)="openCommentsDialog()">
   <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" stroke-linecap="round" stroke-linejoin="round"></path>
   </svg>
 </button>
 <app-drawer>
+  <div class="w-full my-3 mx-auto" *ngIf="ticket">
+    <div class="card w-11/12 bg-base-100 shadow-sm p-0 my-4 mx-auto">
+      <div class="card-body">
+        <p class="font-medium text-xl text-secondary">Cliente: {{ticket.cliente.nombre}}</p>
+        <p class="font-thin text-xs">Ticket creado: {{ticket.created_at}}</p>
+        <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-3 divide-y sm:divide-x sm:divide-y-0 items-center justify-center border-t sm:pt-3">
+          <div class="flex flex-col items-center justify-center gap-2">
+            <p class="font-medium text-xl text-success">Total</p>
+            <p class="font-bold text-sm">$ {{ticket.total}}</p>
+          </div>
+          <div class="flex flex-col items-center justify-center gap-2">
+            <p class="font-medium text-xl text-warning">Anticipo</p>
+            <p class="font-bold text-sm">$ {{ticket.anticipo}}</p>
+          </div>
+          <div class="flex flex-col items-center justify-center gap-2">
+            <p class="font-medium text-xl text-error">Restante</p>
+            <p class="font-bold text-sm">$ {{ticket.restante}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="w-full grid grid-cols-1 gap-6 m-auto md:mt-3">
     <div class="w-full">
       <ul class="w-full steps">
@@ -293,7 +320,7 @@
       <p class="text-sm text-center" *ngIf="chatHistory.length == 0">Sin comentarios</p>
       <div class="chat chat-end" *ngFor="let comentario of chatHistory">
         <div class="chat-header opacity-50">{{comentario.sender}}</div>
-        <div class="chat-bubble">{{comentario.text}}</div>
+        <div class="chat-bubble">{{comentario.texto}}</div>
         <div class="chat-footer">
           {{comentario.date}}
         </div>

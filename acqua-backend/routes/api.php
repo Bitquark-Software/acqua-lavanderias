@@ -20,27 +20,18 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ProcesoTicketController;
 use App\Http\Controllers\StatsController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
 Route::middleware('auth:api')->group(function () { // Para Empleados
     Route::apiResource('catalogos', CatalogoController::class)->only('index', 'show'); 
     Route::apiResource('servicios', ServiciosController::class)->only('index', 'show');
-    Route::apiResource('prendas', PrendaController::class)->only('index', 'show'); 
+    Route::apiResource('prendas', PrendaController::class)->only('index', 'show');
+    Route::apiResource('servicios-ticket', PrendaController::class)->except('destroy');
 });
 
 Route::middleware(['auth:api',AdminOnlyMiddleware::class])->group(function () {
     Route::apiResource('catalogos', CatalogoController::class)->except('index', 'show'); // CRUD CATALOGOS
     Route::apiResource('servicios', ServiciosController::class)->except('index', 'show'); // CRUD SERVICIOS
     Route::apiResource('prendas', PrendaController::class)->except('index', 'show'); // CRUD PRENDAS
+    Route::apiResource('servicios-ticket', PrendaController::class);  // CRUD SERVICIOS TICKET
 });
 
 Route::middleware('auth:api')->group(function () {

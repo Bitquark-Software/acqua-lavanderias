@@ -6,7 +6,6 @@ use App\Models\Comentario;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\QueryException;
 
 class ComentarioController extends Controller
 {

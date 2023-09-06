@@ -1,11 +1,14 @@
 /* eslint-disable no-unused-vars */
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
 import { Comentario } from 'src/app/dtos/comentario';
 import { Lavadora } from 'src/app/dtos/lavadora';
 import { Prenda, PrendaTicket } from 'src/app/dtos/prenda-ticket';
+import { StatusTicket, Ticket } from 'src/app/dtos/ticket';
 import { AuthService } from 'src/app/services/auth-service.service';
+import { TicketService } from 'src/app/services/ticket.service';
 
 @Component({
   selector: 'app-detalles-ticket',
@@ -14,42 +17,25 @@ import { AuthService } from 'src/app/services/auth-service.service';
 })
 export class DetallesTicketComponent
 {
+  isLoading = true;
+  showDisplayError = false;
+  ticketId!: number;
+  ticket!: Ticket;
+
   @ViewChild('comentariosModal') comentariosModal!: ElementRef<HTMLDialogElement>;
 
   stepCursor = 0;
   cursorEntrega = 0;
 
   prendasTicket: PrendaTicket[] = [];
-  prendas: Prenda[] = [
-    {
-      nombre: 'CAMISAS',
-    },
-    {
-      nombre: 'PANTALONES',
-    },
-    {
-      nombre: 'PAR DE CALCETINES',
-    },
-    {
-      nombre: 'CALCETINES SUELTOS',
-    },
-  ];
+  prendas: Prenda[] = [];
 
   prendasForm!: FormGroup;
   piezasText = 'Pieza';
   conteo = 0;
   reconteoOk = false;
   idLavadora = null;
-  lavadoras: Lavadora[] = [
-    {
-      id: 1,
-      nombre: 'LAVADORA 1',
-    },
-    {
-      id: 2,
-      nombre: 'LAVADORA 2',
-    },
-  ];
+  lavadoras: Lavadora[] = [];
 
   chatHistory: Comentario[] = [];
   chatForm!: FormGroup;
@@ -59,8 +45,13 @@ export class DetallesTicketComponent
     private fb: FormBuilder,
     private toast: HotToastService,
     private auth: AuthService,
+    private route: ActivatedRoute,
+    private ticketService: TicketService,
   )
   {
+    const ticketId = this.route.snapshot.params['id'];
+    this.ticketId = ticketId;
+
     this.prendasForm = this.fb.group({
       prenda: ['', Validators.required],
       piezas: ['', [Validators.required, Validators.min(1), Validators.pattern('^[0-9]{1,3}$')]],
@@ -68,6 +59,42 @@ export class DetallesTicketComponent
 
     this.chatForm = this.fb.group({
       message: ['', Validators.required],
+    });
+
+    this.fetchTicketById();
+    this.fetchPrendas();
+  }
+
+  fetchPrendas()
+  {
+    this.ticketService.getTodasLasPrendas().subscribe({
+      next: (prendas) => this.prendas = prendas,
+    });
+  }
+
+  fetchTicketById()
+  {
+    this.ticketService.getTicketById(this.ticketId).subscribe({
+      next: (ticket) =>
+      {
+        this.ticket = ticket;
+        this.ticket.created_at = new Date(ticket.created_at).toLocaleString('es-MX');
+        setTimeout(() =>
+        {
+          this.isLoading = false;
+          this.handleStatus();
+          this.populateChat();
+        }, 400);
+      },
+      error: (err) =>
+      {
+        this.showDisplayError = true;
+        console.log(err);
+        setTimeout(() =>
+        {
+          this.isLoading = false;
+        }, 400);
+      },
     });
   }
 
@@ -234,13 +261,20 @@ export class DetallesTicketComponent
     if(event) event.preventDefault();
     if(this.message.value != '')
     {
-      this.chatHistory.push(
-        {
-          text: this.message.value,
-          sender: this.auth.session?.datos.name ?? 'UNKOWN',
-          date: new Date().toLocaleString('es-MX'),
-        },
-      );
+      const comentario = {
+        texto: this.message.value,
+        sender: this.auth.session?.datos.name ?? 'UNKOWN',
+        date: new Date().toLocaleString('es-MX', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }),
+      };
+      this.ticketService.agregarComentario(comentario, this.ticketId);
+      this.chatHistory.push(comentario);
       this.chatForm.reset();
       setTimeout(() =>
       {
@@ -261,5 +295,33 @@ export class DetallesTicketComponent
       this.chatContainer.nativeElement.scrollTop =
       parseFloat(this.chatContainer.nativeElement.scrollHeight.toString()) + 100;
     }
+  }
+
+  private handleStatus()
+  {
+    switch (this.ticket.status)
+    {
+    case StatusTicket.Creado:
+      this.stepCursor = 0;
+      break;
+    case StatusTicket.Lavado:
+      this.stepCursor = 1;
+      break;
+    case StatusTicket.Reconteo:
+      this.stepCursor = 2;
+      break;
+    case StatusTicket.Entrega:
+      this.stepCursor = 3;
+      break;
+
+    default:
+      this.stepCursor = 0;
+      break;
+    }
+  }
+
+  private populateChat()
+  {
+    this.chatHistory = this.ticket.comentarios ?? [];
   }
 }

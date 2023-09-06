@@ -2,7 +2,7 @@ export class Comentario
 {
   id?: number;
   date!: string;
-  text!: string;
+  texto!: string;
   sender!: string;
   errorState?: boolean;
 }
