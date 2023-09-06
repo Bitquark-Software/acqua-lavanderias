@@ -6,6 +6,9 @@ use Illuminate\Support\Str;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class ClienteController extends Controller
 {
@@ -16,7 +19,7 @@ class ClienteController extends Controller
      * @param  string  $nombre
      * @return \Illuminate\Http\Response
      */
-    public function buscarPorNombre(Request $request)
+    public function buscarPorNombre(Request $request) : JsonResponse
     {
         $request->validate([
             'nombre' => ['string', 'max:255']
@@ -45,7 +48,7 @@ class ClienteController extends Controller
      * @param  string  $telefono
      * @return \Illuminate\Http\Response
      */
-    public function buscarPorTelefono(Request $request)
+    public function buscarPorTelefono(Request $request) : JsonResponse
     {
         $request->validate([
             'telefono' => ['string','not_regex:/[^0-9\-]/']
@@ -67,6 +70,55 @@ class ClienteController extends Controller
     }
 
     /**
+     * *Buscar un cliente por su número telefónico.
+     *
+     * @param string $fecha_inicio
+     * @param string $fecha_fin
+     * @return \Illuminate\Http\Response
+     */
+    public function statsClientes() : JsonResponse
+    {
+        try {
+
+            $inicioFechaConsulta = request('fecha_inicio') ?? null;
+            $finFechaConsulta = request('fecha_fin') ?? null;
+
+            if (empty($inicioFechaConsulta) && empty($finFechaConsulta)) {
+                // Fecha Inicio y Final no Proporcinadas
+                $inicioFechaConsulta = Carbon::now()->startOfDay();
+                $finFechaConsulta = Carbon::now()->endOfDay();
+
+            } else {
+                /// Fechas Proporcinada
+                $inicioFechaConsulta = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_inicio'))->startOfDay();
+                $finFechaConsulta = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_fin'))->endOfDay();
+            }
+
+            // Consulta para numero de Clientes Nuevos
+            $numClientesNuevos = Cliente::whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->get()
+                ->count();
+
+            // Regresa los registros(Clientes) que se encuentre entre esos periodos
+            $ClientesNuevos = Cliente::whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->get();
+
+            return response()->json([
+                'clientesNuevos' => $numClientesNuevos,
+                'Clientes' => $ClientesNuevos
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'mensaje' => 'La fecha no es válida',
+                ],
+                400
+            );
+        }
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -82,7 +134,7 @@ class ClienteController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request) : JsonResponse
     {
         $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
@@ -120,7 +172,7 @@ class ClienteController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id) : JsonResponse
     {
         $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
@@ -146,7 +198,7 @@ class ClienteController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $id) : JsonResponse
     {
         $auth = $request->user('api'); // Autenticar utilizando el middleware auth:api
 
