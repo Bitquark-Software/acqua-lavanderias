@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class ClienteController extends Controller
 {
@@ -76,12 +75,18 @@ class ClienteController extends Controller
      * @param string $fecha_fin
      * @return \Illuminate\Http\Response
      */
-    public function statsClientes() : JsonResponse
+    public function statsClientes(Request $request) : JsonResponse
     {
-        try {
 
-            $inicioFechaConsulta = request('fecha_inicio') ?? null;
-            $finFechaConsulta = request('fecha_fin') ?? null;
+        $request->validate([
+            'fecha_inicio' => ['date_format:Y-m-d H:i:s', 'nullable'],
+            'fecha_fin' => ['date_format:Y-m-d H:i:s',  'nullable', 'after_or_equal:fecha_inicio'],
+        ]);
+
+        $inicioFechaConsulta = $request->fecha_inicio;
+        $finFechaConsulta = $request->fecha_fin;
+
+        try {
 
             if (empty($inicioFechaConsulta) && empty($finFechaConsulta)) {
                 // Fecha Inicio y Final no Proporcinadas
@@ -111,9 +116,9 @@ class ClienteController extends Controller
         } catch (\Exception $e) {
             return response()->json(
                 [
-                    'mensaje' => 'La fecha no es válida',
+                    'mensaje' => $e->getMessage(),
                 ],
-                400
+                500
             );
         }
     }

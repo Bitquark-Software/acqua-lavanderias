@@ -75,13 +75,16 @@ Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () 
 
     Route::apiResource('tickets', TicketController::class)->except('index', 'show', 'store');
 
-    Route::get('/stats/ingresos', [TicketController::class, 'generateReport'])->name('stats.ingresos');
-
-    Route::get('/stats/clientes', [ClienteController::class, 'statsClientes'])->name('stats.clientes');
-
     Route::apiResource('lavadoras', LavadoraController::class)->except('index', 'show', 'store');
 
     Route::apiResource('secadoras', SecadoraController::class)->except('index', 'show', 'store');
+});
+
+Route::prefix('stats')->middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
+    // Datos de Reportes
+    Route::post('/ingresos', [TicketController::class, 'generateReport'])->name('stats.ingresos');
+    // Clientes nuevos
+    Route::post('/clientes', [ClienteController::class, 'statsClientes'])->name('stats.clientes');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
