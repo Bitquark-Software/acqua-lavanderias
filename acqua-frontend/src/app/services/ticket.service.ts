@@ -8,7 +8,9 @@ import { Comentario } from '../dtos/comentario';
 import { API_URL } from '../environments/develop';
 import { Sucursal } from '../dtos/sucursal';
 import { Servicio } from '../dtos/servicio';
-import { Prenda } from '../dtos/prenda-ticket';
+import { Prenda, PrendaTicketReponse } from '../dtos/prenda-ticket';
+import { Proceso } from '../dtos/proceso';
+import { Lavadora } from '../dtos/lavadora';
 
 @Injectable({
   providedIn: 'root',
@@ -71,5 +73,64 @@ export class TicketService
   {
     return this.httpClient.get<Prenda[]>
     (`${API_URL}/prendas`, { headers: this.authService.getHeaders() });
+  }
+
+  agregarPrendaAlTicket(id_prenda: number, id_ticket: number, total_inicial: number)
+  {
+    return this.httpClient.post<PrendaTicketReponse>(
+      `${API_URL}/prendas_tickets`,
+      {
+        id_prenda,
+        id_ticket,
+        total_inicial,
+      },
+      {
+        headers: this.authService.getHeaders(),
+      },
+    );
+  }
+
+  quitarPrendaDelTicket(prendaTicketId: number)
+  {
+    return this.httpClient.delete(
+      `${API_URL}/prendas_tickets/${prendaTicketId}`,
+      {
+        headers: this.authService.getHeaders(),
+      },
+    );
+  }
+
+  registrarProceso(id_ticket: number, proceso: Proceso)
+  {
+    return this.httpClient.post(`${API_URL}/proceso-tickets`, {
+      id_ticket,
+      id_proceso: proceso.id,
+    },
+    { headers: this.authService.getHeaders() });
+  }
+
+  getTodosLosProcesos()
+  {
+    return this.httpClient.get<Proceso[]>(`${API_URL}/proceso`,
+      {
+        headers: this.authService.getHeaders(),
+      });
+  }
+
+  updateProceso(id_proceso: number, id_lavadora?: number)
+  {
+    return this.httpClient.put(
+      `${API_URL}/proceso-tickets/${id_proceso}`,
+      {
+        id_lavadora,
+      },
+      { headers: this.authService.getHeaders() },
+    );
+  }
+
+  getLavadoras()
+  {
+    return this.httpClient.get<Lavadora[]>(
+      `${API_URL}/lavadoras`, { headers: this.authService.getHeaders() });
   }
 }

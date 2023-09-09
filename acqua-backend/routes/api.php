@@ -51,6 +51,7 @@ Route::middleware('auth:api')->group( function () {
 
     Route::get('/prendas_tickets', [PrendasTicketController::class, 'index'])->name('prendasticket.index');
     Route::post('/prendas_tickets', [PrendasTicketController::class, 'store'])->name('prendasticket.store');
+    Route::delete('/prendas_tickets/{id}', [PrendasTicketController::class, 'destroy'])->name('prendasticket.store');
 
     Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show', 'store');
 
@@ -59,7 +60,7 @@ Route::middleware('auth:api')->group( function () {
     Route::get('/proceso', [ProcesoController::class, 'index'])->name('proceso.index');
     Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
 
-    Route::apiResource('proceso-tickets', ProcesoTicketController::class)->except('destroy');
+    Route::apiResource('proceso-tickets', ProcesoTicketController::class);
 });
 
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {

@@ -44,7 +44,7 @@ class Ticket extends Model
 
     public function procesosTicket()
     {
-        return $this->hasOne(ProcesoTicket::class, 'id_ticket');
+        return $this->hasMany(ProcesoTicket::class, 'id_ticket');
     }
 
     // Relaciones a Cliente, Direccion y Sucursal

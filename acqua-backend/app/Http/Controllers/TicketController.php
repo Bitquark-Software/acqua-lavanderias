@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Prenda;
 use App\Models\ServicioTicket;
 use App\Models\Ticket;
 use App\Models\User;
@@ -84,12 +85,18 @@ class TicketController extends Controller
     public function show($id)
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
-        $ticket = Ticket::with('cliente', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket')->find($id);
+        $ticket = Ticket::with('cliente', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'prendasTicket', 'procesosTicket')->find($id);
         $ticket->comentarios->transform(function($t){
             $empleado = User::where('id', $t->user_id)->first();
             $t->sender = $empleado ? $empleado->name : "UNKNOWN";
             $t->errorState = $empleado ? false : true;
             $t->date = Carbon::parse($t->created_at)->format('d/m/Y, h:m:s');
+            return $t;
+        });
+
+        $ticket->prendasTicket->transform(function($t){
+            $prenda = Prenda::where('id', $t->id_prenda)->first();
+            $t->nombre = $prenda ? $prenda->nombre : "UNKNOWN";
             return $t;
         });
         return $ticket;
