@@ -31,7 +31,7 @@
     </div>
   </div>
   <div class="w-full grid grid-cols-1 gap-6 m-auto md:mt-3">
-    <div class="w-full">
+    <div class="w-full" *ngIf="stepCursor != 4">
       <ul class="w-full steps">
         <li
           data-content="✓"
@@ -290,27 +290,57 @@
           <label class="label">
             <span class="label-text">Selecciona un centro de recolección</span>
           </label>
-          <select class="select select-bordered">
-            <option value="1">Matriz</option>
-            <option value="2">Sucursal Oriente</option>
-            <option value="3">Sucursal Poniente</option>
+          <select class="select select-bordered" [(ngModel)]="idSucursalRecoleccion" (change)="changeIdSucursal(idSucursalRecoleccion)">
+            <option *ngFor="let sucursal of sucursales" [value]="sucursal.id">{{sucursal.nombre}}</option>
           </select>
         </div>
       </div>
 
       <div class="w-full mt-3 pb-12" *ngIf="cursorEntrega == 1">
-        <div class="form-control w-6/12">
+        <div class="form-control w-6/12" *ngIf="ticket.cliente.direccion">
           <label class="label">
             <span class="label-text">Selecciona una ubicación del cliente</span>
           </label>
-          <select class="select select-bordered">
-            <option value="1">Casa - Avenida X, Colonia X</option>
-            <option value="2">Oficina - Avenida Y, Colonia Y</option>
+          <select class="select select-bordered" [(ngModel)]="idUbicacionEnvio" (change)="changeIdUbicacion(idUbicacionEnvio)">
+            <option *ngFor="let ubicacion of ticket.cliente.direccion" [value]="ubicacion.id">{{ubicacion.nombre_ubicacion}} - {{ubicacion.calle}}, {{ubicacion.colonia}}; {{ubicacion.ciudad}}, {{ubicacion.codigo_postal}}</option>
           </select>
         </div>
       </div>
     </div>
+    <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 3">
+      <div class="flex justify-end">
+        <button [disabled]="shouldDisableFinalizarEntregaButton()" class="btn btn-outline btn-primary shadow-md md:mr-8" (click)="nextStep()">
+          Pedido entregado
+          <svg
+            aria-hidden="true"
+            fill="none"
+            width="20"
+            height="20"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
 
+    <!-- Finalizado -->
+    <div
+      class="p-4 w-11/12 bg-base-100 rounded-lg border shadow-md sm:p-8 m-auto"
+      *ngIf="stepCursor == 4"
+    >
+      <div class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>El ticket se ha finalizado correctamente, ¡Excelente trabajo!</span>
+      </div>
+    </div>
   </div>
 
 </app-drawer>

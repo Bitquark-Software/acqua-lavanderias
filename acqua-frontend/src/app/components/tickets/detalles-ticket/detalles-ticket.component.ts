@@ -8,6 +8,7 @@ import { Comentario } from 'src/app/dtos/comentario';
 import { Lavadora } from 'src/app/dtos/lavadora';
 import { Prenda, PrendaTicket } from 'src/app/dtos/prenda-ticket';
 import { Proceso, ProcesoTicket, ProcesosAcqua } from 'src/app/dtos/proceso';
+import { Sucursal } from 'src/app/dtos/sucursal';
 import { StatusTicket, Ticket } from 'src/app/dtos/ticket';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { TicketService } from 'src/app/services/ticket.service';
@@ -47,6 +48,11 @@ export class DetallesTicketComponent
   PROCESOS_EXISTENTES: Proceso[] = [];
   currentProcesoTicket?: ProcesoTicket | null;
 
+  idSucursalRecoleccion = 0;
+  idUbicacionEnvio = 0;
+
+  sucursales: Sucursal[] = [];
+
   constructor(
     private fb: FormBuilder,
     private toast: HotToastService,
@@ -71,6 +77,19 @@ export class DetallesTicketComponent
     this.fetchProcesos();
     this.fetchTicketById();
     this.fetchPrendas();
+    this.fetchSucursales();
+  }
+
+  fetchSucursales()
+  {
+    this.ticketService.getSucursales().subscribe({
+      next: (sucursales) => this.sucursales = sucursales,
+      error: (err) =>
+      {
+        this.toast.error('Error al obtener las sucursales');
+        console.error(err);
+      },
+    });
   }
 
   fetchProcesos()
@@ -105,12 +124,13 @@ export class DetallesTicketComponent
         this.ticket.created_at = new Date(ticket.created_at).toLocaleString('es-MX');
         setTimeout(() =>
         {
-          this.isLoading = false;
           this.handleStatus();
           this.populateChat();
           this.poupulatePrendasTicket();
           this.handleCurrentProceso();
           this.setCurrentProcesoTicket();
+          this.handleStatus();
+          this.isLoading = false;
         }, 400);
       },
       error: (err) =>
@@ -241,6 +261,7 @@ export class DetallesTicketComponent
             },
           });
         },
+        error: () => this.isLoading = false,
       });
       break;
     case 1:
@@ -266,6 +287,7 @@ export class DetallesTicketComponent
               {
                 this.toast.error(`Error: ${err.message}`);
                 console.error(err);
+                this.isLoading = false;
               },
             });
           },
@@ -278,13 +300,63 @@ export class DetallesTicketComponent
       break;
     }
     case 2:
-      this.stepCursor+= 1;
+      this.isLoading = true;
+      this.ticketService.updatePrendasTicket(this.prendasTicket).subscribe({
+        next: () =>
+        {
+          this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe({
+            next: () =>
+            {
+              this.ticketService.registrarProceso(
+                this.ticket.id,
+                this.PROCESOS_EXISTENTES.find(
+                  p => p.nombre === ProcesosAcqua.ENTREGA) as unknown as Proceso,
+              ).subscribe({
+                next: () =>
+                {
+                  this.stepCursor+= 1;
+                  this.fetchTicketById();
+                },
+                error: (err) =>
+                {
+                  this.toast.error(`Error: ${err.message ?? 'Desconocido'}`);
+                  console.error(err);
+                  this.isLoading = false;
+                },
+              });
+            },
+            error: (err) =>
+            {
+              this.toast.error(err.message ?? 'Error al actualizar el ticket');
+              console.error(err);
+              this.isLoading = false;
+            },
+          });
+        },
+        error: (err) =>
+        {
+          this.toast.error('Error al actualizar el reconteo');
+          console.error(err);
+          this.isLoading = false;
+        },
+      });
       break;
     case 3:
-      this.stepCursor+= 1;
-      break;
-    case 4:
-      this.stepCursor+= 1;
+      this.isLoading = true;
+      this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe(
+        {
+          next: () =>
+          {
+            this.stepCursor += 1;
+            this.fetchTicketById();
+          },
+          error: (err) =>
+          {
+            console.error(err);
+            this.toast.error('No se pudo finalizar el ticket');
+          },
+        },
+      );
       break;
     default:
       this.stepCursor = 0;
@@ -322,8 +394,45 @@ export class DetallesTicketComponent
   {
     if(cursor != this.cursorEntrega)
     {
-      this.cursorEntrega = cursor;
+      if(this.ticket.cliente.direccion?.length == 0)
+      {
+        this.toast.warning('El cliente no tiene direcciones guardadas');
+      }
+      else
+      {
+        this.cursorEntrega = cursor;
+        this.ticket.envio_domicilio = cursor == 1;
+        this.updateTicket();
+      }
     }
+  }
+
+  changeIdSucursal(idSucursal: number)
+  {
+    this.ticket.id_sucursal = idSucursal;
+    this.updateTicket();
+  }
+
+  changeIdUbicacion(idUbicacion: number)
+  {
+    this.ticket.id_direccion = idUbicacion;
+    this.updateTicket();
+  }
+
+  private updateTicket()
+  {
+    this.isLoading = true;
+    this.ticketService.actualizarTicket(this.ticket).subscribe(
+      {
+        next: () => this.fetchTicketById(),
+        error: (err) =>
+        {
+          console.error(err);
+          this.toast.error('Error al actualizar el ticket');
+          this.isLoading = true;
+        },
+      },
+    );
   }
 
   openCommentsDialog()
@@ -397,9 +506,21 @@ export class DetallesTicketComponent
       this.stepCursor = 2;
       break;
     case StatusTicket.Entrega:
-      this.stepCursor = 3;
+      const procesoExistenteEntrega =
+        this.PROCESOS_EXISTENTES.find((p) => p.nombre == ProcesosAcqua.ENTREGA);
+      const procesoEntregado =
+        this.ticket.procesos_ticket.find((p) => p.id_proceso == procesoExistenteEntrega?.id);
+      if(procesoEntregado?.timestamp_start && procesoEntregado.timestamp_end)
+      {
+        this.stepCursor = 4;
+      }
+      else
+      {
+        this.stepCursor = 3;
+      }
       break;
     }
+
   }
 
   setLavadoraSeleccionada()
@@ -456,6 +577,30 @@ export class DetallesTicketComponent
         );
       }
       break;
+    case 2:
+      const procesoReconteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.RECONTEO);
+      if(!procesoReconteo)
+      {
+        this.toast.error('Error: No encontramos el proceso interno para el reconteo');
+      }
+      else
+      {
+        this.checkReconteo();
+      }
+      break;
+    case 3:
+      const procesoEntrega = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.ENTREGA);
+      if(!procesoEntrega)
+      {
+        this.toast.error('Error: No encontramos el proceso interno para la entrega');
+      }
+      else
+      {
+        this.cursorEntrega = this.ticket.envio_domicilio == true ? 1 : 0;
+        this.idSucursalRecoleccion = this.ticket.id_sucursal ?? 0;
+        this.idUbicacionEnvio = this.ticket.id_direccion ?? 0;
+      }
+      break;
     }
   }
 
@@ -473,6 +618,16 @@ export class DetallesTicketComponent
       this.currentProcesoTicket =
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoLavado?.id) ?? null;
       this.idLavadora = this.currentProcesoTicket?.id_lavadora ?? null as unknown as number;
+      break;
+    case 2:
+      const procesoReconteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.RECONTEO);
+      this.currentProcesoTicket =
+        this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoReconteo?.id) ?? null;
+      break;
+    case 3:
+      const procesoEntrega = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.ENTREGA);
+      this.currentProcesoTicket =
+        this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoEntrega?.id) ?? null;
       break;
 
     default:
@@ -493,5 +648,17 @@ export class DetallesTicketComponent
         console.error(err);
       },
     });
+  }
+
+  shouldDisableFinalizarEntregaButton()
+  {
+    if(this.ticket.envio_domicilio)
+    {
+      return this.ticket.id_direccion == null;
+    }
+    else
+    {
+      return this.ticket.id_sucursal == null;
+    }
   }
 }

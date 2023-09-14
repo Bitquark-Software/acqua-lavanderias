@@ -41,6 +41,20 @@ class PrendasTicketController extends Controller
         ], 201);
     }
 
+    public function update(Request $r, $id)
+    {
+        $r->validate([
+            'total_final' => ['required', 'integer']
+        ]);
+
+        $prendaTicket = Prendas_Ticket::findOrFail($id);
+        $prendaTicket->update([
+            'total_final' => $r->total_final
+        ]);
+
+        return response()->json("Actualizado", 204);
+    }
+
     public function destroy($id)
     {
         $prenda = Prendas_Ticket::findOrFail($id);

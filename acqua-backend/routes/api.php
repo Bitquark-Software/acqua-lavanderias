@@ -51,6 +51,7 @@ Route::middleware('auth:api')->group( function () {
 
     Route::get('/prendas_tickets', [PrendasTicketController::class, 'index'])->name('prendasticket.index');
     Route::post('/prendas_tickets', [PrendasTicketController::class, 'store'])->name('prendasticket.store');
+    Route::put('/prendas_tickets/{id}', [PrendasTicketController::class, 'update'])->name('prendasticket.update');
     Route::delete('/prendas_tickets/{id}', [PrendasTicketController::class, 'destroy'])->name('prendasticket.store');
 
     Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show', 'store');
@@ -91,9 +92,7 @@ Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
     Route::resource('/admin/dashboard', UserController::class);
 });
 // Rutas para Iniciar Sesion
-Route::post('login', [AuthController::class, 'login'])
-    ->middleware(['throttle'])
-    ->name('login');
+Route::post('login', [AuthController::class, 'login'])->name('login');
 
 Route::post('logout', [AuthController::class, 'logout'])
     ->name('logout');

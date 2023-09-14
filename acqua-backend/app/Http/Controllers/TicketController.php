@@ -85,7 +85,7 @@ class TicketController extends Controller
     public function show($id)
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
-        $ticket = Ticket::with('cliente', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'prendasTicket', 'procesosTicket')->find($id);
+        $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'prendasTicket', 'procesosTicket')->find($id);
         $ticket->comentarios->transform(function($t){
             $empleado = User::where('id', $t->user_id)->first();
             $t->sender = $empleado ? $empleado->name : "UNKNOWN";

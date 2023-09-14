@@ -13,7 +13,8 @@ export enum ProcesosAcqua
   LAVADO = 'LAVADO',
   DOBLADO = 'DOBLADO',
   RECONTEO = 'RECONTEO',
-  SECADO = 'SECADO'
+  SECADO = 'SECADO',
+  ENTREGA = 'ENTREGA'
 }
 
 export class ProcesoTicket

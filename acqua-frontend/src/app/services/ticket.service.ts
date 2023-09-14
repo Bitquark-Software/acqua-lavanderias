@@ -8,9 +8,10 @@ import { Comentario } from '../dtos/comentario';
 import { API_URL } from '../environments/develop';
 import { Sucursal } from '../dtos/sucursal';
 import { Servicio } from '../dtos/servicio';
-import { Prenda, PrendaTicketReponse } from '../dtos/prenda-ticket';
+import { Prenda, PrendaTicket, PrendaTicketReponse } from '../dtos/prenda-ticket';
 import { Proceso } from '../dtos/proceso';
 import { Lavadora } from '../dtos/lavadora';
+import { concatMap, from } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +35,17 @@ export class TicketService
         ...ticket,
         servicios,
       },
+      {
+        headers: this.authService.getHeaders(),
+      },
+    );
+  }
+
+  actualizarTicket(ticket: Ticket)
+  {
+    return this.httpClient.put(
+      `${API_URL}/tickets/${ticket.id}`,
+      { ...ticket },
       {
         headers: this.authService.getHeaders(),
       },
@@ -132,5 +144,21 @@ export class TicketService
   {
     return this.httpClient.get<Lavadora[]>(
       `${API_URL}/lavadoras`, { headers: this.authService.getHeaders() });
+  }
+
+  updatePrendasTicket(prendasTicket: PrendaTicket[])
+  {
+    const observablePrendasTickets = from(prendasTicket);
+    return observablePrendasTickets.pipe(
+      concatMap((ticketPrenda) =>
+        this.httpClient.put(
+          `${API_URL}/prendas_tickets/${ticketPrenda.id}`,
+          { total_final: ticketPrenda.total_final },
+          {
+            headers: this.authService.getHeaders(),
+          },
+        ),
+      ),
+    );
   }
 }
