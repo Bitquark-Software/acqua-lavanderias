@@ -6,7 +6,6 @@ use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
-use Carbon\Carbon;
 
 class TicketController extends Controller
 {
@@ -18,75 +17,6 @@ class TicketController extends Controller
     public function index()
     {
         return Ticket::orderBy('created_at', 'desc')->paginate(15);
-    }
-
-    public function generateReport(Request $request) : JsonResponse
-    {
-
-        $request->validate([
-            'fecha_inicio' => ['date_format:Y-m-d H:i:s', 'nullable'],
-            'fecha_fin' => ['date_format:Y-m-d H:i:s', 'nullable', 'after_or_equal:fecha_inicio']
-        ]);
-
-        $inicioFechaConsulta = $request->fecha_inicio;
-        $finFechaConsulta = $request->fecha_fin;
-
-        try {
-
-            if (empty($inicioFechaConsulta) && empty($finFechaConsulta)) {
-                // Fecha Inicio y Final no Proporcinadas
-                $inicioFechaConsulta = Carbon::now()->startOfDay();
-                $finFechaConsulta = Carbon::now()->endOfDay();
-
-            } else {
-                /// Fechas Proporcinadas
-                $inicioFechaConsulta = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_inicio'))->startOfDay();
-                $finFechaConsulta = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_fin'))->endOfDay();
-            }
-
-            // * Consulta para metodo de pago "Contado" Pagado
-            $montoTicketsPagadosAContado = Ticket::where('restante', 0)
-                ->where('tipo_credito', 'CONTADO')
-                ->where('vencido', false)
-                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('total');
-
-            // * Consulta para metodo de pago "Credito" Total
-            $montoTicketsTotalACredito = Ticket::where('restante', 0) // ! Aqui hay Dudas
-                ->where('tipo_credito', 'CREDITO')
-                ->where('vencido', false)
-                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('total');
-
-            // * Consulta para metodo de pago "Credito" Pagado
-            $montoTicketsACreditoPagado = Ticket::where('restante', 0)
-                ->where('tipo_credito', 'CREDITO')
-                ->where('vencido', false)
-                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('anticipo');
-
-            // * Consulta para metodo de pago "Credito" Pendiente
-            $montoTicketsACreditoPendiente = Ticket::where('restante', '>', 0)
-                ->where('tipo_credito', 'CREDITO')
-                ->where('vencido', false)
-                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('restante');
-
-            return response()->json([
-                'totalingresos' => (string) ($montoTicketsPagadosAContado + $montoTicketsTotalACredito),
-                'montocobrado' => (string) ($montoTicketsPagadosAContado + $montoTicketsACreditoPagado),
-                'montoporcobrar' => (string) $montoTicketsACreditoPendiente
-            ], 200);
-            
-        } catch (\Exception $e) {
-            // Fecha no valida
-            return response()->json(
-                [
-                    'mensaje' => $e->getMessage()
-                ],
-                500
-            );
-        }
     }
 
     /**
