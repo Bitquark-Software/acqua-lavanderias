@@ -18,6 +18,7 @@ use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ProcesoTicketController;
+use App\Http\Controllers\StatsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,9 +83,11 @@ Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () 
 
 Route::prefix('stats')->middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
     // Datos de Reportes
-    Route::get('/ingresos', [TicketController::class, 'generateReport'])->name('stats.ingresos');
+    Route::get('/ingresos', [StatsController::class, 'generateReport'])->name('stats.ingresos');
     // Clientes nuevos
     Route::get('/clientes', [ClienteController::class, 'statsClientes'])->name('stats.clientes');
+    // Tracks Tickets
+    Route::get('/tracks/{ticket_id}', [StatsController::class, 'statsTracks'])->name('stats.tracks');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
