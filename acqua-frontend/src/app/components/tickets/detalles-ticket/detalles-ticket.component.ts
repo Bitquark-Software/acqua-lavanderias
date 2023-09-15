@@ -1,6 +1,12 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-unused-vars */
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  ComponentFactoryResolver,
+  ComponentRef,
+  ElementRef,
+  ViewChild,
+  ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
@@ -12,6 +18,7 @@ import { Sucursal } from 'src/app/dtos/sucursal';
 import { StatusTicket, Ticket } from 'src/app/dtos/ticket';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { TicketService } from 'src/app/services/ticket.service';
+import { RegistrarPagoComponent } from '../registrar-pago/registrar-pago.component';
 
 @Component({
   selector: 'app-detalles-ticket',
@@ -26,6 +33,14 @@ export class DetallesTicketComponent
   ticket!: Ticket;
 
   @ViewChild('comentariosModal') comentariosModal!: ElementRef<HTMLDialogElement>;
+
+  @ViewChild('pagosModal') pagosModal!: ElementRef<HTMLDialogElement>;
+
+  @ViewChild('pagosContainer',
+    {
+      read: ViewContainerRef,
+    }) pagosContainer!: ViewContainerRef;
+  pagosContainerRef!: ComponentRef<RegistrarPagoComponent>;
 
   stepCursor = 0;
   cursorEntrega = 0;
@@ -60,6 +75,7 @@ export class DetallesTicketComponent
     private route: ActivatedRoute,
     private router: Router,
     private ticketService: TicketService,
+    private pagosModalFactory: ComponentFactoryResolver,
   )
   {
     const ticketId = this.route.snapshot.params['id'];
@@ -654,11 +670,31 @@ export class DetallesTicketComponent
   {
     if(this.ticket.envio_domicilio)
     {
-      return this.ticket.id_direccion == null;
+      return this.ticket.id_direccion == null || this.ticket.restante != 0;
     }
     else
     {
-      return this.ticket.id_sucursal == null;
+      return this.ticket.id_sucursal == null || this.ticket.restante != 0;
     }
+  }
+
+  renderPagosModal()
+  {
+    this.pagosContainer.clear();
+    const modalPagosFactory = this.pagosModalFactory.resolveComponentFactory(RegistrarPagoComponent);
+    const modalPagoRef = this.pagosContainer.createComponent(modalPagosFactory);
+    modalPagoRef.instance.setTicket(this.ticket);
+    this.pagosContainerRef = modalPagoRef;
+    this.pagosModal.nativeElement.show();
+
+    this.pagosModal.nativeElement.onclose = () =>
+    {
+      this.isLoading = true;
+      this.fetchTicketById();
+    };
+  }
+  closePagosModal()
+  {
+    this.pagosModal.nativeElement.close();
   }
 }
