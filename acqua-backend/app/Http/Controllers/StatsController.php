@@ -63,9 +63,9 @@ class StatsController extends Controller
                 ->sum('restante');
 
             return response()->json([
-                'totalingresos' => (string) ($montoTicketsPagadosAContado + $montoTicketsTotalACredito),
-                'montocobrado' => (string) ($montoTicketsPagadosAContado + $montoTicketsACreditoPagado),
-                'montoporcobrar' => (string) $montoTicketsACreditoPendiente
+                'totalIngresos' => (string) ($montoTicketsPagadosAContado + $montoTicketsTotalACredito),
+                'montoCobrado' => (string) ($montoTicketsPagadosAContado + $montoTicketsACreditoPagado),
+                'montoPorCobrar' => (string) $montoTicketsACreditoPendiente
             ], 200);
         } catch (\Exception $e) {
             // Fecha no valida
