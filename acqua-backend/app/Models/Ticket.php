@@ -57,4 +57,9 @@ class Ticket extends Model
     {
         return $this->belongsTo(Sucursal::class, 'id_sucursal');
     }
+
+    public function anticipos()
+    {
+        return $this->hasMany(AnticipoTicket::class, 'id_ticket');
+    }
 }

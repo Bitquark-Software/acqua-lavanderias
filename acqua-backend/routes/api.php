@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnticiposTicketsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -69,6 +70,9 @@ Route::middleware('auth:api')->group( function () {
     Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
 
     Route::apiResource('proceso-tickets', ProcesoTicketController::class)->except('destroy');
+
+    Route::get('/anticipoTickets', [AnticiposTicketsController::class, 'index'])->name('anticipo.index');
+    Route::post('/anticipoTickets', [AnticiposTicketsController::class, 'store'])->name('anticipo.store');
 });
 
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
