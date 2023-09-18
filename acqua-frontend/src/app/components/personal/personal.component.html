@@ -1,5 +1,10 @@
 <app-drawer>
+    <div *ngIf="isLoading" class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl flex flex-col items-center justify-center">
+      <span class="m-auto text-center loading loading-ring loading-lg"></span>
+      <h1 class="font-bold text-3xl">Cargando...</h1>
+    </div>
     <div
+      *ngIf="!isLoading"
       class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl"
       catalogo
     >
@@ -25,10 +30,10 @@
           </thead>
           <tbody>
             <tr *ngFor="let usuario of usuarios">
-              <th class="text-primary dark:text-white">{{ usuario.id }}</th>
-              <td class="text-primary dark:text-white">{{ usuario.nombre }}</td>
-              <td class="text-primary dark:text-white">{{ usuario.email }}</td>
-              <td class="text-primary dark:text-white">{{ usuario.rol }}</td>
+              <th class="text-primary dark:text-white uppercase">{{ usuario.id }}</th>
+              <td class="text-primary dark:text-white uppercase">{{ usuario.name }}</td>
+              <td class="text-primary dark:text-white uppercase">{{ usuario.email }}</td>
+              <td class="text-primary dark:text-white uppercase">{{ usuario.role }}</td>
               <td class="flex flex-col items-center justify-center">
                 <div class="btn-group btn-group-vertical lg:btn-group-horizontal">
                   <button
@@ -57,8 +62,12 @@
                   <button
                     class="btn btn-md btn-error btn-square btn-outline m-auto lg:tooltip"
                     data-tip="Eliminar"
+                    [disabled]="isDeleting && deletingId == usuario.id"
+                    (click)="deleteEmpleado(usuario.id)"
                   >
+                    <span *ngIf="isDeleting && deletingId == usuario.id" class="loading loading-spinner"></span>
                     <svg
+                      *ngIf="!isDeleting || deletingId != usuario.id"
                       class="m-auto"
                       aria-hidden="true"
                       fill="none"
@@ -81,7 +90,13 @@
             </tr>
           </tbody>
         </table>
+        <div class="w-full flex mt-4 justify-center" *ngIf="usuarios.length > 0 && personalResponse">
+          <div class="join">
+            <button class="join-item btn" [disabled]="!personalResponse.prev_page_url" (click)="fetchPreviousPage()">«</button>
+            <button class="join-item btn">Pág. {{personalResponse.current_page}}</button>
+            <button class="join-item btn" [disabled]="!personalResponse.next_page_url" (click)="fetchNextPage()">»</button>
+          </div>
+        </div>
       </div>
     </div>
-  </app-drawer>
-  
+</app-drawer> 

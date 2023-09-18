@@ -33,16 +33,21 @@
                   <label class="label">
                     <span class="label-text">Correo</span>
                   </label>
-                  <input type="email" placeholder="Correo del empleado" class="input input-bordered" formControlName="email"/>
+                  <input autocomplete="off" type="email" placeholder="Correo del empleado" class="input input-bordered" formControlName="email"/>
                 </div>
                 <div class="form-control">
                   <label class="label">
                     <span class="label-text">Contraseña</span>
                   </label>
-                  <input type="password" placeholder="Contraseña del empleado" class="input input-bordered" formControlName="password"/>
+                  <input autocomplete="off" type="password" placeholder="Contraseña del empleado" class="input input-bordered" formControlName="password"/>
                 </div>
                 <div class="form-control mt-6">
-                  <button type="submit" class="btn btn-success" [disabled]="!nuevoUsuarioForm.valid">Registrar usuario</button>
+                  <button *ngIf="isLoading" type="submit" class="btn btn-success" disabled>
+                    <span class="loading loading-spinner"></span>
+                  </button>
+                  <button *ngIf="!isLoading" type="submit" class="btn btn-success" [disabled]="!nuevoUsuarioForm.valid">
+                    Registrar usuario
+                  </button>
                 </div>
             </form>
         </div>

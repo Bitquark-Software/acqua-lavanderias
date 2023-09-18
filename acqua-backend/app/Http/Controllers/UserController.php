@@ -29,7 +29,7 @@ class UserController extends Controller
         $request->validate([
             'name' => ['required', 'max:30'],
             'email' => ['required','unique:users','email', 'max:60'],
-            'password' => ['required','confirmed'],
+            'password' => ['required'],
             'role' => ['required', 'in:administrador,empleado,cliente']
         ]);
 
@@ -68,16 +68,30 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'max:30'],
-            'password' => ['required'],
+            'email' => ['required','email', 'max:60'],
+            'password' => ['nullable'],
             'role' => ['required', 'in:administrador,empleado,cliente']
         ]);
 
         $user = User::findOrFail($id);
-        $user->update([
-            'name' => $request->name,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-        ]);
+
+        if(isset($request->password))
+        {
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+            ]);
+        }
+        else
+        {
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'role' => $request->role,
+            ]);
+        }
         
         return response()->json([
             'message' => 'User Actualizado correctamente'
@@ -93,10 +107,21 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+
+        $adminsRestantes = User::where('role', 'administrador')->where('id', '!=', $user->id)->get()->count();
+
+        if($adminsRestantes == 0)
+        {
+            return response()->json([
+                'message' => 'Debe haber al menos un administrador en el sistema'
+            ], 400);
+        }
+
         $user->delete();
+        
 
         return response()->json([
-            'messaje' => 'User Eliminado Correctamente'
+            'message' => 'User Eliminado Correctamente'
         ], 204);
     }
 }

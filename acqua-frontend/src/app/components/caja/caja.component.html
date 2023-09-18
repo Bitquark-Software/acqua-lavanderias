@@ -300,8 +300,8 @@
         </div>
 
         <!-- botones para cerrar venta -->
-        <div class="grid grid-cols-2 gap-2 place-items-center mt-4">
-          <button class="btn btn-outline btn-error" (click)="confirmClearCaja()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 place-items-center mt-4">
+          <button class="btn btn-outline btn-error truncate" (click)="confirmClearCaja()">
             <svg
               aria-hidden="true"
               class="w-6"
@@ -321,7 +321,7 @@
           </button>
 
           <button
-            class="btn btn-success"
+            class="btn btn-success truncate"
             [disabled]="!shouldEnableFinalizarVenta()"
             (click)="finalizarCompra()"
           >
