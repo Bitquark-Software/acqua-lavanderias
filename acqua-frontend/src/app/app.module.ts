@@ -27,6 +27,9 @@ import { NuevoServicioComponent } from './components/servicios/nuevo-servicio/nu
 import { CajaComponent } from './components/caja/caja.component';
 import { TicketsComponent } from './components/tickets/tickets.component';
 import { DetallesTicketComponent } from './components/tickets/detalles-ticket/detalles-ticket.component';
+import { TicketPreviewComponent } from './components/tickets/ticket-preview/ticket-preview.component';
+import { QRCodeModule } from 'angularx-qrcode';
+import { RegistrarPagoComponent } from './components/tickets/registrar-pago/registrar-pago.component';
 
 @NgModule ( {
   declarations: [
@@ -49,6 +52,8 @@ import { DetallesTicketComponent } from './components/tickets/detalles-ticket/de
     CajaComponent,
     TicketsComponent,
     DetallesTicketComponent,
+    TicketPreviewComponent,
+    RegistrarPagoComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,6 +64,7 @@ import { DetallesTicketComponent } from './components/tickets/detalles-ticket/de
     HotToastModule.forRoot({
       dismissible: true,
     }),
+    QRCodeModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

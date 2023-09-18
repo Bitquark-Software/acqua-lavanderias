@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Prenda;
 use App\Models\Prendas_Ticket;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,9 +31,37 @@ class PrendasTicketController extends Controller
             'total_final' => $request->total_final ?? 0
         ]);
 
+        $prenda = Prenda::where('id', $request->id_prenda)->first();
+
+        $proceso->nombre = $prenda ? $prenda->nombre : null;
+
         return response()->json([
             'mensaje' => 'Ticket proceso generado exitosamente',
             'data' => $proceso,
         ], 201);
+    }
+
+    public function update(Request $r, $id)
+    {
+        $r->validate([
+            'total_final' => ['required', 'integer']
+        ]);
+
+        $prendaTicket = Prendas_Ticket::findOrFail($id);
+        $prendaTicket->update([
+            'total_final' => $r->total_final
+        ]);
+
+        return response()->json("Actualizado", 204);
+    }
+
+    public function destroy($id)
+    {
+        $prenda = Prendas_Ticket::findOrFail($id);
+        $prenda->delete();
+
+        return response()->json([
+            'mensaje' => 'Prenda Eliminada Correctamente'
+        ], 204);
     }
 }

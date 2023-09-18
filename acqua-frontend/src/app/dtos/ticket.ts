@@ -3,6 +3,8 @@ import { MetodoPago } from '../enums/MetodoPago.enum';
 import { TipoCredito } from '../enums/TipoCredito.enum';
 import { Cliente } from './cliente';
 import { Comentario } from './comentario';
+import { PrendaTicket } from './prenda-ticket';
+import { ProcesoTicket } from './proceso';
 
 export enum StatusTicket
 {
@@ -31,4 +33,14 @@ export class Ticket
   comentarios?: Comentario[];
   vencido!: boolean;
   created_at!: Date | string;
+  prendas_ticket?: PrendaTicket[];
+  procesos_ticket!: ProcesoTicket[];
+}
+
+export class TicketResponse
+{
+  current_page!: number;
+  data!: Ticket[];
+  prev_page_url ?: string;
+  next_page_url ?: string;
 }

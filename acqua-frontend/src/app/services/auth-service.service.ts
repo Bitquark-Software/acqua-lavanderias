@@ -38,6 +38,8 @@ export class AuthService
     return this.httpClient.post<AuthDto>(`${API_URL}/login`, {
       email,
       password,
+    }, {
+      headers: this.getLoginToken(),
     }).pipe(
       this.toast.observe({
         loading: 'Iniciando sesión',
@@ -53,9 +55,17 @@ export class AuthService
     );
   }
 
+  private getLoginToken()
+  {
+    return new HttpHeaders({
+      'Access-Control-Allow-Origin': '*',
+    });
+  }
+
   getHeaders()
   {
     return new HttpHeaders({
+      'Access-Control-Allow-Origin': '*',
       Authorization: `Bearer ${this.session?.access_token}`,
       Accept: 'application/json',
     });

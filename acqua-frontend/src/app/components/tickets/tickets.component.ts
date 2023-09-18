@@ -2,9 +2,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Cliente } from 'src/app/dtos/cliente';
-import { StatusTicket, Ticket } from 'src/app/dtos/ticket';
-import { MetodoPago } from 'src/app/enums/MetodoPago.enum';
-import { TipoCredito } from 'src/app/enums/TipoCredito.enum';
+import { Ticket, TicketResponse } from 'src/app/dtos/ticket';
+import { TicketService } from 'src/app/services/ticket.service';
 
 @Component({
   selector: 'app-tickets',
@@ -14,91 +13,12 @@ import { TipoCredito } from 'src/app/enums/TipoCredito.enum';
 export class TicketsComponent
 {
   busquedaCliente = '';
-  tickets: Ticket[] = [
-    {
-      id: 1,
-      cliente: new Cliente({
-        nombre: 'Fernando',
-        telefono: '9611003141',
-      }),
-      created_at: new Date().toLocaleDateString('es-MX'),
-      envio_domicilio: false,
-      id_cliente: 1,
-      incluye_iva: false,
-      metodo_pago: MetodoPago.Efectivo,
-      status: StatusTicket.Creado,
-      tipo_credito: TipoCredito.Contado,
-      total: 300,
-      vencido: false,
-    },
-    {
-      id: 1,
-      cliente: new Cliente({
-        nombre: 'Fernando',
-        telefono: '9611003141',
-      }),
-      created_at: new Date().toLocaleDateString('es-MX'),
-      envio_domicilio: false,
-      id_cliente: 1,
-      incluye_iva: false,
-      metodo_pago: MetodoPago.Efectivo,
-      status: StatusTicket.Lavado,
-      tipo_credito: TipoCredito.Contado,
-      total: 310,
-      vencido: false,
-    },
-    {
-      id: 1,
-      cliente: new Cliente({
-        nombre: 'Fernando',
-        telefono: '9611003141',
-      }),
-      created_at: new Date().toLocaleDateString('es-MX'),
-      envio_domicilio: false,
-      id_cliente: 1,
-      incluye_iva: false,
-      metodo_pago: MetodoPago.Efectivo,
-      status: StatusTicket.Reconteo,
-      tipo_credito: TipoCredito.Contado,
-      total: 320,
-      vencido: false,
-    },
-    {
-      id: 1,
-      cliente: new Cliente({
-        nombre: 'Fernando',
-        telefono: '9611003141',
-      }),
-      created_at: new Date().toLocaleDateString('es-MX'),
-      envio_domicilio: false,
-      id_cliente: 1,
-      incluye_iva: false,
-      metodo_pago: MetodoPago.Efectivo,
-      status: StatusTicket.Planchado,
-      tipo_credito: TipoCredito.Contado,
-      total: 320,
-      vencido: false,
-    },
-    {
-      id: 1,
-      cliente: new Cliente({
-        nombre: 'Fernando',
-        telefono: '9611003141',
-      }),
-      created_at: new Date().toLocaleDateString('es-MX'),
-      envio_domicilio: false,
-      id_cliente: 1,
-      incluye_iva: false,
-      metodo_pago: MetodoPago.Efectivo,
-      status: StatusTicket.Entrega,
-      tipo_credito: TipoCredito.Contado,
-      total: 320,
-      vencido: false,
-    },
-  ];
+  tickets: Ticket[] = [];
+  ticketsCopy: Ticket[] = [];
 
   constructor(
     private route: ActivatedRoute,
+    private ticketsService: TicketService,
   )
   {
     this.route.queryParams.subscribe({
@@ -110,8 +30,60 @@ export class TicketsComponent
           if(cliente)
           {
             this.busquedaCliente = cliente.nombre;
+            this.fetchTickets();
           }
         }
+        else
+        {
+          this.fetchTickets();
+        }
+      },
+    });
+  }
+
+  handleInputChange()
+  {
+    if(this.busquedaCliente.length > 0)
+    {
+      this.filtrarPorCliente();
+    }
+    else
+    {
+      this.tickets = this.ticketsCopy;
+    }
+  }
+
+  private filtrarPorCliente()
+  {
+    this.tickets = this.ticketsCopy;
+    const coincidencias = this.tickets.filter(
+      (ticket) =>
+        ticket.cliente.nombre.toLocaleLowerCase().includes(this.busquedaCliente.toLocaleLowerCase()) ||
+        ticket.cliente.telefono?.includes(this.busquedaCliente) ||
+        ticket.id.toString() == this.busquedaCliente) ?? [] as Ticket[];
+    this.tickets = coincidencias;
+  }
+
+  fetchTickets()
+  {
+    this.ticketsService.getTodosLosTickets().subscribe({
+      next: (response: TicketResponse) =>
+      {
+        const ticketsTemp = response.data;
+        ticketsTemp.forEach(t =>
+        {
+          t.created_at = new Date(t.created_at).toLocaleString('es-MX');
+        },
+        );
+
+        this.tickets = ticketsTemp;
+        this.ticketsCopy = ticketsTemp;
+
+        if(this.busquedaCliente) this.filtrarPorCliente();
+      },
+      error: (err) =>
+      {
+        console.log(err);
       },
     });
   }
