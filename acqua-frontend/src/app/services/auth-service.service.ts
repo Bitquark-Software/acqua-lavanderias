@@ -5,6 +5,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { HotToastService } from '@ngneat/hot-toast';
 import { API_URL } from '../environments/develop';
+import { Usuario, UsuarioResponse } from '../dtos/usuario';
+import { Rol } from '../enums/Rol.enum';
 
 @Injectable ({
   providedIn: 'root',
@@ -69,5 +71,47 @@ export class AuthService
       Authorization: `Bearer ${this.session?.access_token}`,
       Accept: 'application/json',
     });
+  }
+
+  getPerfil(id: number)
+  {
+    return this.httpClient.get(
+      `${API_URL}/admin/dashboard/${id}`,
+      { headers: this.getHeaders() });
+  }
+
+  getEmpleados(page?: number)
+  {
+    const url = page ? `${API_URL}/admin/dashboard?page=${page}` : `${API_URL}/admin/dashboard`;
+    return this.httpClient.get<UsuarioResponse>
+    (url, { headers: this.getHeaders() });
+  }
+
+  registrarEmpleado(usuario: Usuario, password: string)
+  {
+    return this.httpClient.post(
+      `${API_URL}/admin/dashboard`, {
+        name: usuario.nombre,
+        email: usuario.email,
+        role: usuario.rol,
+        password,
+      }, { headers: this.getHeaders() });
+  }
+
+  actualizarEmpleado(id: number, name: string, email: string, role: Rol)
+  {
+    return this.httpClient.put(
+      `${API_URL}/admin/dashboard/${id}`, {
+        name,
+        email,
+        role,
+      }, { headers: this.getHeaders() });
+  }
+
+  deleteEmpleado(id: number)
+  {
+    return this.httpClient.delete(
+      `${API_URL}/admin/dashboard/${id}`,
+      { headers: this.getHeaders() });
   }
 }
