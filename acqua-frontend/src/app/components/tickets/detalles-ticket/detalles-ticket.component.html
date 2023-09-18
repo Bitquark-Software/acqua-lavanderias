@@ -1,11 +1,42 @@
-<button class="z-20 absolute right-6 bottom-6 ml-6 btn btn-warning btn-circle btn-lg p-3 tooltip" data-tip="comentarios" (click)="openCommentsDialog()">
+<button class="z-20 fixed right-6 bottom-6 ml-6 btn btn-warning btn-circle btn-lg p-3 tooltip" data-tip="comentarios" (click)="openCommentsDialog()">
   <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" stroke-linecap="round" stroke-linejoin="round"></path>
   </svg>
 </button>
+<div class="fixed z-50 top-0 left-0 w-screen h-screen bg-base-100 flex flex-col items-center justify-center" *ngIf="isLoading">
+  <span class="loading loading-ring loading-lg"></span>
+  <h1 class="font-bold text-3xl">Cargando detalles del ticket...</h1>
+</div>
 <app-drawer>
+  <div class="w-full my-3 mx-auto" *ngIf="ticket">
+    <div class="card w-11/12 bg-base-100 shadow-sm p-0 my-4 mx-auto">
+      <div class="card-body">
+        <p class="font-medium text-xl text-secondary">Cliente: {{ticket.cliente.nombre}}</p>
+        <p class="font-thin text-xs">Ticket creado: {{ticket.created_at}}</p>
+        <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-3 divide-y sm:divide-x sm:divide-y-0 items-center justify-center border-t sm:pt-3">
+          <div class="flex flex-col items-center justify-center gap-2">
+            <p class="font-medium text-xl text-success">Total</p>
+            <p class="font-bold text-sm">$ {{ticket.total}}</p>
+          </div>
+          <div class="flex flex-col items-center justify-center gap-2">
+            <p class="font-medium text-xl text-warning">Anticipo</p>
+            <p class="font-bold text-sm">$ {{ticket.anticipo}}</p>
+          </div>
+          <div class="flex flex-col items-center justify-center gap-2">
+            <p class="font-medium text-xl text-error">Restante</p>
+            <p class="font-bold text-sm">$ {{ticket.restante}}</p>
+            <button class="btn btn-neutral btn-xs" *ngIf="ticket.restante != 0" (click)="renderPagosModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+              Registrar pago
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="w-full grid grid-cols-1 gap-6 m-auto md:mt-3">
-    <div class="w-full">
+    <div class="w-full" *ngIf="stepCursor != 4">
       <ul class="w-full steps">
         <li
           data-content="✓"
@@ -57,7 +88,7 @@
               <td>{{ pt.nombre }}</td>
               <td>{{ pt.total_inicial }}</td>
               <td>
-                <button class="btn btn-error btn-square p-3 text-white">
+                <button class="btn btn-error btn-square p-3 text-white" (click)="deletePrendaFormTicket(pt.id)">
                   <svg
                     aria-hidden="true"
                     fill="none"
@@ -86,7 +117,7 @@
               <span class="label-text">Selecciona una prenda</span>
             </label>
             <select class="select select-bordered" formControlName="prenda">
-              <option *ngFor="let prenda of prendas" [value]="prenda.nombre">{{prenda.nombre}}</option>
+              <option *ngFor="let prenda of prendas" [value]="prenda.id">{{prenda.nombre}}</option>
             </select>
           </div>
           <div class="form-control w-full">
@@ -95,7 +126,7 @@
             </label>
             <div class="join w-full">
               <input class="input input-bordered join-item" placeholder="1" (input)="swtichPiezasText()" formControlName="piezas"/>
-              <button class="btn join-item">{{piezasText}}</button>
+              <button class="btn join-item" disabled>{{piezasText}}</button>
             </div>
           </div>
           <div class="w-full col-span-2">
@@ -134,23 +165,27 @@
       *ngIf="stepCursor == 1"
     >
       <h3 class="font-bold text-3xl ml-2 pt-6">Selecciona una lavadora</h3>
+      <div class="alert alert-warning mt-3" *ngIf="!idLavadora">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <span>Tip: Seleccione una lavadora una vez <b>que la ropa se encuentre cargada en ella</b>, <i>Si no la encuentra contacte al administrador del negocio</i></span>
+      </div>
       <div class="grid grid-cols-1 gap-4 mt-4">
         <div class="form-control w-full pb-3">
-          <select class="select select-bordered" [(ngModel)]="idLavadora">
+          <select class="select select-bordered" [(ngModel)]="idLavadora" (change)="setLavadoraSeleccionada()">
             <option *ngFor="let lavadora of lavadoras" [value]="lavadora.id">{{lavadora.nombre}}</option>
           </select>
         </div>
       </div>
 
-      <div class="alert alert-warning">
+      <div class="alert alert-warning" *ngIf="idLavadora">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-        <span>Alerta: No de clic en "Iniciar lavado" hasta asegurarse de que la ropa a lavar ha sido separada y cargada en la lavadora seleccionada</span>
+        <span>Alerta: No de clic en <b>"Terminar lavado"</b> hasta asegurarse de que el ciclo de lavado haya concluido</span>
       </div>
     </div>
     <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 1">
       <div class="flex justify-end">
         <button [disabled]="!idLavadora" class="btn btn-outline btn-primary shadow-md md:mr-8" (click)="nextStep()">
-          Iniciar lavado
+          Terminar lavado
           <svg
             aria-hidden="true"
             fill="none"
@@ -260,27 +295,57 @@
           <label class="label">
             <span class="label-text">Selecciona un centro de recolección</span>
           </label>
-          <select class="select select-bordered">
-            <option value="1">Matriz</option>
-            <option value="2">Sucursal Oriente</option>
-            <option value="3">Sucursal Poniente</option>
+          <select class="select select-bordered" [(ngModel)]="idSucursalRecoleccion" (change)="changeIdSucursal(idSucursalRecoleccion)">
+            <option *ngFor="let sucursal of sucursales" [value]="sucursal.id">{{sucursal.nombre}}</option>
           </select>
         </div>
       </div>
 
       <div class="w-full mt-3 pb-12" *ngIf="cursorEntrega == 1">
-        <div class="form-control w-6/12">
+        <div class="form-control w-6/12" *ngIf="ticket.cliente.direccion">
           <label class="label">
             <span class="label-text">Selecciona una ubicación del cliente</span>
           </label>
-          <select class="select select-bordered">
-            <option value="1">Casa - Avenida X, Colonia X</option>
-            <option value="2">Oficina - Avenida Y, Colonia Y</option>
+          <select class="select select-bordered" [(ngModel)]="idUbicacionEnvio" (change)="changeIdUbicacion(idUbicacionEnvio)">
+            <option *ngFor="let ubicacion of ticket.cliente.direccion" [value]="ubicacion.id">{{ubicacion.nombre_ubicacion}} - {{ubicacion.calle}}, {{ubicacion.colonia}}; {{ubicacion.ciudad}}, {{ubicacion.codigo_postal}}</option>
           </select>
         </div>
       </div>
     </div>
+    <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 3">
+      <div class="flex justify-end">
+        <button [disabled]="shouldDisableFinalizarEntregaButton()" class="btn btn-outline btn-primary shadow-md md:mr-8" (click)="nextStep()">
+          Pedido entregado
+          <svg
+            aria-hidden="true"
+            fill="none"
+            width="20"
+            height="20"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
 
+    <!-- Finalizado -->
+    <div
+      class="p-4 w-11/12 bg-base-100 rounded-lg border shadow-md sm:p-8 m-auto"
+      *ngIf="stepCursor == 4"
+    >
+      <div class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>El ticket se ha finalizado correctamente, ¡Excelente trabajo!</span>
+      </div>
+    </div>
   </div>
 
 </app-drawer>
@@ -293,7 +358,7 @@
       <p class="text-sm text-center" *ngIf="chatHistory.length == 0">Sin comentarios</p>
       <div class="chat chat-end" *ngFor="let comentario of chatHistory">
         <div class="chat-header opacity-50">{{comentario.sender}}</div>
-        <div class="chat-bubble">{{comentario.text}}</div>
+        <div class="chat-bubble">{{comentario.texto}}</div>
         <div class="chat-footer">
           {{comentario.date}}
         </div>
@@ -308,6 +373,16 @@
           </svg>
         </button>
       </div>
+    </div>
+  </form>
+</dialog>
+<dialog class="modal modal-bottom" #pagosModal>
+  <form method="dialog" class="modal-box h-4/6" (submit)="replaceFormsubmit($event)" [formGroup]="chatForm">
+    <button type="button" (click)="closePagosModal()" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    <h3 class="font-bold text-3xl">Registrar pago</h3>
+    <div class="divider"></div>
+    <div class="scroll-smooth m-auto flow-root w-full md:w-7/12 py-6 px-3 my-3 rounded-2xl shadow-md bg-base-100 max-h-96 overflow-y-scroll">
+      <div class="w-full" #pagosContainer></div>
     </div>
   </form>
 </dialog>

@@ -1,0 +1,41 @@
+<div class="w-full py-3">
+    <ul class="steps w-full mb-3">
+        <li class="step step-primary">Pago</li>
+        <li class="step">Re-impresión</li>
+    </ul>
+    <h3 *ngIf="ticket" class="mt-6 text-red-500 font-bold text-lg">Restante: {{ticket.restante}}</h3>
+    <div class="divider">Método de pago</div>
+    <div class="w-full flex items-center justify-center py-4">
+        <div class="tabs tabs-boxed">
+            <a class="tab" [ngClass]="{
+                'tab-active': metodoPago == 'EFECTIVO'
+            }" (click)="changeMetodoPago('EFECTIVO')">Efectivo</a> 
+            <a class="tab" [ngClass]="{
+                'tab-active': metodoPago == 'TARJETA'
+            }" (click)="changeMetodoPago('TARJETA')">Tarjeta</a> 
+            <a class="tab" [ngClass]="{
+                'tab-active': metodoPago == 'TRANSFERENCIA'
+            }" (click)="changeMetodoPago('TRANSFERENCIA')">Transferencia</a>
+        </div>
+    </div>
+    <div class="divider">Cobro</div>
+    <form *ngIf="ticket" class="w-full grid grid-cols-4 gap-3 items-center justify-center" [formGroup]="formPagos">
+        <div class="form-control col-span-4">
+            <label class="label">
+              <span class="label-text">Anticipo del cliente</span>
+            </label>
+            <input type="number" min="1" placeholder="0" class="input input-bordered" formControlName="monto"/>
+            <label class="label" *ngIf="monto.invalid && (monto.dirty || monto.touched)">
+              <span class="label-text-alt text-red-500">Monto no válido</span>
+            </label>
+        </div>
+        <div class="w-full col-span-4">
+            <button *ngIf="isLoading" class="w-full btn btn-wide btn-success">
+                <span class="loading loading-spinner"></span>
+            </button>
+            <button *ngIf="!isLoading" [disabled]="!formPagos.valid || isLoading" class="w-full btn btn-wide btn-success" (click)="agregarMonto()">
+                Registrar pago
+            </button>
+        </div>
+    </form>
+</div>

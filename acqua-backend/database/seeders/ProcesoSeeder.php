@@ -29,5 +29,13 @@ class ProcesoSeeder extends Seeder
         Proceso::create([
             'nombre' => "DOBLADO",
         ]);
+
+        Proceso::create([
+            'nombre' => "RECONTEO",
+        ]);
+
+        Proceso::create([
+            'nombre' => "ENTREGA",
+        ]);
     }
 }

@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Prenda;
+use App\Models\ServicioTicket;
 use App\Models\Ticket;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
@@ -16,7 +20,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        return Ticket::orderBy('created_at', 'desc')->paginate(15);
+        return Ticket::with('cliente')->orderBy('created_at', 'desc')->paginate(15);
     }
 
     /**
@@ -37,7 +41,8 @@ class TicketController extends Controller
             'tipo_credito' => ['required','in:CREDITO,CONTADO'],
             'metodo_pago' => ['required','in:EFECTIVO,TARJETA,TRANSFERENCIA'],
             'total' => ['required', 'numeric', 'min:0'],
-            'anticipo' => ['numeric', 'min:0']
+            'anticipo' => ['numeric', 'min:0'],
+            'servicios' => ['required', 'array'],
         ]);
 
         $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
@@ -56,9 +61,18 @@ class TicketController extends Controller
             'restante' => $restante,
         ]);
 
+        foreach($request->servicios as $servicio)
+        {
+            ServicioTicket::create([
+                'id_ticket'     => $ticket->id,
+                'id_servicio'   => $servicio['id'],
+                'kilos'         => $servicio['cantidad'],
+            ]);
+        }
+
         return response()->json([
             'mensaje' => 'Ticket creado exitosamente',
-            'data' => $ticket
+            'data' => Ticket::with('cliente', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket')->find($ticket->id),
         ], 201);
     }
 
@@ -71,7 +85,21 @@ class TicketController extends Controller
     public function show($id)
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
-        return Ticket::with('cliente', 'direccion', 'sucursal', 'comentarios')->find($id);
+        $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'prendasTicket', 'procesosTicket')->find($id);
+        $ticket->comentarios->transform(function($t){
+            $empleado = User::where('id', $t->user_id)->first();
+            $t->sender = $empleado ? $empleado->name : "UNKNOWN";
+            $t->errorState = $empleado ? false : true;
+            $t->date = Carbon::parse($t->created_at)->format('d/m/Y, h:m:s');
+            return $t;
+        });
+
+        $ticket->prendasTicket->transform(function($t){
+            $prenda = Prenda::where('id', $t->id_prenda)->first();
+            $t->nombre = $prenda ? $prenda->nombre : "UNKNOWN";
+            return $t;
+        });
+        return $ticket;
     }
 
     /**

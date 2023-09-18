@@ -1,7 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-vars */
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  ComponentFactoryResolver,
+  ComponentRef,
+  ElementRef,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
 import { Categoria } from 'src/app/dtos/catalogo';
 import { Cliente } from 'src/app/dtos/cliente';
@@ -13,6 +21,10 @@ import { TipoCredito } from 'src/app/enums/TipoCredito.enum';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { CategoriasService } from 'src/app/services/categorias.service';
 import { ClientesService } from 'src/app/services/clientes.service';
+import { TicketPreviewComponent } from '../tickets/ticket-preview/ticket-preview.component';
+import { Ticket } from 'src/app/dtos/ticket';
+import { TicketService } from 'src/app/services/ticket.service';
+import { Sucursal } from 'src/app/dtos/sucursal';
 
 @Component({
   selector: 'app-caja',
@@ -34,6 +46,14 @@ export class CajaComponent
   // modales
   @ViewChild('modalRegistrarCliente') nuevoClienteDialog!: ElementRef<HTMLDialogElement>;
   @ViewChild('modalConfirmCancelarVenta') modalConfirmCancelarVenta!: ElementRef<HTMLDialogElement>;
+  @ViewChild('cerrarVenta') modalCerrarVenta!: ElementRef<HTMLDialogElement>;
+
+  @ViewChild('ticketPreviewContainer',
+    {
+      read: ViewContainerRef,
+    }) ticketPreviewContainer!: ViewContainerRef;
+
+  ticketPreviewRef!: ComponentRef<TicketPreviewComponent>;
 
   // clientes
   nombreCliente = '';
@@ -51,7 +71,12 @@ export class CajaComponent
   recibido = 0;
   cambio = 0;
   total = 0;
+  costoEnvio = 0;
+  incluir_iva = false;
 
+  cursorEntrega = 0;
+  idSucursal = 0;
+  idDireccionEnvio = 0;
   // Nuevo Cliente
   nuevoClienteForm = this.fb.group({
     nombre: [this.nombreCliente, Validators.required],
@@ -79,6 +104,11 @@ export class CajaComponent
   chatText = '';
   chatHistory: Comentario[] = [];
 
+  ticket!: Ticket;
+
+  // Sucursales
+  sucursales: Sucursal[] = [];
+
   constructor(
     private categoriasService: CategoriasService,
     private toastService: HotToastService,
@@ -86,6 +116,9 @@ export class CajaComponent
     private clientesService: ClientesService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
+    private router: Router,
+    private ticketPreviewFactory: ComponentFactoryResolver,
+    private ticketService: TicketService,
   )
   {
     this.route.queryParams.subscribe({
@@ -97,7 +130,7 @@ export class CajaComponent
           if(this.clienteDefault)
           {
             this.nombreCliente = `${this.clienteDefault.id}:${this.clienteDefault.nombre}`;
-            this.clienteSeleccionado = this.clienteDefault;
+            this.setCliente();
           }
         }
       },
@@ -108,7 +141,14 @@ export class CajaComponent
       },
     );
 
+    this.fetchSucursales();
+
     this.navigateToBottomOfChat();
+  }
+
+  fetchSucursales()
+  {
+    this.ticketService.getSucursales().subscribe({ next: (sucursales) => this.sucursales = sucursales });
   }
 
   inputServicioChange(e: Event)
@@ -198,7 +238,7 @@ export class CajaComponent
         {
           date: new Date().toISOString(),
           sender: this.authService.session?.datos.name ?? '',
-          text: this.chatText,
+          texto: this.chatText,
         },
       );
       this.chatText = '';
@@ -322,7 +362,25 @@ export class CajaComponent
       const cliente = this.coincidenciasClientes.find(c => c.id?.toString() === id);
       if(cliente)
       {
-        this.clienteSeleccionado = cliente;
+        this.clientesService.fetchClienteById(cliente.id ?? 0).subscribe(
+          {
+            next: (clienteConDirecciones) =>
+            {
+              this.clienteSeleccionado = clienteConDirecciones;
+            },
+          },
+        );
+      }
+      else if(this.clienteDefault)
+      {
+        this.clientesService.fetchClienteById(this.clienteDefault.id ?? 0).subscribe(
+          {
+            next: (clienteConDirecciones) =>
+            {
+              this.clienteSeleccionado = clienteConDirecciones;
+            },
+          },
+        );
       }
     }
   }
@@ -441,6 +499,8 @@ export class CajaComponent
     {
       tempTotal += parseFloat(s.subtotal?.toString() ?? '1');
     });
+
+    tempTotal += parseFloat(this.costoEnvio.toString());
     this.total = tempTotal;
 
     if(this.tipoDeCredito === TipoCredito.Credito)
@@ -606,22 +666,61 @@ export class CajaComponent
   {
     if(this.tipoDeCredito === TipoCredito.Credito)
     {
-      return (
-        this.total > 0 &&
-        this.clienteSeleccionado != null &&
-        this.serviciosTicket.length >= 1 &&
-        this.anticipo >= 0 &&
-        (this.recibido > 0 && this.recibido >= this.anticipo)
-      );
+      if(this.cursorEntrega == 0)
+      {
+        return (
+          this.total > 0 &&
+          this.clienteSeleccionado != null &&
+          this.serviciosTicket.length >= 1 &&
+          this.anticipo >= 0 &&
+          this.idSucursal != 0 &&
+          (this.recibido > 0 && this.recibido >= this.anticipo)
+        );
+      }
+      else if(this.cursorEntrega == 1)
+      {
+        return (
+          this.total > 0 &&
+          this.costoEnvio > 0 &&
+          this.clienteSeleccionado != null &&
+          this.serviciosTicket.length >= 1 &&
+          this.idDireccionEnvio != 0 &&
+          this.anticipo >= 0 &&
+          (this.recibido > 0 && this.recibido >= this.anticipo)
+        );
+      }
+      else
+      {
+        return false;
+      }
     }
     else if(this.tipoDeCredito === TipoCredito.Contado)
     {
-      return (
-        this.total > 0 &&
-        this.clienteSeleccionado != null &&
-        this.serviciosTicket.length >= 1 &&
-        this.recibido >= this.total
-      );
+      if(this.cursorEntrega == 0)
+      {
+        return (
+          this.total > 0 &&
+          this.clienteSeleccionado != null &&
+          this.serviciosTicket.length >= 1 &&
+          this.idSucursal != 0 &&
+          this.recibido >= this.total
+        );
+      }
+      else if(this.cursorEntrega == 1)
+      {
+        return (
+          this.total > 0 &&
+          this.costoEnvio > 0 &&
+          this.clienteSeleccionado != null &&
+          this.idDireccionEnvio != 0 &&
+          this.serviciosTicket.length >= 1 &&
+          this.recibido >= this.total
+        );
+      }
+      else
+      {
+        return false;
+      }
     }
     else
     {
@@ -653,6 +752,9 @@ export class CajaComponent
     this.clienteSeleccionado = null as unknown as Cliente;
     this.coincidenciasClientes = [];
     this.chatHistory = [];
+    this.cursorEntrega = 0;
+    this.idSucursal = 0;
+    this.idDireccionEnvio = 0;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -700,5 +802,406 @@ export class CajaComponent
   atob(base64: string)
   {
     return JSON.parse(atob(base64));
+  }
+
+  switchMetodoEntrega(cursor:number)
+  {
+    if(!this.clienteSeleccionado)
+    {
+      this.cursorEntrega = 0;
+      this.renderNoUbicacionesAlert('Para habilitar esta opción primero selecciona a un cliente');
+      return;
+    }
+
+    if(this.clienteSeleccionado)
+    {
+      if(!this.clienteSeleccionado.direccion?.length)
+      {
+        this.renderNoUbicacionesAlert('Este cliente no tiene direcciones registradas');
+        this.cursorEntrega = 0;
+        return;
+      }
+    }
+    this.cursorEntrega = cursor;
+  }
+
+  finalizarCompra()
+  {
+    const tempTicket = {
+      id_cliente: this.clienteSeleccionado.id,
+      envio_domicilio: this.cursorEntrega == 1,
+      id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
+      id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
+      incluye_iva: this.incluir_iva,
+      tipo_credito: this.tipoDeCredito,
+      metodo_pago: this.metodoPago,
+      total: this.total,
+      anticipo: this.anticipo,
+      restante: this.saldoPendiente,
+    } as Ticket;
+
+    this.modalCerrarVenta.nativeElement.show();
+
+    this.ticketPreviewContainer.clear();
+
+    const ticketPreviewFactory =
+    this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+    const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+    ticketPreviewRef.instance.ticket = tempTicket;
+    ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+    ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+    ticketPreviewRef.instance.setAnticipo(this.anticipo);
+    ticketPreviewRef.instance.setIncluyeIva(this.incluir_iva);
+    ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
+    ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
+    ticketPreviewRef.instance.setTotal(this.total);
+    ticketPreviewRef.instance.setCambio(this.cambio);
+    ticketPreviewRef.instance.setRecibido(this.recibido);
+    ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
+    ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
+    ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
+    this.ticketPreviewRef = ticketPreviewRef;
+  }
+
+  renderNoUbicacionesAlert(message: string)
+  {
+    this.toastService.warning(message);
+  }
+
+  setupPreviewForServicio(event: Event)
+  {
+    event.preventDefault();
+    const tempTicket = {
+      id_cliente: this.clienteSeleccionado.id,
+      envio_domicilio: this.cursorEntrega == 1,
+      id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
+      id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
+      incluye_iva: this.incluir_iva,
+      tipo_credito: this.tipoDeCredito,
+      metodo_pago: this.metodoPago,
+      total: this.total,
+      anticipo: this.anticipo,
+      restante: this.saldoPendiente,
+    } as Ticket;
+
+    this.modalCerrarVenta.nativeElement.show();
+
+    this.ticketPreviewContainer.clear();
+
+    const ticketPreviewFactory =
+    this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+    const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+    ticketPreviewRef.instance.ticket = tempTicket;
+    ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+    ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+    ticketPreviewRef.instance.setAnticipo(this.anticipo);
+    ticketPreviewRef.instance.setIncluyeIva(this.incluir_iva);
+    ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
+    ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
+    ticketPreviewRef.instance.setTotal(this.total);
+    ticketPreviewRef.instance.setCambio(this.cambio);
+    ticketPreviewRef.instance.setRecibido(this.recibido);
+    ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
+    ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
+    ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
+    this.ticketPreviewRef.instance.esTicketCliente = false;
+    this.ticketPreviewRef.instance.setTipoTicket(false);
+    this.ticketPreviewRef = ticketPreviewRef;
+
+    setTimeout(() =>
+    {
+      this.printServicio(event);
+    }, 300);
+  }
+
+  setupPreviewForCliente(event: Event)
+  {
+    event.preventDefault();
+    const tempTicket = {
+      id_cliente: this.clienteSeleccionado.id,
+      envio_domicilio: this.cursorEntrega == 1,
+      id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
+      id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
+      incluye_iva: this.incluir_iva,
+      tipo_credito: this.tipoDeCredito,
+      metodo_pago: this.metodoPago,
+      total: this.total,
+      anticipo: this.anticipo,
+      restante: this.saldoPendiente,
+    } as Ticket;
+
+    this.modalCerrarVenta.nativeElement.show();
+
+    this.ticketPreviewContainer.clear();
+
+    const ticketPreviewFactory =
+    this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+    const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+    ticketPreviewRef.instance.ticket = tempTicket;
+    ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+    ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+    ticketPreviewRef.instance.setAnticipo(this.anticipo);
+    ticketPreviewRef.instance.setIncluyeIva(this.incluir_iva);
+    ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
+    ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
+    ticketPreviewRef.instance.setTotal(this.total);
+    ticketPreviewRef.instance.setCambio(this.cambio);
+    ticketPreviewRef.instance.setRecibido(this.recibido);
+    ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
+    ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
+    ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
+    this.ticketPreviewRef.instance.esTicketCliente = true;
+    this.ticketPreviewRef.instance.setTipoTicket(true);
+    this.ticketPreviewRef = ticketPreviewRef;
+
+    setTimeout(() =>
+    {
+      this.printCliente(event);
+    }, 300);
+  }
+
+  printCliente(event: Event)
+  {
+    event.preventDefault();
+
+    const newWindow = window.open('', '_blank');
+
+    if(newWindow)
+    {
+      newWindow.document.write(
+        `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>TICKET DEL CLIENTE</title>
+          </head>
+
+          <body>
+            ${this.ticketPreviewRef.location.nativeElement.outerHTML}
+          </body>
+
+          <style>
+            @page { size:  auto; margin: 0px; }
+            * {
+              font-size: 12px;
+              font-family: "Times New Roman";
+            }
+          
+            td,
+            th,
+            tr,
+            table {
+              border-top: 1px solid black;
+              border-collapse: collapse;
+            }
+          
+            td.description,
+            th.description {
+              width: 75px;
+              max-width: 75px;
+            }
+          
+            td.quantity,
+            th.quantity {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            td.price,
+            th.price {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            .centered {
+              text-align: center;
+              align-content: center;
+              font-weight: bold;
+            }
+          
+            .ticket {
+              width: 155px;
+              max-width: 155px;
+            }
+          
+            img {
+              max-width: inherit;
+              width: inherit;
+            }
+          
+            @media print {
+              .hidden-print,
+              .hidden-print * {
+                display: none !important;
+              }
+            }
+
+            .qrcodeImage {
+              display: flex;
+              flex: 1;
+            }
+            
+            /* Add custom styles here */
+            .center {
+              display: flex;
+              flex: 1;
+              justify-content: center;
+            }
+          </style>
+        </html> 
+        `);
+      newWindow.document.close();
+      newWindow.onload = () =>
+      {
+        newWindow.print();
+      };
+    }
+  }
+
+  printServicio(event: Event)
+  {
+    event.preventDefault();
+
+    const newWindow = window.open('', '_blank');
+
+    if(newWindow)
+    {
+      newWindow.document.write(
+        `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>TICKET DE SERVICIO</title>
+          </head>
+
+          <body>
+            ${this.ticketPreviewRef.location.nativeElement.outerHTML}
+          </body>
+
+          <style>
+            @page { size:  auto; margin: 0px; }
+            * {
+              font-size: 12px;
+              font-family: "Times New Roman";
+            }
+          
+            td,
+            th,
+            tr,
+            table {
+              border-top: 1px solid black;
+              border-collapse: collapse;
+            }
+          
+            td.description,
+            th.description {
+              width: 75px;
+              max-width: 75px;
+            }
+          
+            td.quantity,
+            th.quantity {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            td.price,
+            th.price {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            .centered {
+              text-align: center;
+              align-content: center;
+              font-weight: bold;
+            }
+          
+            .ticket {
+              width: 155px;
+              max-width: 155px;
+            }
+          
+            img {
+              max-width: inherit;
+              width: inherit;
+            }
+          
+            @media print {
+              .hidden-print,
+              .hidden-print * {
+                display: none !important;
+              }
+            }
+
+            .qrcodeImage {
+              display: flex;
+              flex: 1;
+            }
+            
+            /* Add custom styles here */
+            .center {
+              display: flex;
+              flex: 1;
+              justify-content: center;
+            }
+          </style>
+        </html> 
+        `);
+      newWindow.document.close();
+      newWindow.onload = () =>
+      {
+        newWindow.print();
+      };
+    }
+  }
+
+  saveTicket()
+  {
+    this.ticket = {
+      id_cliente: this.clienteSeleccionado.id,
+      envio_domicilio: this.cursorEntrega == 1,
+      id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
+      id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
+      incluye_iva: this.incluir_iva,
+      tipo_credito: this.tipoDeCredito,
+      metodo_pago: this.metodoPago,
+      total: this.total,
+      anticipo: this.anticipo,
+      restante: this.saldoPendiente,
+    } as Ticket;
+
+    const loadingToast = this.toastService.loading('Creando ticket');
+
+    this.ticketService.registrarTicket(this.ticket, this.serviciosTicket).subscribe({
+      next: (ticketResponse: any) =>
+      {
+        loadingToast.close();
+        this.chatHistory.forEach(c =>
+        {
+          if(!c.id)
+          {
+            this.ticketService.agregarComentario(c, ticketResponse.data.id);
+          }
+        });
+        this.toastService.success('¡Ticket creado!');
+        this.clearCaja();
+      },
+      error: (err) =>
+      {
+        loadingToast.close();
+        this.toastService.error(`${err.error.message ?? 'No se pudo crear el ticket' }`);
+      },
+    });
   }
 }
