@@ -24,11 +24,13 @@ use App\Http\Controllers\StatsController;
 Route::middleware('auth:api')->group(function () { // Para Empleados
     Route::apiResource('catalogos', CatalogoController::class)->only('index', 'show'); 
     Route::apiResource('servicios', ServiciosController::class)->only('index', 'show');
+    Route::apiResource('sucursales', SucursalController::class)->only('index', 'show');
     Route::apiResource('prendas', PrendaController::class)->only('index', 'show');
     Route::apiResource('servicios-ticket', PrendaController::class)->except('destroy');
 });
 
 Route::middleware(['auth:api',AdminOnlyMiddleware::class])->group(function () {
+    Route::apiResource('sucursales', SucursalController::class)->except('index', 'show');
     Route::apiResource('catalogos', CatalogoController::class)->except('index', 'show'); // CRUD CATALOGOS
     Route::apiResource('servicios', ServiciosController::class)->except('index', 'show'); // CRUD SERVICIOS
     Route::apiResource('prendas', PrendaController::class)->except('index', 'show'); // CRUD PRENDAS
@@ -69,8 +71,6 @@ Route::middleware('auth:api')->group( function () {
 });
 
 Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group( function () {
-    Route::apiResource('sucursales', SucursalController::class);
-
     Route::apiResource('tickets', TicketController::class)->except('index', 'show', 'store');
 
     Route::apiResource('lavadoras', LavadoraController::class)->except('index', 'show', 'store');

@@ -114,4 +114,18 @@ export class AuthService
       `${API_URL}/admin/dashboard/${id}`,
       { headers: this.getHeaders() });
   }
+
+  logout()
+  {
+    return this.httpClient.post(
+      `${API_URL}/logout`,
+      { headers: this.getHeaders() }).subscribe({
+      next: () =>
+      {
+        localStorage.clear();
+        this.session = null;
+      },
+      error: (err) => this.toast.error(`${err.error.message ?? 'Desconocido'}`),
+    });
+  }
 }
