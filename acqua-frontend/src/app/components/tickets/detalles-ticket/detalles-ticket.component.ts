@@ -19,6 +19,9 @@ import { StatusTicket, Ticket } from 'src/app/dtos/ticket';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { TicketService } from 'src/app/services/ticket.service';
 import { RegistrarPagoComponent } from '../registrar-pago/registrar-pago.component';
+import { Rol } from 'src/app/enums/Rol.enum';
+import { TicketStats } from 'src/app/dtos/ticket-stats';
+import { StatsService } from 'src/app/services/stats-service.service';
 
 @Component({
   selector: 'app-detalles-ticket',
@@ -68,6 +71,11 @@ export class DetallesTicketComponent
 
   sucursales: Sucursal[] = [];
 
+  isAdmin = false;
+  isLoadingStats = false;
+
+  ticketStats!: TicketStats;
+
   constructor(
     private fb: FormBuilder,
     private toast: HotToastService,
@@ -76,6 +84,7 @@ export class DetallesTicketComponent
     private router: Router,
     private ticketService: TicketService,
     private pagosModalFactory: ComponentFactoryResolver,
+    private statsService: StatsService,
   )
   {
     const ticketId = this.route.snapshot.params['id'];
@@ -94,6 +103,8 @@ export class DetallesTicketComponent
     this.fetchTicketById();
     this.fetchPrendas();
     this.fetchSucursales();
+
+    this.isAdmin = this.auth.session?.datos.role == Rol.Administrador;
   }
 
   fetchSucursales()
@@ -258,7 +269,7 @@ export class DetallesTicketComponent
     case 0:
       // update in DB
       this.isLoading = true;
-      this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe({
+      this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? this.ticketId).subscribe({
         next: () =>
         {
           this.ticketService.registrarProceso(
@@ -617,6 +628,10 @@ export class DetallesTicketComponent
         this.idUbicacionEnvio = this.ticket.id_direccion ?? 0;
       }
       break;
+    case 4:
+      this.isLoadingStats = true;
+      this.fetchTicketStats();
+      break;
     }
   }
 
@@ -696,5 +711,24 @@ export class DetallesTicketComponent
   closePagosModal()
   {
     this.pagosModal.nativeElement.close();
+  }
+
+  fetchTicketStats()
+  {
+    this.statsService.getStatsForTicketId(this.ticket.id).subscribe(
+      {
+        next: (response) =>
+        {
+          console.log(response);
+          this.isLoadingStats = false;
+          this.ticketStats = response;
+          console.log(this.ticketStats);
+        },
+        error: (err) =>
+        {
+          console.error(err);
+        },
+      },
+    );
   }
 }

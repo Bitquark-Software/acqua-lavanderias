@@ -345,6 +345,184 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         <span>El ticket se ha finalizado correctamente, ¡Excelente trabajo!</span>
       </div>
+
+      <div class="w-full px-4 py-4 flex flex-col items-center justify-center gap-4" *ngIf="isLoadingStats">
+        <span class="loading loading-ring loading-lg"></span>
+        <h1 class="font-bold text-2xl">Cargando estadísticas</h1>
+      </div>
+
+      <div class="collapse collapse-arrow bg-gray-50 mt-3" *ngIf="isAdmin && !isLoadingStats">
+        <input type="radio" name="my-accordion-2" checked="checked" /> 
+        <div class="collapse-title text-xl font-medium">
+          Conteo - Click para ver más detalles
+        </div>
+        <div class="collapse-content" *ngIf="ticketStats.Conteo"> 
+          <div class="w-full stats stats-vertical sm:stats-horizontal shadow">
+  
+            <div class="stat">
+              <div class="stat-title">Días</div>
+              <div class="stat-value">{{ticketStats.Conteo.diferencia_en_dias}}</div>
+            </div>
+            
+            <div class="stat">
+              <div class="stat-title">Horas</div>
+              <div class="stat-value">{{ticketStats.Conteo.diferencia_en_horas}}</div>
+            </div>
+            
+            <div class="stat">
+              <div class="stat-title">Minutos</div>
+              <div class="stat-value">{{ticketStats.Conteo.diferencia_en_minutos}}</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-title">Segundos</div>
+              <div class="stat-value">{{ticketStats.Conteo.diferencia_en_segundos}}</div>
+            </div>
+            
+          </div>
+
+          <div class="w-full bg-base-300 stats shadow my-3">
+  
+            <div class="stat">
+              <div class="stat-title">Atendido por</div>
+              <div class="stat-value truncate">{{ticketStats.Conteo.nombre}}</div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="collapse-content" *ngIf="!ticketStats.Conteo"> 
+          <p>Sin datos</p>
+        </div>
+      </div>
+      <div class="collapse collapse-arrow bg-teal-50 mt-3"  *ngIf="isAdmin && !isLoadingStats">
+        <input type="radio" name="my-accordion-2" /> 
+        <div class="collapse-title text-xl font-medium">
+          Lavado - Click para ver más detalles
+        </div>
+        <div class="collapse-content" *ngIf="ticketStats.Lavado"> 
+          <div class="w-full stats stats-vertical sm:stats-horizontal shadow">
+  
+            <div class="stat">
+              <div class="stat-title">Días</div>
+              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_dias}}</div>
+            </div>
+            
+            <div class="stat">
+              <div class="stat-title">Horas</div>
+              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_horas}}</div>
+            </div>
+            
+            <div class="stat">
+              <div class="stat-title">Minutos</div>
+              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_minutos}}</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-title">Segundos</div>
+              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_segundos}}</div>
+            </div>
+            
+          </div>
+
+          <div class="w-full bg-base-300 stats shadow my-3">
+  
+            <div class="stat">
+              <div class="stat-title">Atendido por</div>
+              <div class="stat-value truncate">{{ticketStats.Lavado.nombre}}</div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="collapse-content" *ngIf="!ticketStats.Lavado"> 
+          <p>Sin datos</p>
+        </div>
+      </div>
+      <div class="collapse collapse-arrow bg-stone-200 mt-3"  *ngIf="isAdmin && !isLoadingStats">
+        <input type="radio" name="my-accordion-2" /> 
+        <div class="collapse-title text-xl font-medium">
+          Reconteo - Click para ver más detalles
+        </div>
+        <div class="collapse-content" *ngIf="ticketStats.Reconteo"> 
+          <div class="w-full stats stats-vertical sm:stats-horizontal shadow">
+  
+            <div class="stat">
+              <div class="stat-title">Días</div>
+              <div class="stat-value">{{ticketStats.Reconteo.diferencia_en_dias}}</div>
+            </div>
+            
+            <div class="stat">
+              <div class="stat-title">Horas</div>
+              <div class="stat-value">{{ticketStats.Reconteo.diferencia_en_horas}}</div>
+            </div>
+            
+            <div class="stat">
+              <div class="stat-title">Minutos</div>
+              <div class="stat-value">{{ticketStats.Reconteo.diferencia_en_minutos}}</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-title">Segundos</div>
+              <div class="stat-value">{{ticketStats.Reconteo.diferencia_en_segundos}}</div>
+            </div>
+            
+          </div>
+
+          <div class="w-full bg-base-300 stats shadow my-3">
+  
+            <div class="stat">
+              <div class="stat-title">Atendido por</div>
+              <div class="stat-value truncate">{{ticketStats.Reconteo.nombre}}</div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="collapse-content" *ngIf="!ticketStats.Reconteo"> 
+          <p>Sin datos</p>
+        </div>
+      </div>
+      <div class="collapse collapse-arrow bg-lime-50 mt-3"  *ngIf="isAdmin && !isLoadingStats">
+        <input type="radio" name="my-accordion-2" /> 
+        <div class="collapse-title text-xl font-medium">
+          Entrega - Click para ver más detalles
+        </div>
+        <div class="collapse-content" *ngIf="ticketStats.Entrega"> 
+          <div class="w-full stats stats-vertical sm:stats-horizontal shadow">
+  
+            <div class="stat">
+              <div class="stat-title">Días</div>
+              <div class="stat-value">{{ticketStats.Entrega.diferencia_en_dias}}</div>
+            </div>
+            
+            <div class="stat">
+              <div class="stat-title">Horas</div>
+              <div class="stat-value">{{ticketStats.Entrega.diferencia_en_horas}}</div>
+            </div>
+            
+            <div class="stat">
+              <div class="stat-title">Minutos</div>
+              <div class="stat-value">{{ticketStats.Entrega.diferencia_en_minutos}}</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-title">Segundos</div>
+              <div class="stat-value">{{ticketStats.Entrega.diferencia_en_segundos}}</div>
+            </div>
+            
+          </div>
+
+          <div class="w-full bg-base-300 stats shadow my-3">
+  
+            <div class="stat">
+              <div class="stat-title">Atendido por</div>
+              <div class="stat-value truncate">{{ticketStats.Entrega.nombre}}</div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="collapse-content" *ngIf="!ticketStats.Entrega"> 
+          <p>Sin datos</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -364,7 +542,7 @@
         </div>
       </div>
     </div>
-    <div class="modal-action align-bottom">
+    <div class="modal-action align-bottom" *ngIf="stepCursor != 4">
       <div class="m-auto w-full md:w-7/12 grid grid-cols-3 gap-0">
         <input type="text" placeholder="Agrega un comentario" class="input input-bordered rounded-r-none col-span-2 focus:outline-none" formControlName="message"/>
         <button [disabled]="!chatForm.valid" class="rounded-l-none btn btn-primary text-white" (click)="sendComentario()">

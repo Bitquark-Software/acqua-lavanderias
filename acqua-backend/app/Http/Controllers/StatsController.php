@@ -99,14 +99,16 @@ class StatsController extends Controller
                 $timestampStart = Carbon::parse($procesoTicket->timestamp_start);
                 $timestampEnd = Carbon::parse($procesoTicket->timestamp_end);
 
+                $diff = $timestampStart->diff($timestampEnd);
+
                 return [
                     'nombre' => $procesoTicket->name,
                     'timestamp_start' => $procesoTicket->timestamp_start,
                     'timestamp_end' => $procesoTicket->timestamp_end,
                     'diferencia_en_dias' => $timestampStart->diffInDays($timestampEnd),
-                    'diferencia_en_horas' => $timestampStart->diffInHours($timestampEnd),
-                    'diferencia_en_minutos' => $timestampStart->diffInMinutes($timestampEnd),
-                    'diferencia_en_segundos' => $timestampStart->diffInSeconds($timestampEnd),
+                    'diferencia_en_horas' => $diff->h,
+                    'diferencia_en_minutos' => $diff->i,
+                    'diferencia_en_segundos' => $diff->s,
                 ];
             });
 
@@ -125,14 +127,16 @@ class StatsController extends Controller
                 $timestampStart = Carbon::parse($procesoTicket->timestamp_start);
                 $timestampEnd = Carbon::parse($procesoTicket->timestamp_end);
 
+                $diff = $timestampStart->diff($timestampEnd);
+
                 return [
                     'nombre' => $procesoTicket->name,
                     'timestamp_start' => $procesoTicket->timestamp_start,
                     'timestamp_end' => $procesoTicket->timestamp_end,
                     'diferencia_en_dias' => $timestampStart->diffInDays($timestampEnd),
-                    'diferencia_en_horas' => $timestampStart->diffInHours($timestampEnd),
-                    'diferencia_en_minutos' => $timestampStart->diffInMinutes($timestampEnd),
-                    'diferencia_en_segundos' => $timestampStart->diffInSeconds($timestampEnd),
+                    'diferencia_en_horas' => $diff->h,
+                    'diferencia_en_minutos' => $diff->i,
+                    'diferencia_en_segundos' => $diff->s,
                 ];
             });
 
@@ -152,14 +156,16 @@ class StatsController extends Controller
                 $timestampStart = Carbon::parse($procesoTicket->timestamp_start);
                 $timestampEnd = Carbon::parse($procesoTicket->timestamp_end);
 
+                $diff = $timestampStart->diff($timestampEnd);
+
                 return [
                     'nombre' => $procesoTicket->name,
                     'timestamp_start' => $procesoTicket->timestamp_start,
                     'timestamp_end' => $procesoTicket->timestamp_end,
                     'diferencia_en_dias' => $timestampStart->diffInDays($timestampEnd),
-                    'diferencia_en_horas' => $timestampStart->diffInHours($timestampEnd),
-                    'diferencia_en_minutos' => $timestampStart->diffInMinutes($timestampEnd),
-                    'diferencia_en_segundos' => $timestampStart->diffInSeconds($timestampEnd),
+                    'diferencia_en_horas' => $diff->h,
+                    'diferencia_en_minutos' => $diff->i,
+                    'diferencia_en_segundos' => $diff->s,
                 ];
             });
 
@@ -179,14 +185,16 @@ class StatsController extends Controller
                 $timestampStart = Carbon::parse($procesoTicket->timestamp_start);
                 $timestampEnd = Carbon::parse($procesoTicket->timestamp_end);
 
+                $diff = $timestampStart->diff($timestampEnd);
+
                 return [
                     'nombre' => $procesoTicket->name,
                     'timestamp_start' => $procesoTicket->timestamp_start,
                     'timestamp_end' => $procesoTicket->timestamp_end,
                     'diferencia_en_dias' => $timestampStart->diffInDays($timestampEnd),
-                    'diferencia_en_horas' => $timestampStart->diffInHours($timestampEnd),
-                    'diferencia_en_minutos' => $timestampStart->diffInMinutes($timestampEnd),
-                    'diferencia_en_segundos' => $timestampStart->diffInSeconds($timestampEnd),
+                    'diferencia_en_horas' => $diff->h,
+                    'diferencia_en_minutos' => $diff->i,
+                    'diferencia_en_segundos' => $diff->s,
                 ];
             });
 
@@ -206,24 +214,26 @@ class StatsController extends Controller
                 $timestampStart = Carbon::parse($procesoTicket->timestamp_start);
                 $timestampEnd = Carbon::parse($procesoTicket->timestamp_end);
 
+                $diff = $timestampStart->diff($timestampEnd);
+
                 return [
                     'nombre' => $procesoTicket->name,
                     'timestamp_start' => $procesoTicket->timestamp_start,
                     'timestamp_end' => $procesoTicket->timestamp_end,
                     'diferencia_en_dias' => $timestampStart->diffInDays($timestampEnd),
-                    'diferencia_en_horas' => $timestampStart->diffInHours($timestampEnd),
-                    'diferencia_en_minutos' => $timestampStart->diffInMinutes($timestampEnd),
-                    'diferencia_en_segundos' => $timestampStart->diffInSeconds($timestampEnd),
+                    'diferencia_en_horas' => $diff->h,
+                    'diferencia_en_minutos' => $diff->i,
+                    'diferencia_en_segundos' => $diff->s,
                 ];
             });
 
         return response()->json([
             'Ticket' => $ticket,
-            'Conteo' => $resultConteo,
-            "Lavado" => $resultLavado,
-            'Reconteo' => $resultReconteo,
-            'Planchado' => $resultPlanchado,
-            'Entrega' => $resultEntrega
+            'Conteo' => $resultConteo ? $resultConteo[0] : null,
+            "Lavado" => $resultLavado ? $resultLavado[0] : null,
+            'Reconteo' => $resultReconteo ? $resultReconteo[0] : null,
+            'Planchado' => $resultPlanchado ? $resultPlanchado[0] : null,
+            'Entrega' => $resultEntrega ? $resultEntrega[0] : null
         ], 200);
     }
 }

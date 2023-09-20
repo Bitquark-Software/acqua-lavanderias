@@ -246,8 +246,9 @@
             <div class="form-control w-full">
               <select class="select select-bordered" [(ngModel)]="idDireccionEnvio">
                 <option value="0" disabled>Selecciona una dirección de entrega</option>
-                <option value="1">Casa - Avenida X, Colonia X</option>
-                <option value="2">Oficina - Avenida Y, Colonia Y</option>
+                <option *ngFor="let ub of clienteSeleccionado.direccion">
+                  {{ub.nombre_ubicacion}} {{ub.numero}} - {{ub.calle}}, {{ub.colonia}}, {{ub.ciudad}}; C.P {{ub.codigo_postal}}
+                </option>
               </select>
             </div>
           </div>

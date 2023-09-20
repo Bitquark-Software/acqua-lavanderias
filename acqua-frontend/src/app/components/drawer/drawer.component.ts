@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
 import { Cliente } from 'src/app/dtos/cliente';
 import { Rol } from 'src/app/enums/Rol.enum';
@@ -27,6 +28,7 @@ export class DrawerComponent
     private authService: AuthService,
     private toast: HotToastService,
     private clientesService: ClientesService,
+    private router: Router,
   )
   {
     this.isAdmin = this.authService.session?.datos.role === Rol.Administrador ?? false;
@@ -101,5 +103,14 @@ export class DrawerComponent
   btoa(cliente: Cliente)
   {
     return btoa(JSON.stringify(cliente));
+  }
+
+  logout()
+  {
+    this.authService.logout().add(() =>
+    {
+      this.toast.show('¡Hasta luego!');
+      this.router.navigateByUrl('/login', { skipLocationChange: true });
+    });
   }
 }
