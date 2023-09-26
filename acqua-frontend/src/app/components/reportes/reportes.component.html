@@ -1,0 +1,93 @@
+<app-drawer>
+  <div class="w-full my-3 mx-auto">
+    <div class="card w-11/12 bg-base-100 shadow-sm p-0 my-4 mx-auto">
+      <div class="card-body">
+        <div class="flex flex-col md:flex-row items-center md:content-between">
+            <p *ngIf="dateRangePlaceholder == ''" class="w-full md:w-4/12 text-2xl col-span-1 truncate">
+                Estás viendo el reporte del día <b>de hoy</b>.
+            </p>
+            <p *ngIf="dateRangePlaceholder != ''" class="w-full md:w-4/12 text-2xl col-span-1 truncate">
+                Reporte entre <b>{{dateRangePlaceholder}}</b>.
+            </p>
+
+            <div class="w-4/12 form-control">
+                <label class="input-group input-group-md">
+                    <button class="btn btn-square" (click)="openDatesDialog()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                    <input type="text" [(ngModel)]="dateRangePlaceholder" readonly placeholder="Selecciona un rango de fechas" class="input input-bordered input-md" #dateRange (click)="openDatesDialog()" />
+                </label>
+            </div>
+        </div>
+        <div
+          class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 items-center justify-center gap-4 py-6"
+        >
+
+            <!-- Ingresos -->
+            <div *ngIf="!isLoading && statsIngresos" class="stats shadow sm:col-span-2 md:col-span-3">
+                <div class="stat">
+                    <div class="stat-title">Ingresos</div>
+                    <div class="stat-value text-teal-600">{{statsIngresos.totalIngresos}}</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-title">Monto cobrado</div>
+                    <div class="stat-value text-teal-600">{{statsIngresos.montoCobrado}}</div>
+                </div>
+                
+                <div class="stat">
+                    <div class="stat-title">Monto por cobrar</div>
+                    <div class="stat-value text-teal-600">{{statsIngresos.montoPorCobrar}}</div>
+                </div>
+            </div>
+
+            <!-- Clientes -->
+            <div class="stats shadow" *ngIf="!isLoading && statsUsuarios">
+  
+                <div class="stat">
+                  <div class="stat-title">Clientes nuevos</div>
+                  <div class="stat-value" [ngClass]="{
+                    'text-teal-600': statsUsuarios.clientesNuevos > 0,
+                    'text-amber-400': statsUsuarios.clientesNuevos == 0,
+                  }">{{statsUsuarios.clientesNuevos}}</div>
+                </div>
+                
+            </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</app-drawer>
+<dialog class="modal modal-bottom sm:modal-middle shadow-2xl" #datesModal>
+    <form method="dialog" class="px-4 modal-box grid grid-cols-2 gap-4 items-center" (submit)="replaceFormsubmit($event)" [formGroup]="datesForm">
+        <h3 class="font-bold text-xl block col-span-2">Rango de fechas</h3>
+        <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">Fecha de inicio</span>
+            </label>
+            <input formControlName="start" type="Date" class="input input-bordered w-full" />
+            <label class="label">
+                <span *ngIf="datesForm.hasError('dateRangeError')" class="label-text-alt text-red-500"></span>
+              </label>
+        </div>
+        <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">Fecha de término</span>
+            </label>
+            <input formControlName="end" type="date" class="input input-bordered w-full" />
+            <label class="label">
+              <span *ngIf="datesForm.hasError('dateRangeError')" class="label-text-alt text-red-500">La fecha de inicio no puede ser mayor que la fecha de finalización.</span>
+            </label>
+        </div>
+        <button class="btn" (click)="closeDatesDialog(true)">Cerrar</button>
+        <button [disabled]="!datesForm.valid" class="btn btn-primary" (click)="setDateRangePickerText()">Buscar</button>
+      <!-- button -->
+    </form>
+</dialog>
+<div *ngIf="isLoading" class="bg-base-100 fixed top-0 left-0 h-screen w-screen flex flex-col items-center justify-center">
+    <span class="loading loading-ring loading-lg"></span>
+    <h3 class="font-bold text-3xl">Cargando reportes...</h3>
+</div>
