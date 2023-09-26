@@ -66,7 +66,6 @@
               ></path>
             </svg>
           </button>
-          <!-- <label tabindex="0" class="btn btn-ghost rounded-btn">Dropdown</label> -->
           <ul tabindex="0" class="menu dropdown-content z-[1] p-2 shadow bg-base-100 rounded-box w-52 mt-4">
             <li class="cursor-pointer" (click)="logout()">Cerrar sesión</li>
           </ul>
@@ -166,7 +165,7 @@
         </a>
       </li>
       <li *ngIf="isAdmin">
-        <a href="" class="text-primary dark:text-white">
+        <a routerLink="/reportes" class="text-primary dark:text-white">
           <svg
             width="35"
             heigth="35"

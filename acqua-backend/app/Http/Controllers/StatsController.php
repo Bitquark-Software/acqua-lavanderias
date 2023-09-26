@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Ticket;
 use Carbon\Carbon;
 
-
 class StatsController extends Controller
 {
 
@@ -23,7 +22,6 @@ class StatsController extends Controller
         $finFechaConsulta = $request->fecha_fin;
 
         try {
-
             if (empty($inicioFechaConsulta) && empty($finFechaConsulta)) {
                 // Fecha Inicio y Final no Proporcinadas
                 $inicioFechaConsulta = Carbon::now()->startOfDay();
@@ -63,9 +61,9 @@ class StatsController extends Controller
                 ->sum('restante');
 
             return response()->json([
-                'totalIngresos' => (string) ($montoTicketsPagadosAContado + $montoTicketsTotalACredito),
-                'montoCobrado' => (string) ($montoTicketsPagadosAContado + $montoTicketsACreditoPagado),
-                'montoPorCobrar' => (string) $montoTicketsACreditoPendiente
+                'totalIngresos' => (floatval($montoTicketsPagadosAContado + $montoTicketsTotalACredito)),
+                'montoCobrado' => floatval(($montoTicketsPagadosAContado + $montoTicketsACreditoPagado)),
+                'montoPorCobrar' => floatVal($montoTicketsACreditoPendiente)
             ], 200);
         } catch (\Exception $e) {
             // Fecha no valida
@@ -230,7 +228,7 @@ class StatsController extends Controller
         return response()->json([
             'Ticket' => $ticket,
             'Conteo' => $resultConteo ? $resultConteo[0] : null,
-            "Lavado" => $resultLavado ? $resultLavado[0] : null,
+            'Lavado' => $resultLavado ? $resultLavado[0] : null,
             'Reconteo' => $resultReconteo ? $resultReconteo[0] : null,
             'Planchado' => $resultPlanchado ? $resultPlanchado[0] : null,
             'Entrega' => $resultEntrega ? $resultEntrega[0] : null
