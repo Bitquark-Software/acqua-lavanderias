@@ -18,7 +18,7 @@ class CreateServiciosTable extends Migration
             $table->string('clave_servicio')->unique();
             $table->string('nombre_servicio');
             $table->decimal('importe', 8, 2);
-            $table->integer('cantidad_minima');
+            $table->decimal('cantidad_minima', 8, 2);
             $table->timestamps();
             $table->foreign('catalogo_id')->references('id')->on('catalogos')->onDelete('cascade');
         });
