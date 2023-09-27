@@ -43,6 +43,7 @@ class TicketController extends Controller
             'total' => ['required', 'numeric', 'min:0'],
             'anticipo' => ['numeric', 'min:0'],
             'servicios' => ['required', 'array'],
+            'fecha_entrega' => ['nullable', 'date_format:Y-m-d H:i:s'],
         ]);
 
         $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
@@ -59,6 +60,7 @@ class TicketController extends Controller
             'total' => $request->total,
             'anticipo' => $anticipo,
             'restante' => $restante,
+            'fecha_entrega' => $request->fecha_entrega
         ]);
 
         foreach($request->servicios as $servicio)
@@ -121,7 +123,8 @@ class TicketController extends Controller
             'total' => ['required', 'numeric', 'min:0'],
             'anticipo' => ['numeric', 'min:0'],
             'status' => ['in:CREADO,LAVADO,PLANCHADO,RECONTEO,ENTREGA'],
-            'vencido' => ['boolean']
+            'vencido' => ['boolean'],
+            'fecha_entrega' => ['nullable', 'date_format:Y-m-d H:i:s'],
         ]);
 
         $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
@@ -139,7 +142,8 @@ class TicketController extends Controller
             'anticipo' => $anticipo,
             'restante' => $restante,
             'status' => $request->status ?? 'CREADO',
-            'vencido' => $request->vencido ?? false
+            'vencido' => $request->vencido ?? false,
+            'fecha_entrega' => $request->fecha_entrega
         ]);
 
         return response()->json([
