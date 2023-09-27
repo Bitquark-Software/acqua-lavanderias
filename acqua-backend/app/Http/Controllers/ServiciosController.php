@@ -28,10 +28,10 @@ class ServiciosController extends Controller
     {
         $request->validate([
             'catalogo_id' => ['required', 'exists:catalogos,id'],
-            'clave_servicio' => ['required', 'string', 'unique:servicios,clave_servicio'],
+            'clave_servicio' => ['required', 'string'],
             'nombre_servicio' => ['required', 'string'],
             'importe' => ['required', 'numeric', 'min:1'],
-            'cantidad_minima' => ['required', 'min:1'],
+            'cantidad_minima' => ['required', 'numeric', 'min:1'],
         ]);
 
         // Generacion de Clave
@@ -45,8 +45,19 @@ class ServiciosController extends Controller
             return Str::substr($palabra, 0, 1);
         });
 
+        // Genreacion de Numero aleatorio
+        $numeroAleatorio = mt_rand(1, 9999);
+
         // Unir las iniciales en una sola cadena
         $clave = $iniciales->implode('');
+
+        // Consulta a la BD
+        $existeValor = Servicio::where('clave_servicio', $clave)->exists();
+
+        // Si existe entonces concatena el numero aleatorio al string $clave
+        if ($existeValor) {
+            $clave .= (string) $numeroAleatorio;
+        }
 
         $servicio = Servicio::create([
             'catalogo_id' => $request->catalogo_id,
@@ -106,6 +117,17 @@ class ServiciosController extends Controller
         // Unir las iniciales en una sola cadena
         $clave = $iniciales->implode('');
 
+        // Genreacion de Numero aleatorio
+        $numeroAleatorio = mt_rand(1, 9999);
+
+        // Consulta a la BD
+        $existeValor = Servicio::where('clave_servicio', $clave)->exists();
+
+        // Si existe entonces concatena el numero aleatorio al string $clave
+        if ($existeValor) {
+            $clave .= (string) $numeroAleatorio;
+        }
+
         $servicio = Servicio::findOrFail($id);
         $servicio->catalogo_id = $request->catalogo_id;
         $servicio->nombre_servicio = Str::upper($request->nombre_servicio);
@@ -117,7 +139,7 @@ class ServiciosController extends Controller
         return response()->json([
             'messaje' => 'Servicio Actualizado...',
             'data' => $servicio,
-            ], 200);
+        ], 200);
     }
 
     /**
@@ -129,8 +151,8 @@ class ServiciosController extends Controller
     public function destroy($id)
     {
         $servicios = Servicio::findOrFail($id);
-        $servicios ->delete();
-        
+        $servicios->delete();
+
         return response()->json(['mensaje' => 'Servicio Eliminado Correctamente'], 204);
     }
 }
