@@ -15,7 +15,7 @@ class CatalogoController extends Controller
      */
     public function index()
     {
-        return Catalogo::paginate(5);
+        return Catalogo::paginate(10);
     }
 
     /**
