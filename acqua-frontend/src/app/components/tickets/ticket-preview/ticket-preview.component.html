@@ -1,8 +1,10 @@
 <div id="ticket-container" style="width: 80mm">
-  <img style="margin: 0 !important; width: 40mm !important; height: auto !important; text-align: center;" src="../../../../assets/print-app-logo.png" class="qrcodeImage center" alt="ACQUA logo" />
+  <div class="qrcodeImage center" style="margin: 0 auto !important; text-align: center;">
+    <img class="center" style="margin: 0 !important; width: 30mm !important; height: auto !important; text-align: center;" src="../../../../assets/print-app-logo.png" class="qrcodeImage center" alt="ACQUA logo" />
+  </div>
   <p class="centered">ACQUA Lavanderías</p>
   <p class="centered">RFC: HEGM491024MC7</p>
-  <p class="centered">Diagonal 9 Sur Pte 916 Barrio San Francisco, C.P 29066, Ciudad Tuxtla Gutiérrez, Chiapas Tel: 961-245-4184</p>
+  <p class="centered">Diagonal 9 Sur Pte 916 Barrio San Francisco, C.P 29066, Ciudad Tuxtla Gutiérrez, Chiapas Tel: 961-709-6199</p>
 
   <p class="centered">Ticket Nº. {{ticket.id}} &nbsp; FECHA: {{ticket.created_at}}</p>
 
@@ -41,7 +43,7 @@
     </tbody>
   </table>
 
-  <p style="text-align: right;" *ngIf="inclye_iva">Impuestos: 0.00</p>
+  <p style="text-align: right;" *ngIf="inclye_iva">Impuestos: $ {{montoImpuestos}}</p>
   <p style="text-align: right;">Total: ${{total.toFixed(2)}}</p>
   <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO'">Anticipo: ${{anticipo.toFixed(2)}}</p>
   <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO'">Saldo: ${{saldoPendiente.toFixed(2)}}</p>
@@ -49,22 +51,22 @@
   <p style="text-align: right;" *ngIf="metodoPago == 'EFECTIVO'">Recibido: ${{recibido.toFixed(2)}}</p>
   <p style="text-align: right;" *ngIf="metodoPago == 'EFECTIVO'">Cambio: ${{cambio.toFixed(2)}}</p>
 
-  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;">
     <p style="font-weight: bold;">* * DATOS DEL CLIENTE * *</p>
     <p class="centered">Cliente: {{cliente.nombre.toUpperCase()}}</p>
   </div>
 
-  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;" *ngIf="tipoEntrega == 'ENVIO'">
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="tipoEntrega == 'ENVIO'">
     <p style="font-weight: bold;">* * ENVÍO A DOMICILIO * *</p>
     <p class="centered">ENTREGAR EN: AVENIDA X, COLONIA Y</p>
   </div>
 
-  <div style="width: 100%; border-top: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;" *ngIf="tipoEntrega == 'SUCURSAL'">
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="tipoEntrega == 'SUCURSAL'">
     <p style="font-weight: bold;">* * CENTRO DE RECOLECCIÓN * *</p>
     <p class="centered">ENTREGAR EN: MATRIZ</p>
   </div>
 
-  <div style="width: 100%; border-top: dotted 2px; border-bottom: dotted 2px; padding-top: 4px; padding-bottom: 4px; text-align: center;">
+  <div style="width: 100%; border-top: dotted 2px; border-bottom: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;">
     <p style="font-weight: bold;">* * ANTENDIÓ * *</p>
     <p class="centered">ADMINISTRADOR</p>
   </div>

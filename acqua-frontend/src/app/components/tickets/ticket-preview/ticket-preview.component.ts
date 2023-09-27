@@ -32,10 +32,20 @@ export class TicketPreviewComponent
   sucursal!: Sucursal;
   ubicacionEnvio!: Ubicacion;
   esTicketCliente = false;
+  montoImpuestos = 0;
 
   constructor()
   {
     this.ticketURL = `${APP_SERVICE_URL}ticket/${this.ticket ? this.ticket.id : 1}`;
+  }
+
+  private calculaMontoImpuestos()
+  {
+    if(this.inclye_iva)
+    {
+      const iva = this.total - this.total/1.16;
+      this.montoImpuestos = parseFloat(iva.toFixed(2));
+    }
   }
 
   setServiciosTicket(servicios: Servicio[])
@@ -46,6 +56,7 @@ export class TicketPreviewComponent
   setTotal(total: number)
   {
     this.total = total;
+    this.calculaMontoImpuestos();
   }
 
   setIncluyeIva(incluyeIva: boolean)

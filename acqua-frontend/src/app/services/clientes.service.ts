@@ -181,7 +181,7 @@ export class ClientesService
             codigo_postal: cliente.direccion ? cliente.direccion[0].codigo_postal.toString() : '0',
             nombre_ubicacion: cliente.direccion ? cliente.direccion[0].nombre_ubicacion : 0,
             cliente_id: clienteResponseItem.id,
-          }).pipe(
+          }, { headers: this.authService.getHeaders() }).pipe(
             this.toast.observe({
               loading: 'Registrando dirección del cliente...',
               success: () => 'Dirección registrada',
