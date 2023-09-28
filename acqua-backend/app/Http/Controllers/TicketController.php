@@ -54,8 +54,8 @@ class TicketController extends Controller
 
         $valor = $request->metodo_pago;
 
-        // Encyptacion de Numero de refencia
-        $numeroTargetaCifrado = !is_null($request->numero_referencia)
+        // Encyptacion de refencia
+        $numeroTarjetaCifrado = !is_null($request->numero_referencia)
             ? Crypt::encrypt($request->numero_referencia)
             : null;
 
@@ -72,7 +72,7 @@ class TicketController extends Controller
             'anticipo' => $anticipo,
             'restante' => $restante,
             'fecha_entrega' => $request->fecha_entrega,
-            'numero_referencia' => $numeroTargetaCifrado
+            'numero_referencia' => $numeroTarjetaCifrado
         ]);
 
         // Anticipos_Tickets
@@ -82,7 +82,7 @@ class TicketController extends Controller
                 'metodopago' => $ticket->metodo_pago,
                 'id_ticket' => $ticket->id,
                 'cobrado_por' => $request->user()->id,
-                'numero_referencia' => $numeroTargetaCifrado
+                'numero_referencia' => $numeroTarjetaCifrado
             ]);
         }
 
@@ -159,8 +159,8 @@ class TicketController extends Controller
         $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
         $restante = $request->tipo_credito === 'CREDITO' ? $request->total - $request->anticipo : 0.00;
 
-        // Encyptacion de Numero de refencia
-        $numeroTargetaCifrado = !is_null($request->numero_referencia)
+        // Encyptacion de refencia
+        $numeroTarjetaCifrado = !is_null($request->numero_referencia)
             ? Crypt::encrypt($request->numero_referencia)
             : null;
 
@@ -178,7 +178,7 @@ class TicketController extends Controller
             'status' => $request->status ?? 'CREADO',
             'vencido' => $request->vencido ?? false,
             'fecha_entrega' => $request->fecha_entrega,
-            'numero_referencia' => $numeroTargetaCifrado
+            'numero_referencia' => $numeroTarjetaCifrado
         ]);
 
         return response()->json([

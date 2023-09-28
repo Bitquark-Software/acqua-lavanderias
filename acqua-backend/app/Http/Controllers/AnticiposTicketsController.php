@@ -23,8 +23,8 @@ class AnticiposTicketsController extends Controller
             'numero_referencia' => ['nullable', 'string', 'min:18']
         ]);
 
-        // Encyptacion de Numero de refencia
-        $numeroTargetaCifrado = !is_null($request->numero_referencia)
+        // Encyptacion de referencia
+        $numeroTarjetaCifrado = !is_null($request->numero_referencia)
             ? Crypt::encrypt($request->numero_referencia)
             : null;
 
@@ -33,7 +33,7 @@ class AnticiposTicketsController extends Controller
             'metodopago' => $request->metodopago,
             'id_ticket' => $request->id_ticket,
             'cobrado_por' => $request->user()->id,
-            'numero_referenccia' => $numeroTargetaCifrado
+            'numero_referenccia' => $numeroTarjetaCifrado
         ]);
 
         return response()->json([
