@@ -261,6 +261,26 @@ export class CajaComponent
     };
   }
 
+  private forceBuscarCliente()
+  {
+    this.clientesService.buscarClientePorNombre(this.nombreCliente).subscribe(
+      {
+        next: (clientes: Cliente[]) =>
+        {
+          if(clientes.length > 0)
+          {
+            this.coincidenciasClientes = clientes;
+            if(clientes.length == 0)
+            {
+              this.nombreCliente = `${clientes[0].id}:${clientes[0].nombre}`;
+              this.setCliente();
+            }
+          }
+        },
+      },
+    );
+  }
+
   buscarCliente()
   {
     if(this.nombreCliente != null)
@@ -345,7 +365,7 @@ export class CajaComponent
       this.nombreCliente = cliente.nombre;
       this.nuevoClienteDialog.nativeElement.close();
       this.nuevoClienteForm.reset();
-      this.buscarCliente();
+      this.forceBuscarCliente();
     }
     else
     {
@@ -1203,5 +1223,16 @@ export class CajaComponent
         this.toastService.error(`${err.error.message ?? 'No se pudo crear el ticket' }`);
       },
     });
+  }
+
+  closeModalCerrarVenta()
+  {
+    this.modalCerrarVenta.nativeElement.close();
+  }
+
+  setIvaCheckbox(event: any)
+  {
+    const value = event.target.checked as boolean;
+    this.incluir_iva = value;
   }
 }

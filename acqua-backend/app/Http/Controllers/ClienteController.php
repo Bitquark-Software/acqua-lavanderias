@@ -87,12 +87,10 @@ class ClienteController extends Controller
         $finFechaConsulta = $request->fecha_fin;
 
         try {
-
             if (empty($inicioFechaConsulta) && empty($finFechaConsulta)) {
                 // Fecha Inicio y Final no Proporcinadas
                 $inicioFechaConsulta = Carbon::now()->startOfDay();
                 $finFechaConsulta = Carbon::now()->endOfDay();
-
             } else {
                 /// Fechas Proporcinada
                 $inicioFechaConsulta = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_inicio'))->startOfDay();
@@ -110,9 +108,8 @@ class ClienteController extends Controller
 
             return response()->json([
                 'clientesNuevos' => $numClientesNuevos,
-                'Clientes' => $ClientesNuevos
+                'clientes' => $ClientesNuevos
             ]);
-
         } catch (\Exception $e) {
             return response()->json(
                 [

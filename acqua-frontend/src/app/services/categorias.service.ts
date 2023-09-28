@@ -70,7 +70,8 @@ export class CategoriasService
 
   deleteCatalogo(id: number): Observable<void>
   {
-    return this.httpClient.delete<void>(`${API_URL}/catalogos/${id}`).pipe(
+    return this.httpClient.delete<void>(
+      `${API_URL}/catalogos/${id}`, { headers: this.authService.getHeaders() }).pipe(
       this.toast.observe({
         loading: 'Eliminando categoría...',
         success: () => 'Categoría eliminada',
@@ -170,7 +171,8 @@ export class CategoriasService
 
   deleteServicio(id:number)
   {
-    return this.httpClient.delete<void>(`${API_URL}/servicios/${id}`).pipe(
+    return this.httpClient.delete<void>(
+      `${API_URL}/servicios/${id}`, { headers: this.authService.getHeaders() }).pipe(
       this.toast.observe({
         loading: 'Eliminando servicio...',
         success: () => 'Servicio eliminada',

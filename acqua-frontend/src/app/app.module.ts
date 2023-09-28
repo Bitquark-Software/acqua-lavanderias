@@ -30,6 +30,7 @@ import { DetallesTicketComponent } from './components/tickets/detalles-ticket/de
 import { TicketPreviewComponent } from './components/tickets/ticket-preview/ticket-preview.component';
 import { QRCodeModule } from 'angularx-qrcode';
 import { RegistrarPagoComponent } from './components/tickets/registrar-pago/registrar-pago.component';
+import { ReportesComponent } from './components/reportes/reportes.component';
 
 @NgModule ( {
   declarations: [
@@ -54,6 +55,7 @@ import { RegistrarPagoComponent } from './components/tickets/registrar-pago/regi
     DetallesTicketComponent,
     TicketPreviewComponent,
     RegistrarPagoComponent,
+    ReportesComponent,
   ],
   imports: [
     BrowserModule,

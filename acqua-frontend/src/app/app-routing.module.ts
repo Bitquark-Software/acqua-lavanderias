@@ -21,6 +21,7 @@ import { EditarClienteComponent } from './components/clientes/editar-cliente/edi
 import { NuevoServicioComponent } from './components/servicios/nuevo-servicio/nuevo-servicio.component';
 import { TicketsComponent } from './components/tickets/tickets.component';
 import { DetallesTicketComponent } from './components/tickets/detalles-ticket/detalles-ticket.component';
+import { ReportesComponent } from './components/reportes/reportes.component';
 
 const routes: Routes = [
   {
@@ -100,6 +101,11 @@ const routes: Routes = [
   {
     path: 'ticket/:id',
     component: DetallesTicketComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reportes',
+    component: ReportesComponent,
     canActivate: [authGuard],
   },
   {
