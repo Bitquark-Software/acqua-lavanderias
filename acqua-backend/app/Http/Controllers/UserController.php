@@ -117,8 +117,14 @@ class UserController extends Controller
             ], 400);
         }
 
+        // Evita que el usuario se elimine a si mismo 
+        if (auth()->user()->id === $user->id) {
+            return response()->json([
+                'message' => 'No puedes eliminar tu usuario actual'
+            ], 403);
+        }
+
         $user->delete();
-        
 
         return response()->json([
             'message' => 'User Eliminado Correctamente'
