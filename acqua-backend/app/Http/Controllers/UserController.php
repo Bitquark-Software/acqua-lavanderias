@@ -28,7 +28,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'max:30'],
-            'email' => ['required','unique:users','email', 'max:60'],
+            'email' => ['required', 'unique:users', 'email', 'max:60'],
             'password' => ['required'],
             'role' => ['required', 'in:administrador,empleado,cliente']
         ]);
@@ -68,31 +68,28 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'max:30'],
-            'email' => ['required','email', 'max:60'],
+            'email' => ['required', 'email', 'max:60'],
             'password' => ['nullable'],
             'role' => ['required', 'in:administrador,empleado,cliente']
         ]);
 
         $user = User::findOrFail($id);
 
-        if(isset($request->password))
-        {
+        if (isset($request->password)) {
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
             ]);
-        }
-        else
-        {
+        } else {
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
                 'role' => $request->role,
             ]);
         }
-        
+
         return response()->json([
             'message' => 'User Actualizado correctamente'
         ], 200);
@@ -110,15 +107,21 @@ class UserController extends Controller
 
         $adminsRestantes = User::where('role', 'administrador')->where('id', '!=', $user->id)->get()->count();
 
-        if($adminsRestantes == 0)
-        {
+        if ($adminsRestantes == 0) {
             return response()->json([
                 'message' => 'Debe haber al menos un administrador en el sistema'
             ], 400);
         }
 
+        // Evita que el usuario se elimine a si mismo 
+        if (auth()->user()->id === $user->id) {
+            return response()->json([
+                'message' => 'No puedes eliminar tu usuario actual'
+            ], 403);
+        }
+
         $user->delete();
-        
+
 
         return response()->json([
             'message' => 'User Eliminado Correctamente'
