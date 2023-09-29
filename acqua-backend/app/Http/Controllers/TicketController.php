@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Prenda;
 use App\Models\ServicioTicket;
+use App\Models\AnticipoTicket;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\ValidationException;
 
 class TicketController extends Controller
@@ -38,16 +40,26 @@ class TicketController extends Controller
             'id_direccion' => ['nullable', 'exists:direcciones,id'],
             'id_sucursal' => ['nullable', 'exists:sucursales,id'],
             'incluye_iva' => ['boolean'],
-            'tipo_credito' => ['required','in:CREDITO,CONTADO'],
-            'metodo_pago' => ['required','in:EFECTIVO,TARJETA,TRANSFERENCIA'],
+            'tipo_credito' => ['required', 'in:CREDITO,CONTADO'],
+            'metodo_pago' => ['required', 'in:EFECTIVO,TARJETA,TRANSFERENCIA'],
             'total' => ['required', 'numeric', 'min:0'],
             'anticipo' => ['numeric', 'min:0'],
             'servicios' => ['required', 'array'],
+            'fecha_entrega' => ['nullable', 'date_format:Y-m-d H:i:s'],
+            'numero_referencia' => ['nullable', 'string', 'max:19']
         ]);
 
         $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
         $restante = $request->tipo_credito === 'CREDITO' ? $request->total - $request->anticipo : 0.00;
 
+        $valor = $request->metodo_pago;
+
+        // Encyptacion de refencia
+        $numeroTarjetaCifrado = !is_null($request->numero_referencia)
+            ? Crypt::encrypt($request->numero_referencia)
+            : null;
+
+        // Ticket
         $ticket = Ticket::create([
             'id_cliente' => $request->id_cliente,
             'envio_domicilio' => $request->envio_domicilio ?? true,
@@ -59,10 +71,22 @@ class TicketController extends Controller
             'total' => $request->total,
             'anticipo' => $anticipo,
             'restante' => $restante,
+            'fecha_entrega' => $request->fecha_entrega,
+            'numero_referencia' => $numeroTarjetaCifrado
         ]);
 
-        foreach($request->servicios as $servicio)
-        {
+        // Anticipos_Tickets
+        if ($valor == 'TARJETA' || $valor == 'TRANSFERENCIA') {
+            $anticipo = AnticipoTicket::create([
+                'anticipo' => $ticket->anticipo,
+                'metodopago' => $ticket->metodo_pago,
+                'id_ticket' => $ticket->id,
+                'cobrado_por' => $request->user()->id,
+                'numero_referencia' => $numeroTarjetaCifrado
+            ]);
+        }
+
+        foreach ($request->servicios as $servicio) {
             ServicioTicket::create([
                 'id_ticket'     => $ticket->id,
                 'id_servicio'   => $servicio['id'],
@@ -72,7 +96,7 @@ class TicketController extends Controller
 
         return response()->json([
             'mensaje' => 'Ticket creado exitosamente',
-            'data' => Ticket::with('cliente', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket')->find($ticket->id),
+            'data' => Ticket::with('cliente', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'anticipos')->find($ticket->id),
         ], 201);
     }
 
@@ -86,7 +110,13 @@ class TicketController extends Controller
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
         $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'prendasTicket', 'procesosTicket')->find($id);
-        $ticket->comentarios->transform(function($t){
+
+        // Verifica si el número de referencia está presente y desencripta si es necesario
+        if (!is_null($ticket->numero_referencia)) {
+            $ticket->numero_referencia = Crypt::decrypt($ticket->numero_referencia);
+        }
+
+        $ticket->comentarios->transform(function ($t) {
             $empleado = User::where('id', $t->user_id)->first();
             $t->sender = $empleado ? $empleado->name : "UNKNOWN";
             $t->errorState = $empleado ? false : true;
@@ -94,7 +124,7 @@ class TicketController extends Controller
             return $t;
         });
 
-        $ticket->prendasTicket->transform(function($t){
+        $ticket->prendasTicket->transform(function ($t) {
             $prenda = Prenda::where('id', $t->id_prenda)->first();
             $t->nombre = $prenda ? $prenda->nombre : "UNKNOWN";
             return $t;
@@ -109,23 +139,30 @@ class TicketController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id) : JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
         $request->validate([
             'envio_domicilio' => ['boolean'],
             'id_direccion' => ['nullable', 'exists:direcciones,id'],
             'id_sucursal' => ['nullable', 'exists:sucursales,id'],
             'incluye_iva' => ['boolean'],
-            'tipo_credito' => ['required','in:CREDITO,CONTADO'],
-            'metodo_pago' => ['required','in:EFECTIVO,TARJETA,TRANSFERENCIA'],
+            'tipo_credito' => ['required', 'in:CREDITO,CONTADO'],
+            'metodo_pago' => ['required', 'in:EFECTIVO,TARJETA,TRANSFERENCIA'],
             'total' => ['required', 'numeric', 'min:0'],
             'anticipo' => ['numeric', 'min:0'],
             'status' => ['in:CREADO,LAVADO,PLANCHADO,RECONTEO,ENTREGA'],
-            'vencido' => ['boolean']
+            'vencido' => ['boolean'],
+            'fecha_entrega' => ['nullable', 'date_format:Y-m-d H:i:s'],
+            'numero_referencia' => ['nullable', 'string']
         ]);
 
         $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
         $restante = $request->tipo_credito === 'CREDITO' ? $request->total - $request->anticipo : 0.00;
+
+        // Encyptacion de refencia
+        $numeroTarjetaCifrado = !is_null($request->numero_referencia)
+            ? Crypt::encrypt($request->numero_referencia)
+            : null;
 
         $ticket = Ticket::findOrFail($id);
         $ticket->update([
@@ -139,7 +176,9 @@ class TicketController extends Controller
             'anticipo' => $anticipo,
             'restante' => $restante,
             'status' => $request->status ?? 'CREADO',
-            'vencido' => $request->vencido ?? false
+            'vencido' => $request->vencido ?? false,
+            'fecha_entrega' => $request->fecha_entrega,
+            'numero_referencia' => $numeroTarjetaCifrado
         ]);
 
         return response()->json([
@@ -154,7 +193,7 @@ class TicketController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) : JsonResponse
+    public function destroy($id): JsonResponse
     {
         $ticket = Ticket::findOrFail($id);
         $ticket->comentarios()->delete();
