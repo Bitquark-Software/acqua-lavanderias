@@ -700,6 +700,7 @@ export class DetallesTicketComponent
     const modalPagoRef = this.pagosContainer.createComponent(modalPagosFactory);
     modalPagoRef.instance.setTicket(this.ticket);
     this.pagosContainerRef = modalPagoRef;
+    modalPagoRef.instance.setParentComponent(this.pagosModal);
     this.pagosModal.nativeElement.show();
 
     this.pagosModal.nativeElement.onclose = () =>

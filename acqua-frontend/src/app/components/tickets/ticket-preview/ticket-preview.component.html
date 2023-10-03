@@ -43,6 +43,7 @@
     </tbody>
   </table>
 
+  <p style="text-align: right;" *ngIf="inclye_iva">Subtotal: $ {{subtotal}}</p>
   <p style="text-align: right;" *ngIf="inclye_iva">Impuestos: $ {{montoImpuestos}}</p>
   <p style="text-align: right;">Total: ${{total.toFixed(2)}}</p>
   <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO'">Anticipo: ${{anticipo.toFixed(2)}}</p>
