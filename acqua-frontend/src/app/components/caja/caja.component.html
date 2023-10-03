@@ -168,18 +168,6 @@
           </select>
         </div>
 
-        <!-- Selector de metodo de pago -->
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Método de pago</span>
-          </label>
-          <select class="select select-bordered" [(ngModel)]="metodoPago">
-            <option value="EFECTIVO">Efectivo</option>
-            <option value="TARJETA">Tarjeta</option>
-            <option value="TRANSFERENCIA">Transferencia</option>
-          </select>
-        </div>
-
         <!-- input para anticipo -->
         <div class="form-control w-full" *ngIf="tipoDeCredito === 'CREDITO'">
           <label class="label">
@@ -207,6 +195,18 @@
             class="input input-bordered w-full"
             [(ngModel)]="saldoPendiente"
           />
+        </div>
+
+        <!-- Selector de metodo de pago -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Método de pago</span>
+          </label>
+          <select class="select select-bordered" [(ngModel)]="metodoPago" (change)="handleMetodoPagoChange()">
+            <option value="EFECTIVO">Efectivo</option>
+            <option value="TARJETA" [disabled]="anticipo == 0 && tipoDeCredito == 'CREDITO'">Tarjeta</option>
+            <option value="TRANSFERENCIA" [disabled]="anticipo == 0 && tipoDeCredito == 'CREDITO'">Transferencia</option>
+          </select>
         </div>
 
         <div class="flex flex-col w-full">
@@ -246,10 +246,25 @@
             <div class="form-control w-full">
               <select class="select select-bordered" [(ngModel)]="idDireccionEnvio">
                 <option value="0" disabled>Selecciona una dirección de entrega</option>
-                <option *ngFor="let ub of clienteSeleccionado.direccion">
+                <option *ngFor="let ub of clienteSeleccionado.direccion" [value]="ub.id">
                   {{ub.nombre_ubicacion}} {{ub.numero}} - {{ub.calle}}, {{ub.colonia}}, {{ub.ciudad}}; C.P {{ub.codigo_postal}}
                 </option>
               </select>
+            </div>
+          </div>
+
+          <div class="w-full mt-3" *ngIf="cursorEntrega == 1">
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text">Fecha estimada de entrega</span>
+              </label>
+              <input
+                type="date"
+                placeholder="Fecha estimada"
+                class="input input-bordered input-success w-full"
+                [(ngModel)]="fechaEstimadaEntrega"
+                (change)="checkFechaEntrega($event)"
+              />
             </div>
           </div>
   
@@ -283,6 +298,7 @@
             class="input input-bordered input-success w-full"
             [(ngModel)]="recibido"
             (change)="recalcularTotal()"
+            [readOnly]="tipoDeCredito === 'CREDITO' && anticipo == 0 || metodoPago == 'TRANSFERENCIA' || metodoPago == 'TARJETA'"
           />
         </div>
         <!-- input para cambio a devolver -->
@@ -743,33 +759,57 @@
 </dialog>
 <dialog #cerrarVenta class="modal modal-bottom sm:modal-middle">
   <form method="dialog" class="modal-box h-screen w-11/12">
-    <h3 class="font-bold text-3xl ml-2 pt-6">Vista previa de ticket</h3>
-    <p class="font-thin ml-2 text-sm mb-4">Revise en la vista previa que los datos sean correctos</p>
+    <div *ngIf="stepFinalizarVenta == 0">
+      <h3 class="font-bold text-3xl ml-2 pt-6">Información pre-liminar</h3>
+      <p class="font-thin ml-2 text-sm mb-4">El ticket se pagará por {{metodoPago}}</p>
 
-    <!-- ticket aqui -->
-    <ng-container class="w-full shadow-sm rounded-xl" #ticketPreviewContainer></ng-container>
-    <div class="w-8/12 m-auto">
-      <div class="form-control">
-        <label class="cursor-pointer label">
-          <span class="label-text">Incluir IVA</span>
-          <input type="checkbox" class="checkbox checkbox-success" (change)="setIvaCheckbox($event)"/>
-        </label>
+      <div class="w-8/12 m-auto">
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text" *ngIf="metodoPago == 'TRANSFERENCIA'">Número de referencia</span>
+            <span class="label-text" *ngIf="metodoPago == 'TARJETA'">Núm. de confirmación / Núm. de autorización </span>
+          </label>
+          <input type="000000000" placeholder="Type here" class="input input-bordered w-full" [(ngModel)]="numero_referencia" [ngModelOptions]="{standalone: true}" />
+        </div>
       </div>
+
+      <div class="modal-action">
+        <div class="join join-vertical md:join-horizontal m-auto">
+          <button class="btn btn-xs btn-ghost join-item" (click)="closeModalCerrarVenta()">Volver</button>
+          <button class="btn btn-xs btn-success join-item" (click)="stepCompra(1)">Continuar</button>
+        </div>
+      </div>
+
     </div>
-    <div class="modal-action">
-      <div class="join join-vertical md:join-horizontal m-auto">
-        <button class="btn btn-xs btn-ghost join-item" (click)="closeModalCerrarVenta()">Volver</button>
-        <button class="btn btn-xs join-item" (click)="setupPreviewForCliente($event)">
-          <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-          Cliente</button>
-        <button class="btn btn-xs join-item" (click)="setupPreviewForServicio($event)">
-          <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-          Servicio</button>
-        <button class="btn btn-xs btn-success join-item" (click)="saveTicket()">Finalizar venta</button>
+    <div *ngIf="stepFinalizarVenta == 1">
+      <h3 class="font-bold text-3xl ml-2 pt-6">Vista previa de ticket</h3>
+      <p class="font-thin ml-2 text-sm mb-4">Revise en la vista previa que los datos sean correctos</p>
+  
+      <!-- ticket aqui -->
+      <ng-container class="w-full shadow-sm rounded-xl" #ticketPreviewContainer></ng-container>
+      <div class="w-8/12 m-auto">
+        <div class="form-control">
+          <label class="cursor-pointer label">
+            <span class="label-text">Incluir IVA</span>
+            <input type="checkbox" class="checkbox checkbox-success" (change)="setIvaCheckbox($event)"/>
+          </label>
+        </div>
+      </div>
+      <div class="modal-action">
+        <div class="join join-vertical md:join-horizontal m-auto">
+          <button class="btn btn-xs btn-ghost join-item" (click)="closeModalCerrarVenta()">Volver</button>
+          <button class="btn btn-xs join-item" (click)="setupPreviewForCliente($event)">
+            <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            Cliente</button>
+          <button class="btn btn-xs join-item" (click)="setupPreviewForServicio($event)">
+            <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            Servicio</button>
+          <button class="btn btn-xs btn-success join-item" (click)="saveTicket()">Finalizar venta</button>
+        </div>
       </div>
     </div>
   </form>

@@ -73,10 +73,15 @@ export class CajaComponent
   total = 0;
   costoEnvio = 0;
   incluir_iva = false;
+  numero_referencia = '';
 
   cursorEntrega = 0;
   idSucursal = 0;
   idDireccionEnvio = 0;
+  fechaEstimadaEntrega: Date | string = '';
+
+  stepFinalizarVenta = 0;
+
   // Nuevo Cliente
   nuevoClienteForm = this.fb.group({
     nombre: [this.nombreCliente, Validators.required],
@@ -483,7 +488,8 @@ export class CajaComponent
 
       if(newValue >= this.serviciosTicket[index].cantidad_minima)
       {
-        this.serviciosTicket[index].subtotal = parseInt(newValue) * this.serviciosTicket[index].importe;
+        this.serviciosTicket[index].subtotal =
+          parseFloat(newValue) * this.serviciosTicket[index].importe;
 
         this.recalcularTotal();
       }
@@ -523,6 +529,11 @@ export class CajaComponent
     tempTotal += parseFloat(this.costoEnvio.toString());
     this.total = tempTotal;
 
+    if(this.metodoPago == MetodoPago.Tarjeta || this.metodoPago == MetodoPago.Transferencia)
+    {
+      this.recibido = this.anticipo;
+    }
+
     if(this.tipoDeCredito === TipoCredito.Credito)
     {
       this.recalcularInputsCredito();
@@ -536,7 +547,7 @@ export class CajaComponent
 
   private recalcularSaldoPendiente()
   {
-    if(this.anticipo > 0 && this.anticipo <= this.total)
+    if(this.anticipo >= 0 && this.anticipo <= this.total)
     {
       this.saldoPendiente = this.total - this.anticipo;
     }
@@ -616,7 +627,6 @@ export class CajaComponent
       }
       else
       {
-        this.toastService.warning('Recuerda que el anticipo tiene que ser mayor a cero pesos');
         this.anticipo = 0;
         this.recalcularSaldoPendiente();
       }
@@ -694,7 +704,7 @@ export class CajaComponent
           this.serviciosTicket.length >= 1 &&
           this.anticipo >= 0 &&
           this.idSucursal != 0 &&
-          (this.recibido > 0 && this.recibido >= this.anticipo)
+          (this.recibido >= 0 && this.recibido >= this.anticipo)
         );
       }
       else if(this.cursorEntrega == 1)
@@ -706,7 +716,7 @@ export class CajaComponent
           this.serviciosTicket.length >= 1 &&
           this.idDireccionEnvio != 0 &&
           this.anticipo >= 0 &&
-          (this.recibido > 0 && this.recibido >= this.anticipo)
+          (this.recibido >= 0 && this.recibido >= this.anticipo)
         );
       }
       else
@@ -770,6 +780,7 @@ export class CajaComponent
     this.saldoPendiente = 0;
     this.cambio = 0;
     this.clienteSeleccionado = null as unknown as Cliente;
+    this.nombreCliente = '';
     this.coincidenciasClientes = [];
     this.chatHistory = [];
     this.cursorEntrega = 0;
@@ -845,42 +856,70 @@ export class CajaComponent
     this.cursorEntrega = cursor;
   }
 
+  stepCompra(step: number)
+  {
+    if(this.numero_referencia.trim().length == 0)
+    {
+      this.toastService.warning(
+        'El número de referencia/confirmación es requerido', { id: 'invalid-input' });
+    }
+    else
+    {
+      this.stepFinalizarVenta = step ?? 1;
+      this.modalCerrarVenta.nativeElement.close();
+      this.finalizarCompra();
+    }
+  }
+
   finalizarCompra()
   {
-    const tempTicket = {
-      id_cliente: this.clienteSeleccionado.id,
-      envio_domicilio: this.cursorEntrega == 1,
-      id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
-      id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
-      incluye_iva: this.incluir_iva,
-      tipo_credito: this.tipoDeCredito,
-      metodo_pago: this.metodoPago,
-      total: this.total,
-      anticipo: this.anticipo,
-      restante: this.saldoPendiente,
-    } as Ticket;
+    if(this.metodoPago == MetodoPago.Efectivo)
+    {
+      this.stepFinalizarVenta = 1;
+    }
 
     this.modalCerrarVenta.nativeElement.show();
 
-    this.ticketPreviewContainer.clear();
+    if(this.stepFinalizarVenta == 1)
+    {
+      const tempTicket = {
+        id_cliente: this.clienteSeleccionado.id,
+        envio_domicilio: this.cursorEntrega == 1,
+        id_direccion: this.cursorEntrega == 1 ? this.idDireccionEnvio : null,
+        id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
+        incluye_iva: this.incluir_iva,
+        tipo_credito: this.tipoDeCredito,
+        metodo_pago: this.metodoPago,
+        total: this.total,
+        anticipo: this.anticipo,
+        restante: this.saldoPendiente,
+      } as Ticket;
 
-    const ticketPreviewFactory =
-    this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
-    const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
-    ticketPreviewRef.instance.ticket = tempTicket;
-    ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
-    ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
-    ticketPreviewRef.instance.setAnticipo(this.anticipo);
-    ticketPreviewRef.instance.setIncluyeIva(this.incluir_iva);
-    ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
-    ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
-    ticketPreviewRef.instance.setTotal(this.total);
-    ticketPreviewRef.instance.setCambio(this.cambio);
-    ticketPreviewRef.instance.setRecibido(this.recibido);
-    ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
-    ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
-    ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
-    this.ticketPreviewRef = ticketPreviewRef;
+      this.modalCerrarVenta.nativeElement.show();
+
+      setTimeout(() =>
+      {
+        this.ticketPreviewContainer.clear();
+
+        const ticketPreviewFactory =
+        this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+        const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+        ticketPreviewRef.instance.ticket = tempTicket;
+        ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+        ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+        ticketPreviewRef.instance.setAnticipo(this.anticipo);
+        ticketPreviewRef.instance.setIncluyeIva(this.incluir_iva);
+        ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
+        ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
+        ticketPreviewRef.instance.setTotal(this.total);
+        ticketPreviewRef.instance.setCambio(this.cambio);
+        ticketPreviewRef.instance.setRecibido(this.recibido);
+        ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
+        ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
+        ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
+        this.ticketPreviewRef = ticketPreviewRef;
+      }, 500);
+    }
   }
 
   renderNoUbicacionesAlert(message: string)
@@ -1199,6 +1238,8 @@ export class CajaComponent
       total: this.total,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
+      fecha_entrega: this.fechaEstimadaEntrega,
+      numero_referencia: this.numero_referencia,
     } as Ticket;
 
     const loadingToast = this.toastService.loading('Creando ticket');
@@ -1227,6 +1268,7 @@ export class CajaComponent
 
   closeModalCerrarVenta()
   {
+    this.stepFinalizarVenta = 0;
     this.modalCerrarVenta.nativeElement.close();
   }
 
@@ -1234,5 +1276,52 @@ export class CajaComponent
   {
     const value = event.target.checked as boolean;
     this.incluir_iva = value;
+  }
+
+  checkFechaEntrega(event: any)
+  {
+    const d = new Date(event.target.value);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (d <= yesterday)
+    {
+      this.fechaEstimadaEntrega = d;
+    }
+    else
+    {
+      this.fechaEstimadaEntrega = '';
+    }
+  }
+
+  handleMetodoPagoChange()
+  {
+    switch (this.metodoPago)
+    {
+    case MetodoPago.Tarjeta:
+      if (this.tipoDeCredito == TipoCredito.Credito)
+      {
+        this.recibido = this.anticipo;
+      }
+      else
+      {
+        this.recibido = this.total;
+      }
+      break;
+
+    case MetodoPago.Transferencia:
+      if (this.tipoDeCredito == TipoCredito.Credito)
+      {
+        this.recibido = this.anticipo;
+      }
+      else
+      {
+        this.recibido = this.total;
+      }
+      break;
+
+    default:
+      this.recibido = 0;
+      break;
+    }
   }
 }

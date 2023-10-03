@@ -29,6 +29,15 @@
               <span class="label-text-alt text-red-500">Monto no válido</span>
             </label>
         </div>
+        <div class="form-control col-span-4" *ngIf="metodoPago == 'TARJETA' || metodoPago == 'TRANSFERENCIA'">
+            <label class="label">
+              <span class="label-text">Núm. de referencia / Núm. de confirmación</span>
+            </label>
+            <input type="text" placeholder="00000000" class="input input-bordered" formControlName="referencia"/>
+            <label class="label" *ngIf="referencia.invalid && (referencia.dirty || referencia.touched)">
+              <span class="label-text-alt text-red-500">Referencia no válida</span>
+            </label>
+        </div>
         <div class="w-full col-span-4">
             <button *ngIf="isLoading" class="w-full btn btn-wide btn-success">
                 <span class="loading loading-spinner"></span>

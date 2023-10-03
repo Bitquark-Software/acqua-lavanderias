@@ -19,6 +19,7 @@ export class TicketPreviewComponent
   serviciosTicket: Servicio[] = [];
   ticketURL = '';
   ticketURLCliente = 'https://drive.google.com/file/d/1tAdeOqLWAnnHxH6sGpvCnPBa_9LC6ICq/view?pli=1';
+  subtotal = 0;
   total = 0;
   inclye_iva = false;
   anticipo = 0;
@@ -45,6 +46,7 @@ export class TicketPreviewComponent
     {
       const iva = this.total - this.total/1.16;
       this.montoImpuestos = parseFloat(iva.toFixed(2));
+      this.subtotal = this.total - this.montoImpuestos;
     }
   }
 

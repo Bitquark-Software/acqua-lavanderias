@@ -35,6 +35,8 @@ export class Ticket
   created_at!: Date | string;
   prendas_ticket?: PrendaTicket[];
   procesos_ticket!: ProcesoTicket[];
+  numero_referencia?: string;
+  fecha_entrega?: string | Date;
 }
 
 export class TicketResponse

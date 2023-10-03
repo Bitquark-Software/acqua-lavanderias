@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { Component } from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HotToastService } from '@ngneat/hot-toast';
 import { Ticket } from 'src/app/dtos/ticket';
@@ -17,6 +17,7 @@ export class RegistrarPagoComponent
   formPagos: FormGroup = this.fb.group({});
   isLoading = false;
   metodoPago: MetodoPago = MetodoPago.Efectivo;
+  componentParent!: ElementRef<HTMLDialogElement>;
 
   constructor(
     private ticketService: TicketService,
@@ -27,11 +28,17 @@ export class RegistrarPagoComponent
     //
   }
 
+  setParentComponent(component: ElementRef<HTMLDialogElement>)
+  {
+    this.componentParent = component;
+  }
+
   setTicket(ticket: Ticket)
   {
     this.ticket = ticket;
     this.formPagos = this.fb.group({
       monto: ['', [Validators.required, Validators.min(1), Validators.max(this.ticket.restante ?? 0)]],
+      referencia: [''],
     });
   }
 
@@ -46,11 +53,15 @@ export class RegistrarPagoComponent
     return this.formPagos.controls['monto'];
   }
 
+  get referencia()
+  {
+    return this.formPagos.controls['referencia'];
+  }
+
   agregarMonto()
   {
     if(!this.isLoading)
     {
-      console.log(this.ticket.anticipo);
       this.isLoading = true;
       this.ticket.anticipo = parseFloat(
         this.ticket.anticipo?.toString() ?? '0') + parseFloat(this.monto.value);
@@ -59,6 +70,7 @@ export class RegistrarPagoComponent
         {
           this.isLoading = false;
           this.toast.success('Anticipo registrado');
+          this.componentParent.nativeElement.close();
           // Cerrar el modal
         },
         error: (err) =>
@@ -73,6 +85,13 @@ export class RegistrarPagoComponent
   changeMetodoPago(metodoPago: string)
   {
     this.metodoPago = metodoPago as MetodoPago;
+    if(this.metodoPago == MetodoPago.Tarjeta || this.metodoPago == MetodoPago.Transferencia)
+    {
+      this.formPagos = this.fb.group({
+        monto: ['', [Validators.required, Validators.min(1), Validators.max(this.ticket.restante ?? 0)]],
+        referencia: ['', [Validators.required]],
+      });
+    }
   }
 
 }

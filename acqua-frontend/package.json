@@ -1,6 +1,6 @@
 {
   "name": "acqua-frontend",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -45,7 +45,7 @@
     "@typescript-eslint/parser": "5.59.7",
     "angularx-qrcode": "^16.0.1",
     "autoprefixer": "^10.4.14",
-    "daisyui": "^3.5.1",
+    "daisyui": "^3.8.3",
     "eslint": "^8.40.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jasmine-core": "~4.6.0",
