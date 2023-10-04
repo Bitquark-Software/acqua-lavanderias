@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Ticket;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Crypt;
 
 class StatsController extends Controller
 {
@@ -233,5 +235,87 @@ class StatsController extends Controller
             'Planchado' => $resultPlanchado ? $resultPlanchado[0] : null,
             'Entrega' => $resultEntrega ? $resultEntrega[0] : null
         ], 200);
+    }
+
+    public function reportGenVent(Request $request): JsonResponse
+    {
+        $request->validate([
+            'fecha_inicio' => ['date_format:Y-m-d H:i:s', 'nullable'],
+            'fecha_fin' => ['date_format:Y-m-d H:i:s', 'nullable', 'after_or_equal:fecha_inicio']
+        ]);
+
+        $inicioFechaConsulta = $request->fecha_inicio;
+        $finFechaConsulta = $request->fecha_fin;
+
+        try {
+            if (empty($inicioFechaConsulta) && empty($finFechaConsulta)) {
+                // Fecha Inicio y Final no Proporcinadas
+                $inicioFechaConsulta = Carbon::now()->startOfDay();
+                $finFechaConsulta = Carbon::now()->endOfDay();
+            } else {
+                /// Fechas Proporcinadas
+                $inicioFechaConsulta = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_inicio'))->startOfDay();
+                $finFechaConsulta = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_fin'))->endOfDay();
+            }
+
+            $tickets = Ticket::join('clientes', 'clientes.id', '=', 'tickets.id_cliente')
+                ->leftJoin('anticipo_tickets', 'anticipo_tickets.id_ticket', '=', 'tickets.id')
+                ->select(
+                    'tickets.id',
+                    'tickets.metodo_pago',
+                    'tickets.numero_referencia',
+                    'tickets.total',
+                    'tickets.anticipo',
+                    'tickets.restante',
+                    'clientes.nombre',
+                    'anticipo_tickets.cobrado_por'
+                )
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->get();
+
+            // Desencriptar la referencia y agregarla al array $tickets
+            foreach ($tickets as $ticket) {
+                $ticket->cobrado_por = !empty($ticket->cobrado_por) ? User::find($ticket->cobrado_por)->name : null;
+
+                // dd($ticket->cobrado_por);
+                if(!empty($ticket->numero_referencia)) {
+                    $ticket->numero_referencia = Crypt::decrypt($ticket->numero_referencia);
+
+                    // Esto sirve para mostrar solo los ultimos tres digitos de numero_referencia
+                    $longitud = strlen($ticket->numero_referencia);
+                    if ($longitud >= 3) {
+                        $ultimosTresCaracteres = substr($ticket->numero_referencia, -3);
+                        $ticket->numero_referencia = str_repeat('*', $longitud - 3) . $ultimosTresCaracteres;
+                    }
+
+                } else {
+                    $ticket->numero_referencia;
+                }
+            }
+
+            $efectivo = Ticket::where('metodo_pago', 'EFECTIVO')
+                ->sum('total');
+
+            $transferencia = Ticket::where('metodo_pago', 'TRANSFERENCIA')
+                ->sum('total');
+
+            $targeta = Ticket::where('metodo_pago', 'TARJETA')
+                ->sum('total');
+
+            return response()->json([
+                'ticket' => $tickets,
+                'efectivo' => $efectivo,
+                'transferencia' => $transferencia,
+                'targeta' => $targeta
+            ]);
+        } catch (\Exception $e) {
+            // Fecha no valida
+            return response()->json(
+                [
+                    'mensaje' => $e->getMessage()
+                ],
+                500
+            );
+        }
     }
 }
