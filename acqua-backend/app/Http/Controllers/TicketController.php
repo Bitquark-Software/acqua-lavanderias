@@ -76,7 +76,7 @@ class TicketController extends Controller
         ]);
 
         // Anticipos_Tickets
-        if ($valor == 'TARJETA' || $valor == 'TRANSFERENCIA') {
+        if ($valor == 'TARJETA' || $valor == 'TRANSFERENCIA' || $valor == 'EFECTIVO') {
             $anticipo = AnticipoTicket::create([
                 'anticipo' => $ticket->anticipo,
                 'metodopago' => $ticket->metodo_pago,
