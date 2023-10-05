@@ -277,8 +277,7 @@ class StatsController extends Controller
             foreach ($tickets as $ticket) {
                 $ticket->cobrado_por = !empty($ticket->cobrado_por) ? User::find($ticket->cobrado_por)->name : null;
 
-                // dd($ticket->cobrado_por);
-                if(!empty($ticket->numero_referencia)) {
+                if (!empty($ticket->numero_referencia)) {
                     $ticket->numero_referencia = Crypt::decrypt($ticket->numero_referencia);
 
                     // Esto sirve para mostrar solo los ultimos tres digitos de numero_referencia
@@ -287,26 +286,28 @@ class StatsController extends Controller
                         $ultimosTresCaracteres = substr($ticket->numero_referencia, -3);
                         $ticket->numero_referencia = str_repeat('*', $longitud - 3) . $ultimosTresCaracteres;
                     }
-
                 } else {
                     $ticket->numero_referencia;
                 }
             }
 
             $efectivo = Ticket::where('metodo_pago', 'EFECTIVO')
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
             $transferencia = Ticket::where('metodo_pago', 'TRANSFERENCIA')
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
-            $targeta = Ticket::where('metodo_pago', 'TARJETA')
+            $tarjeta = Ticket::where('metodo_pago', 'TARJETA')
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
             return response()->json([
-                'ticket' => $tickets,
+                'tickets' => $tickets,
                 'efectivo' => $efectivo,
                 'transferencia' => $transferencia,
-                'targeta' => $targeta
+                'tarjeta' => $tarjeta
             ]);
         } catch (\Exception $e) {
             // Fecha no valida
