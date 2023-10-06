@@ -31,6 +31,9 @@ import { TicketPreviewComponent } from './components/tickets/ticket-preview/tick
 import { QRCodeModule } from 'angularx-qrcode';
 import { RegistrarPagoComponent } from './components/tickets/registrar-pago/registrar-pago.component';
 import { ReportesComponent } from './components/reportes/reportes.component';
+import {
+  ModalAgregarDireccionComponent,
+} from './components/clientes/modal-agregar-direccion/modal-agregar-direccion.component';
 
 @NgModule ( {
   declarations: [
@@ -56,6 +59,7 @@ import { ReportesComponent } from './components/reportes/reportes.component';
     TicketPreviewComponent,
     RegistrarPagoComponent,
     ReportesComponent,
+    ModalAgregarDireccionComponent,
   ],
   imports: [
     BrowserModule,

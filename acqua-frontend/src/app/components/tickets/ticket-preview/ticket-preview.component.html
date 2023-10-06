@@ -31,16 +31,22 @@
           {{st.nombre_servicio}}
         </td>
         <td style="white-space: wrap; max-width:1px;">
-          {{st.importe}}
+          ${{st.importe}}
         </td>
         <td style="white-space: wrap; max-width:1px;">
           {{st.cantidad}}
         </td>
         <td style="white-space: wrap; max-width:1px;">
-          {{st.subtotal}}
+          ${{st.subtotal}}
         </td>
       </tr>
     </tbody>
+    <tfoot style="border-top: dotted 2px;">
+      <td>Servicios: {{serviciosTicket.length}}</td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tfoot>
   </table>
 
   <p style="text-align: right;" *ngIf="inclye_iva">Subtotal: $ {{subtotal}}</p>
@@ -48,28 +54,37 @@
   <p style="text-align: right;">Total: ${{total.toFixed(2)}}</p>
   <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO'">Anticipo: ${{anticipo.toFixed(2)}}</p>
   <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO'">Saldo: ${{saldoPendiente.toFixed(2)}}</p>
-  <p style="text-align: right;" *ngIf="metodoPago == 'EFECTIVO'">--------------------</p>
-  <p style="text-align: right;" *ngIf="metodoPago == 'EFECTIVO'">Recibido: ${{recibido.toFixed(2)}}</p>
-  <p style="text-align: right;" *ngIf="metodoPago == 'EFECTIVO'">Cambio: ${{cambio.toFixed(2)}}</p>
 
   <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;">
     <p style="font-weight: bold;">* * DATOS DEL CLIENTE * *</p>
     <p class="centered">Cliente: {{cliente.nombre.toUpperCase()}}</p>
+    <p *ngIf="ticket.restante == 0" class="font-bold centered">SERVICIO PAGADO</p>
+    <p *ngIf="ticket.restante != 0" class="font-bold centered">SALDO PENDIENTE</p>
+
   </div>
 
-  <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="tipoEntrega == 'ENVIO'">
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="tipoEntrega == 'ENVIO' && ubicacionEnvio">
     <p style="font-weight: bold;">* * ENVÍO A DOMICILIO * *</p>
-    <p class="centered">ENTREGAR EN: AVENIDA X, COLONIA Y</p>
+    <p>FECHA: {{ticket.fecha_entrega}}</p>
+    <p class="centered">LUGAR: {{ubicacionEnvio.calle}}, no. {{ubicacionEnvio.numero}}, Col. {{ubicacionEnvio.colonia}}, C.P: {{ubicacionEnvio.codigo_postal}}</p>
   </div>
 
   <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="tipoEntrega == 'SUCURSAL'">
     <p style="font-weight: bold;">* * CENTRO DE RECOLECCIÓN * *</p>
-    <p class="centered">ENTREGAR EN: MATRIZ</p>
+    <p class="centered">ENTREGAR EN: {{sucursal.nombre}}</p>
   </div>
 
   <div style="width: 100%; border-top: dotted 2px; border-bottom: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;">
-    <p style="font-weight: bold;">* * ANTENDIÓ * *</p>
-    <p class="centered">ADMINISTRADOR</p>
+    <p style="font-weight: bold;">¡GRACIAS POR SU PREFERENCIA!</p>
+    <p class="centered">Le atendió: {{atendio}}</p>
+  </div>
+
+  <div style="width: 100%; border-bottom: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="!esTicketCliente">
+    <p style="font-weight: bold;">* * COMENTARIOS * *</p>
+    <p *ngIf="!ticket.comentarios">Sin comentarios</p>
+    <p *ngFor="let comentario of ticket.comentarios">
+      <b>{{comentario.sender}}</b>: "{{comentario.texto}}" - <i>{{comentario.date.toLocaleLowerCase('es-mx')}}</i>
+    </p>
   </div>
   
   <p class="centered">Contrato Aprobado y Registrado en Profeco, Número 199-221 de Fecha 15 de Enero 2021.</p>

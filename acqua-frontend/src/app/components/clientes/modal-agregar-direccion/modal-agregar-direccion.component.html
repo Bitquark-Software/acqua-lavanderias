@@ -1,0 +1,100 @@
+<dialog class="modal" #modalNuevaDireccion>
+  <div class="modal-box w-11/12 max-w-5xl">
+    <h3 class="font-bold text-lg">Registra una dirección</h3>
+    <div class="divider"></div>
+    <p>Este cliente no tiene una dirección registrada, vamos a registrarle una</p>
+
+    <form
+      class="mt-6"
+      [formGroup]="ubicacionForm"
+      (ngSubmit)="addDireccion()"
+    >
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text dark:text-white">Dirección</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Dirección del cliente"
+            class="input input-bordered text-primary dark:text-white"
+            formControlName="calle"
+          />
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text dark:text-white">Número</span>
+          </label>
+          <input
+            type="tel"
+            placeholder="Número"
+            class="input input-bordered text-primary dark:text-white"
+            formControlName="numero"
+          />
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text dark:text-white">Colonia</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Nombre de la colonia"
+            class="input input-bordered text-primary dark:text-white"
+            formControlName="colonia"
+          />
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text dark:text-white">Ciudad</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Nombre de la ciudad"
+            class="input input-bordered text-primary dark:text-white"
+            formControlName="ciudad"
+          />
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text dark:text-white">Código postal</span>
+          </label>
+          <input
+            type="tel"
+            placeholder="Código postal"
+            class="input input-bordered text-primary dark:text-white"
+            formControlName="codigoPostal"
+            maxlength="5"
+          />
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text dark:text-white"
+              >Nombre de la ubicación</span
+            >
+          </label>
+          <input
+            type="text"
+            placeholder="Casa, Oficina, etc..."
+            class="input input-bordered text-primary dark:text-white"
+            formControlName="nombreDireccion"
+          />
+        </div>
+      </div>
+      <div class="form-control mt-6">
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="!ubicacionForm.valid"
+        >
+          Agregar dirección
+        </button>
+      </div>
+    </form>
+
+    <div class="modal-action">
+      <form method="dialog" (submit)="overrideModalSubmit($event)">
+        <button class="btn">Salir</button>
+      </form>
+    </div>
+  </div>
+</dialog>

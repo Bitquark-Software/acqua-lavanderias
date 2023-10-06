@@ -48,12 +48,12 @@
     </div>
     <div class="grid grid-cols-1 place-items-end order-first md:order-last">
       <div class="flex flex-row items-center gap-2 mt-3">
-        <h1 class="w-fit text-3xl font-bold">Total:</h1>
+        <h1 class="w-fit text-3xl font-bold">Total: $</h1>
         <input
           [(ngModel)]="total"
           readonly
-          type="text"
-          placeholder="$0"
+          type="number"
+          placeholder="0"
           class="input input-bordered input-success input-md xl:input-lg focus:outline-none text-success font-bold opacity-100"
         />
       </div>
@@ -368,7 +368,7 @@
       >
         <div class="card w-full md:w-10/12 shadow-xl">
           <div class="card-body">
-            <h1 class="font-bold text-3xl">Chat</h1>
+            <h1 class="font-bold text-3xl">Comentarios</h1>
 
             <div
               class="grid grid-cols-1 w-full mt-3 max-h-96 overflow-y-scroll"
@@ -496,6 +496,9 @@
             <h2 class="card-title justify-center">
               {{ serv.nombre_servicio }}
             </h2>
+            <h5 class="card-title justify-center">
+              ${{ serv.importe }}
+            </h5>
             <div class="card-actions justify-center">
               <button class="btn" (click)="addServicio(serv)">Agregar</button>
             </div>
@@ -814,3 +817,5 @@
     </div>
   </form>
 </dialog>
+
+<app-modal-agregar-direccion #modalDirecciones [cliente]="clienteSeleccionado" (direccionAgregadaEvent)="onDireccionAgregadaEvent()"></app-modal-agregar-direccion>

@@ -25,6 +25,9 @@ import { TicketPreviewComponent } from '../tickets/ticket-preview/ticket-preview
 import { Ticket } from 'src/app/dtos/ticket';
 import { TicketService } from 'src/app/services/ticket.service';
 import { Sucursal } from 'src/app/dtos/sucursal';
+import {
+  ModalAgregarDireccionComponent,
+} from '../clientes/modal-agregar-direccion/modal-agregar-direccion.component';
 
 @Component({
   selector: 'app-caja',
@@ -47,6 +50,7 @@ export class CajaComponent
   @ViewChild('modalRegistrarCliente') nuevoClienteDialog!: ElementRef<HTMLDialogElement>;
   @ViewChild('modalConfirmCancelarVenta') modalConfirmCancelarVenta!: ElementRef<HTMLDialogElement>;
   @ViewChild('cerrarVenta') modalCerrarVenta!: ElementRef<HTMLDialogElement>;
+  @ViewChild('modalDirecciones') modalDirecciones!: ModalAgregarDireccionComponent;
 
   @ViewChild('ticketPreviewContainer',
     {
@@ -382,8 +386,10 @@ export class CajaComponent
   setCliente()
   {
     const { id, nombre } = this.splitIdAndNombreCliente();
+    console.log(id, nombre);
     if(id != null && nombre)
     {
+      this.cursorEntrega = 0;
       const cliente = this.coincidenciasClientes.find(c => c.id?.toString() === id);
       if(cliente)
       {
@@ -488,8 +494,8 @@ export class CajaComponent
 
       if(newValue >= this.serviciosTicket[index].cantidad_minima)
       {
-        this.serviciosTicket[index].subtotal =
-          parseFloat(newValue) * this.serviciosTicket[index].importe;
+        const importe = parseFloat(newValue) * this.serviciosTicket[index].importe;
+        this.serviciosTicket[index].subtotal = parseFloat(importe.toFixed(2));
 
         this.recalcularTotal();
       }
@@ -527,7 +533,7 @@ export class CajaComponent
     });
 
     tempTotal += parseFloat(this.costoEnvio.toString());
-    this.total = tempTotal;
+    this.total = parseFloat(tempTotal.toFixed(2));
 
     if(this.metodoPago == MetodoPago.Tarjeta || this.metodoPago == MetodoPago.Transferencia)
     {
@@ -569,7 +575,8 @@ export class CajaComponent
     {
       if(this.recibido >= this.anticipo)
       {
-        this.cambio = this.recibido - this.anticipo;
+        const cambio = this.recibido - this.anticipo;
+        this.cambio = parseFloat(cambio.toFixed(2));
       }
       else
       {
@@ -592,7 +599,8 @@ export class CajaComponent
     {
       if(this.recibido >= this.total)
       {
-        this.cambio = this.recibido - this.total;
+        const cambio = this.recibido - this.total;
+        this.cambio = parseFloat(cambio.toFixed(2));
       }
       else
       {
@@ -846,10 +854,10 @@ export class CajaComponent
 
     if(this.clienteSeleccionado)
     {
-      if(!this.clienteSeleccionado.direccion?.length)
+      if(!this.clienteSeleccionado.direccion?.length && cursor == 1)
       {
-        this.renderNoUbicacionesAlert('Este cliente no tiene direcciones registradas');
-        this.cursorEntrega = 0;
+        this.modalDirecciones.openModal();
+        // modal de agregar aqui
         return;
       }
     }
@@ -893,6 +901,8 @@ export class CajaComponent
         total: this.total,
         anticipo: this.anticipo,
         restante: this.saldoPendiente,
+        comentarios: this.chatHistory,
+        fecha_entrega: this.fechaEstimadaEntrega,
       } as Ticket;
 
       this.modalCerrarVenta.nativeElement.show();
@@ -917,8 +927,13 @@ export class CajaComponent
         ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
         ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
         ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
+        ticketPreviewRef.instance.setTicket(tempTicket);
+        ticketPreviewRef.instance.setAtendio(this.authService.session?.datos.name ?? '');
+        ticketPreviewRef.instance.setUbicacionEnvio(
+          this.clienteSeleccionado.direccion?.find((d) => d.id === this.idDireccionEnvio),
+        );
         this.ticketPreviewRef = ticketPreviewRef;
-      }, 500);
+      }, 1000);
     }
   }
 
@@ -941,6 +956,8 @@ export class CajaComponent
       total: this.total,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
+      comentarios: this.chatHistory,
+      fecha_entrega: this.fechaEstimadaEntrega,
     } as Ticket;
 
     this.modalCerrarVenta.nativeElement.show();
@@ -963,6 +980,11 @@ export class CajaComponent
     ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
     ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
     ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
+    ticketPreviewRef.instance.setTicket(tempTicket);
+    ticketPreviewRef.instance.setAtendio(this.authService.session?.datos.name ?? '');
+    ticketPreviewRef.instance.setUbicacionEnvio(
+      this.clienteSeleccionado.direccion?.find((d) => d.id == this.idDireccionEnvio),
+    );
     this.ticketPreviewRef.instance.esTicketCliente = false;
     this.ticketPreviewRef.instance.setTipoTicket(false);
     this.ticketPreviewRef = ticketPreviewRef;
@@ -970,7 +992,7 @@ export class CajaComponent
     setTimeout(() =>
     {
       this.printServicio(event);
-    }, 300);
+    }, 500);
   }
 
   setupPreviewForCliente(event: Event)
@@ -987,6 +1009,8 @@ export class CajaComponent
       total: this.total,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
+      comentarios: this.chatHistory,
+      fecha_entrega: this.fechaEstimadaEntrega,
     } as Ticket;
 
     this.modalCerrarVenta.nativeElement.show();
@@ -1008,7 +1032,12 @@ export class CajaComponent
     ticketPreviewRef.instance.setRecibido(this.recibido);
     ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
     ticketPreviewRef.instance.setCliente(this.clienteSeleccionado);
+    ticketPreviewRef.instance.setTicket(tempTicket);
     ticketPreviewRef.instance.setTipoEntrega(this.cursorEntrega == 1 ? 'ENVIO' : 'SUCURSAL');
+    ticketPreviewRef.instance.setAtendio(this.authService.session?.datos.name ?? '');
+    ticketPreviewRef.instance.setUbicacionEnvio(
+      this.clienteSeleccionado.direccion?.find((d) => d.id == this.idDireccionEnvio),
+    );
     this.ticketPreviewRef.instance.esTicketCliente = true;
     this.ticketPreviewRef.instance.setTipoTicket(true);
     this.ticketPreviewRef = ticketPreviewRef;
@@ -1016,7 +1045,7 @@ export class CajaComponent
     setTimeout(() =>
     {
       this.printCliente(event);
-    }, 300);
+    }, 500);
   }
 
   printCliente(event: Event)
@@ -1280,12 +1309,12 @@ export class CajaComponent
 
   checkFechaEntrega(event: any)
   {
-    const d = new Date(event.target.value);
+    const d = new Date(`${event.target.value}T00:00:00`);
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    if (d <= yesterday)
+    if (d > yesterday)
     {
-      this.fechaEstimadaEntrega = d;
+      this.fechaEstimadaEntrega = event.target.value;
     }
     else
     {
@@ -1323,5 +1352,12 @@ export class CajaComponent
       this.recibido = 0;
       break;
     }
+  }
+
+  onDireccionAgregadaEvent()
+  {
+    console.log('EVENTO...');
+    this.setCliente();
+    this.cursorEntrega = 0;
   }
 }
