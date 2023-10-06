@@ -34,6 +34,7 @@ export class TicketPreviewComponent
   ubicacionEnvio!: Ubicacion;
   esTicketCliente = false;
   montoImpuestos = 0;
+  atendio!: string;
 
   constructor()
   {
@@ -103,7 +104,6 @@ export class TicketPreviewComponent
 
   setTipoEntrega(tipo: string)
   {
-    console.log(tipo);
     this.tipoEntrega = tipo;
   }
 
@@ -115,5 +115,21 @@ export class TicketPreviewComponent
   setTipoTicket(es_cliente: boolean)
   {
     this.esTicketCliente = es_cliente;
+  }
+
+  setUbicacionEnvio(ubicacion: Ubicacion | undefined)
+  {
+    if(ubicacion) this.ubicacionEnvio = ubicacion;
+  }
+
+  setTicket(ticket: Ticket)
+  {
+    this.ticket = ticket;
+    console.log(this.ticket);
+  }
+
+  setAtendio(nombre: string)
+  {
+    this.atendio = nombre;
   }
 }
