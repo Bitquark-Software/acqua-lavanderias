@@ -85,6 +85,8 @@ Route::prefix('stats')->middleware(['auth:api', AdminOnlyMiddleware::class])->gr
     Route::get('/clientes', [ClienteController::class, 'statsClientes'])->name('stats.clientes');
     // Tracks Tickets
     Route::get('/tracks/{ticket_id}', [StatsController::class, 'statsTracks'])->name('stats.tracks');
+    // Reportes General de Ventas
+    Route::get('/reporte-general-ventas', [StatsController::class, 'reportGenVent'])->name('stats.reporte-general-ventas');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
