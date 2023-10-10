@@ -17,7 +17,7 @@ class Cliente extends Model
 
     public function direccion()
     {
-        return $this->hasMany(Direccion::class);
+        return $this->hasMany(Direccion::class)->where('activo', true);
     }
 
     public function tickets()

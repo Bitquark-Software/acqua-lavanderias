@@ -15,7 +15,8 @@ class DireccionController extends Controller
      */
     public function index()
     {
-        return Direccion::paginate(10);
+        return Direccion::where('activo', true)
+            ->paginate(10);
     }
 
     /**
@@ -31,7 +32,7 @@ class DireccionController extends Controller
             'numero' => ['required', 'string', 'max:10'],
             'colonia' => ['required', 'string', 'max:100'],
             'ciudad' => ['required', 'string', 'max:100'],
-            'codigo_postal' => ['required', 'string', 'min:5','max:10'],
+            'codigo_postal' => ['required', 'string', 'min:5', 'max:10'],
             'nombre_ubicacion' => ['required', 'string', 'max:255'],
             'cliente_id' => ['required', 'integer', 'exists:clientes,id']
         ]);
@@ -44,6 +45,7 @@ class DireccionController extends Controller
             'codigo_postal' => Str::upper($request->codigo_postal),
             'nombre_ubicacion' => Str::upper($request->nombre_ubicacion),
             'cliente_id' => $request->cliente_id,
+            'activo' => true
         ]);
 
         return response()->json([
@@ -60,7 +62,8 @@ class DireccionController extends Controller
      */
     public function show($id)
     {
-        return Direccion::find($id);
+        return Direccion::where('activo', true)
+            ->find($id);
     }
 
     /**
@@ -77,7 +80,7 @@ class DireccionController extends Controller
             'numero' => ['required', 'string', 'max:10'],
             'colonia' => ['required', 'string', 'max:100'],
             'ciudad' => ['required', 'string', 'max:100'],
-            'codigo_postal' => ['required', 'string', 'min:5','max:10'],
+            'codigo_postal' => ['required', 'string', 'min:5', 'max:10'],
             'nombre_ubicacion' => ['required', 'string', 'max:255'],
         ]);
 
@@ -108,7 +111,8 @@ class DireccionController extends Controller
 
         if ($auth && isset($auth['role']) && $auth['role'] === 'administrador') {
             $direccion = Direccion::findOrFail($id);
-            $direccion ->delete();
+            $direccion->activo = false;
+            $direccion->save();
 
             return response()->json(null, 204);
         } else {
