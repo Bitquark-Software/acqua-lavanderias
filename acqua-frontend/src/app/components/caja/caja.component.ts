@@ -28,6 +28,7 @@ import { Sucursal } from 'src/app/dtos/sucursal';
 import {
   ModalAgregarDireccionComponent,
 } from '../clientes/modal-agregar-direccion/modal-agregar-direccion.component';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-caja',
@@ -1267,7 +1268,7 @@ export class CajaComponent
       total: this.total,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
-      fecha_entrega: this.fechaEstimadaEntrega,
+      fecha_entrega: moment(this.fechaEstimadaEntrega).format('YYYY-MM-DD HH:mm:ss'),
       numero_referencia: this.numero_referencia,
     } as Ticket;
 

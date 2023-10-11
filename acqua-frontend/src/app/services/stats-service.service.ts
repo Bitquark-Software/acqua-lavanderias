@@ -4,7 +4,7 @@ import { AuthService } from './auth-service.service';
 import { HttpClient } from '@angular/common/http';
 import { TicketStats } from '../dtos/ticket-stats';
 import { API_URL } from '../environments/develop';
-import { ReporteStats, UsuariosReporteStats } from '../dtos/reporte-stats';
+import { PDFReporteStats, ReporteStats, UsuariosReporteStats } from '../dtos/reporte-stats';
 
 @Injectable({
   providedIn: 'root',
@@ -50,5 +50,17 @@ export class StatsService
     }
 
     return this.httpClient.get<UsuariosReporteStats>(url, { headers: this.authService.getHeaders() });
+  }
+
+  getDataForPDFReport(start?: string, end?: string)
+  {
+    let url = `${API_URL}/${this.subpath}/reporte-general-ventas`;
+
+    if(start && end)
+    {
+      url = `${API_URL}/${this.subpath}/reporte-general-ventas?fecha_inicio=${start}&fecha_fin=${end}`;
+    }
+
+    return this.httpClient.get<PDFReporteStats>(url, { headers: this.authService.getHeaders() });
   }
 }

@@ -6,6 +6,7 @@ import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from
 import { HotToastService } from '@ngneat/hot-toast';
 import { ReporteStats, UsuariosReporteStats } from 'src/app/dtos/reporte-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
+import { PDFPreviewComponent } from './pdfpreview/pdfpreview.component';
 import * as moment from 'moment';
 
 function dateRangeValidator(): ValidatorFn
@@ -41,6 +42,7 @@ export class ReportesComponent
 {
   @ViewChild('dateRange') dateRange!: ElementRef<HTMLInputElement>;
   @ViewChild('datesModal') datesModal!: ElementRef<HTMLDialogElement>;
+  @ViewChild('reportePreview') reportePreview!: ElementRef<PDFPreviewComponent>;
 
   dateRangePlaceholder = '';
   startDate!: Date;
