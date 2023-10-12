@@ -34,6 +34,7 @@ import { ReportesComponent } from './components/reportes/reportes.component';
 import {
   ModalAgregarDireccionComponent,
 } from './components/clientes/modal-agregar-direccion/modal-agregar-direccion.component';
+import { PDFPreviewComponent } from './components/reportes/pdfpreview/pdfpreview.component';
 
 @NgModule ( {
   declarations: [
@@ -60,6 +61,7 @@ import {
     RegistrarPagoComponent,
     ReportesComponent,
     ModalAgregarDireccionComponent,
+    PDFPreviewComponent,
   ],
   imports: [
     BrowserModule,

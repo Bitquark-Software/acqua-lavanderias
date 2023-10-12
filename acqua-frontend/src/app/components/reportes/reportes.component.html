@@ -1,5 +1,5 @@
 <app-drawer>
-  <div class="w-full my-3 mx-auto">
+  <div class="w-full my-3 mx-auto print:hidden">
     <div class="card w-11/12 bg-base-100 shadow-sm p-0 my-4 mx-auto">
       <div class="card-body">
         <div class="flex flex-col md:flex-row items-center md:content-between">
@@ -29,17 +29,17 @@
             <div *ngIf="!isLoading && statsIngresos" class="stats shadow sm:col-span-2 md:col-span-3">
                 <div class="stat">
                     <div class="stat-title">Ingresos</div>
-                    <div class="stat-value text-teal-600">{{statsIngresos.totalIngresos}}</div>
+                    <div class="stat-value text-teal-600">$ {{statsIngresos.totalIngresos}}</div>
                 </div>
 
                 <div class="stat">
                     <div class="stat-title">Monto cobrado</div>
-                    <div class="stat-value text-teal-600">{{statsIngresos.montoCobrado}}</div>
+                    <div class="stat-value text-teal-600">$ {{statsIngresos.montoCobrado}}</div>
                 </div>
                 
                 <div class="stat">
                     <div class="stat-title">Monto por cobrar</div>
-                    <div class="stat-value text-teal-600">{{statsIngresos.montoPorCobrar}}</div>
+                    <div class="stat-value text-teal-600">$ {{statsIngresos.montoPorCobrar}}</div>
                 </div>
             </div>
 
@@ -58,6 +58,11 @@
 
         </div>
       </div>
+    </div>
+  </div>
+  <div class="w-full md:w-10/12 my-3 mx-auto">
+    <div class="card w-full bg-base-100 shadow-md p-0 my-2 mx-auto">
+      <app-pdfpreview #reportePreview></app-pdfpreview>
     </div>
   </div>
 </app-drawer>

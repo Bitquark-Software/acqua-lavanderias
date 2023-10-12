@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-unused-vars */
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { HotToastService } from '@ngneat/hot-toast';
 import { ReporteStats, UsuariosReporteStats } from 'src/app/dtos/reporte-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
+import { PDFPreviewComponent } from './pdfpreview/pdfpreview.component';
 import * as moment from 'moment';
 
 function dateRangeValidator(): ValidatorFn
@@ -41,6 +42,7 @@ export class ReportesComponent
 {
   @ViewChild('dateRange') dateRange!: ElementRef<HTMLInputElement>;
   @ViewChild('datesModal') datesModal!: ElementRef<HTMLDialogElement>;
+  @ViewChild('reportePreview') reportePreview!: PDFPreviewComponent;
 
   dateRangePlaceholder = '';
   startDate!: Date;
@@ -57,6 +59,7 @@ export class ReportesComponent
     private statsService: StatsService,
     private fb: FormBuilder,
     private toast: HotToastService,
+    private renderer: Renderer2,
   )
   {
     this.fetchStats();
@@ -75,6 +78,16 @@ export class ReportesComponent
         this.isLoading = false;
         this.statsIngresos = response;
         this.fetchUsuariosStats(start, end);
+        try
+        {
+          const startDate = start ? new Date(start) : undefined;
+          const endDate = end ? new Date(end) : undefined;
+          this.reportePreview.fetchData(startDate, endDate);
+        }
+        catch (error)
+        {
+          console.error(error);
+        }
       },
       error: (err) =>
       {
