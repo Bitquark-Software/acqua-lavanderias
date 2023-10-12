@@ -39,6 +39,17 @@ export class Ticket
   fecha_entrega?: string | Date;
 }
 
+export class TicketReportePdf
+{
+  id!: number;
+  metodo_pago!: MetodoPago;
+  numero_referencia?: string;
+  total!: number;
+  anticipo?: number;
+  restante?: number;
+  nombre!: string;
+}
+
 export class TicketResponse
 {
   current_page!: number;

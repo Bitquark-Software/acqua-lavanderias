@@ -42,7 +42,10 @@
             "scripts": [],
             "allowedCommonJsDependencies": [
               "qrcode",
-              "moment"
+              "moment",
+              "jspdf",
+              "html2canvas"
+
            ]
           },
           "configurations": {

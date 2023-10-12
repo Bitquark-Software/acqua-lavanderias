@@ -1,6 +1,11 @@
 /* eslint-disable no-unused-vars */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { PDFReporteStats } from 'src/app/dtos/reporte-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
+import * as moment from 'moment';
+import jsPDF from 'jspdf';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const html2pdf = require('html2pdf.js');
 
 @Component({
   selector: 'app-pdfpreview',
@@ -10,27 +15,45 @@ import { StatsService } from 'src/app/services/stats-service.service';
 export class PDFPreviewComponent
 {
 
-  isLoading!: true;
+  isLoading = true;
+  isDownloadingPdf = false;
   NO_DATA_DEFAULT_MESSAGE = 'SIN DATOS PAR MOSTRAR';
-  @Input() start?: Date;
-  @Input() end?: Date;
 
-  @Output() printAction = new EventEmitter<void>();
+  pdfReporteStats!: PDFReporteStats;
+
+  startDate?: Date;
+  endDate?: Date;
+
+  @ViewChild('reporteTable') reporteTable!: ElementRef;
 
   constructor(private statsService: StatsService)
   {
-    this.fetchData();
+    //
   }
 
-  fetchData()
+  fetchData(start?: Date, end?: Date)
   {
-    this.statsService.getDataForPDFReport(
-      this.start?.toISOString(), this.end?.toISOString()).subscribe();
+    const startDate = start ? moment(start).format('YYYY-MM-DD HH:mm:ss') : undefined;
+    const endDate = end ? moment(end).format('YYYY-MM-DD HH:mm:ss') : undefined;
+    this.startDate = start;
+    this.endDate = end;
+
+    this.statsService.getDataForPDFReport(startDate, endDate).subscribe({
+      next: (reporteStats) =>
+      {
+        this.isLoading = false;
+        this.pdfReporteStats = reporteStats;
+      },
+    });
   }
 
-  print()
+  async downloadReportInPdf()
   {
-    this.printAction.emit();
+    this.isDownloadingPdf = true;
+
+    window.print();
+
+    this.isDownloadingPdf = false;
   }
 
 }

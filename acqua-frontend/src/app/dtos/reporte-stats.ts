@@ -1,5 +1,5 @@
 import { Cliente } from './cliente';
-import { Ticket } from './ticket';
+import { TicketReportePdf } from './ticket';
 
 export class ReporteStats
 {
@@ -16,7 +16,7 @@ export class UsuariosReporteStats
 
 export class PDFReporteStats
 {
-  tickets!: Ticket[];
+  tickets!: TicketReportePdf[];
   efectivo!: number;
   transferencia!: number;
   tarjeta!: number;
