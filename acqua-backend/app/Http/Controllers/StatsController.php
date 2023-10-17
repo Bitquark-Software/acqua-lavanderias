@@ -291,30 +291,26 @@ class StatsController extends Controller
                 }
             }
 
-            // * Consulta para metodo de pago "Credito" Pendiente
-            $restanteEfectivo = Ticket::where('restante', '>', 0)
+            $efectivoCred = Ticket::where('restante', '>', 0)
                 ->where('tipo_credito', 'CREDITO')
                 ->where('metodo_pago', 'EFECTIVO')
                 ->where('vencido', false)
                 ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('restante');
+                ->sum('anticipos');
 
-            $efectivo = Ticket::where('restante', 0)
-                ->where('tipo_credito', 'CONTADO')
+            $efectivo = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('metodo_pago', 'EFECTIVO')
                 ->where('vencido', false)
                 ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
-            $transferencia = Ticket::where('restante', 0)
-                ->where('tipo_credito', 'CREDITO')
+            $transferencia = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('metodo_pago', 'TRANSFERENCIA')
                 ->where('vencido', false)
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
-            $tarjeta = Ticket::where('restante', 0)
-                ->where('tipo_credito', 'CREDITO')
+            $tarjeta = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('metodo_pago', 'TARJETA')
                 ->where('vencido', false)
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
@@ -322,7 +318,7 @@ class StatsController extends Controller
 
             return response()->json([
                 'tickets' => $tickets,
-                'efectivo' => $efectivo + $restanteEfectivo,
+                'efectivo' => $efectivo + $efectivoCred,
                 'transferencia' => $transferencia,
                 'tarjeta' => $tarjeta
             ]);
