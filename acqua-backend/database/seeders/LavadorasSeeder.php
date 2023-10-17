@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Lavadora;
+use App\Models\Secadora;
 use Illuminate\Database\Seeder;
 
 class LavadorasSeeder extends Seeder
@@ -22,6 +23,15 @@ class LavadorasSeeder extends Seeder
         ]);
         Lavadora::create([
             'nombre' => 'Lavadora 3',
+        ]);
+        Secadora::create([
+            'nombre' =>  'Secadora 1',
+        ]);
+        Secadora::create([
+            'nombre' =>  'Secadora 2',
+        ]);
+        Secadora::create([
+            'nombre' =>  'Secadora 3',
         ]);
     }
 }

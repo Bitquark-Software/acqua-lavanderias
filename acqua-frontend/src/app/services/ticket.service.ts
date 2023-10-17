@@ -12,6 +12,7 @@ import { Prenda, PrendaTicket, PrendaTicketReponse } from '../dtos/prenda-ticket
 import { Proceso } from '../dtos/proceso';
 import { Lavadora } from '../dtos/lavadora';
 import { concatMap, from } from 'rxjs';
+import { Secadora } from '../dtos/secadora';
 
 @Injectable({
   providedIn: 'root',
@@ -144,6 +145,12 @@ export class TicketService
   {
     return this.httpClient.get<Lavadora[]>(
       `${API_URL}/lavadoras`, { headers: this.authService.getHeaders() });
+  }
+
+  getSecadoras()
+  {
+    return this.httpClient.get<Secadora[]>(
+      `${API_URL}/secadoras`, { headers: this.authService.getHeaders() });
   }
 
   updatePrendasTicket(prendasTicket: PrendaTicket[])

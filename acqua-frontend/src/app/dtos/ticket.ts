@@ -11,6 +11,7 @@ export enum StatusTicket
   Creado = 'CREADO',
   Lavado = 'LAVADO',
   Planchado = 'PLANCHADO',
+  Secado = 'SECADO',
   Reconteo = 'RECONTEO',
   Entrega = 'ENTREGA',
 }

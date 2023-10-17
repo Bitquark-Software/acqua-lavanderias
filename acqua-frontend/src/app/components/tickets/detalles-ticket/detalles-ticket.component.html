@@ -8,11 +8,13 @@
   <h1 class="font-bold text-3xl">Cargando detalles del ticket...</h1>
 </div>
 <app-drawer>
+  <!-- Datos del ticket y del cliente -->
   <div class="w-full my-3 mx-auto" *ngIf="ticket">
     <div class="card w-11/12 bg-base-100 shadow-sm p-0 my-4 mx-auto">
       <div class="card-body">
         <p class="font-medium text-xl text-secondary">Cliente: {{ticket.cliente.nombre}}</p>
         <p class="font-thin text-xs">Ticket creado: {{ticket.created_at}}</p>
+        <!-- TODO: Agregar botón para re-imprimir el ticket -->
         <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-3 divide-y sm:divide-x sm:divide-y-0 items-center justify-center border-t sm:pt-3">
           <div class="flex flex-col items-center justify-center gap-2">
             <p class="font-medium text-xl text-success">Total</p>
@@ -35,8 +37,11 @@
       </div>
     </div>
   </div>
+
+  <!-- Procesos -->
   <div class="w-full grid grid-cols-1 gap-6 m-auto md:mt-3">
     <div class="w-full" *ngIf="stepCursor != 4">
+      <!-- Stepper -->
       <ul class="w-full steps">
         <li
           data-content="✓"
@@ -51,14 +56,19 @@
           [ngClass]="{ 'step-primary': stepCursor >= 1 }"
         >Lavado</li>
         <li
-          data-content="🔄"
+          data-content="💨"
           class="step text-xs md:text-md"
           [ngClass]="{ 'step-primary': stepCursor >= 2 }"
+        >Secado</li>
+        <li
+          data-content="🔄"
+          class="step text-xs md:text-md"
+          [ngClass]="{ 'step-primary': stepCursor >= 3 }"
         >Doblado / Reconteo</li>
         <li
           data-content="🚛"
           class="step text-xs md:text-md"
-          [ngClass]="{ 'step-primary': stepCursor >= 3 }"
+          [ngClass]="{ 'step-primary': stepCursor >= 4 }"
         >Entrega</li>
       </ul>
     </div>
@@ -206,10 +216,57 @@
       </div>
     </div>
 
-    <!-- Reconteo -->
+    <!-- Secado -->
     <div
       class="p-4 w-11/12 bg-base-100 rounded-lg border shadow-md sm:p-8 m-auto"
       *ngIf="stepCursor == 2"
+    >
+      <h3 class="font-bold text-3xl ml-2 pt-6">Selecciona una lavadora</h3>
+      <div class="alert alert-warning mt-3" *ngIf="!idSecadora">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <span>Tip: Seleccione una secadora una vez <b>que la ropa se encuentre cargada en ella</b>, <i>Si no la encuentra contacte al administrador del negocio</i></span>
+      </div>
+      <div class="grid grid-cols-1 gap-4 mt-4">
+        <div class="form-control w-full pb-3">
+          <select class="select select-bordered" [(ngModel)]="idSecadora" (change)="setLavadoraSeleccionada()">
+            <option *ngFor="let secadora of secadoras" [value]="secadora.id">{{secadora.nombre}}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="alert alert-warning" *ngIf="idLavadora">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <span>Alerta: No de clic en <b>"Terminar secado"</b> hasta asegurarse de que el ciclo de secado haya concluido</span>
+      </div>
+    </div>
+    <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 2">
+      <div class="flex justify-end">
+        <button [disabled]="!idLavadora" class="btn btn-outline btn-primary shadow-md md:mr-8" (click)="nextStep()">
+          Terminar secado
+          <svg
+            aria-hidden="true"
+            fill="none"
+            width="20"
+            height="20"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Reconteo -->
+    <div
+      class="p-4 w-11/12 bg-base-100 rounded-lg border shadow-md sm:p-8 m-auto"
+      *ngIf="stepCursor == 3"
     >
       <h3 class="font-bold text-3xl ml-2 pt-6">Doblado y reconteo</h3>
       <p class="font-thin text-md ml-2 pb-6">{{conteo}} Pieza(s)</p>
@@ -239,7 +296,7 @@
         </table>
       </div>
     </div>
-    <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 2">
+    <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 3">
       <div class="flex justify-end">
         <button [disabled]="!reconteoOk" class="btn btn-outline btn-primary shadow-md md:mr-8" (click)="nextStep()">
           Proceder a la entrega
@@ -266,7 +323,7 @@
     <!-- Entrega -->
     <div
       class="p-4 w-11/12 bg-base-100 rounded-lg border shadow-md sm:p-8 m-auto"
-      *ngIf="stepCursor == 3"
+      *ngIf="stepCursor == 4"
     >
       <h3 class="font-bold text-3xl ml-2 pt-6">Entrega / Recolección</h3>
       <div class="w-fit m-auto tabs tabs-boxed mt-3">
@@ -312,7 +369,7 @@
         </div>
       </div>
     </div>
-    <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 3">
+    <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 4">
       <div class="flex justify-end">
         <button [disabled]="shouldDisableFinalizarEntregaButton()" class="btn btn-outline btn-primary shadow-md md:mr-8" (click)="nextStep()">
           Pedido entregado
@@ -339,7 +396,7 @@
     <!-- Finalizado -->
     <div
       class="p-4 w-11/12 bg-base-100 rounded-lg border shadow-md sm:p-8 m-auto"
-      *ngIf="stepCursor == 4"
+      *ngIf="stepCursor == 5"
     >
       <div class="alert alert-success">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
