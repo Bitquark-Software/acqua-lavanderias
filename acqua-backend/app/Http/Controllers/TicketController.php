@@ -116,16 +116,7 @@ class TicketController extends Controller
     public function show($id)
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
-        $ticket = Ticket::with(
-            'cliente.direccion',
-            'direccion',
-            'sucursal',
-            'comentarios',
-            'serviciosTicket',
-            'serviciosTicket.servicio',
-            'prendasTicket',
-            'procesosTicket'
-        )->find($id);
+        $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios','serviciosTicket', 'serviciosTicket.servicio', 'prendasTicket', 'procesosTicket')->find($id);
 
         // Verifica si el número de referencia está presente y desencripta si es necesario
         if (!is_null($ticket->numero_referencia)) {
