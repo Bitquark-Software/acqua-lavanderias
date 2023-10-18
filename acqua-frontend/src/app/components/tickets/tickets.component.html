@@ -24,7 +24,7 @@
                     'bg-gray-50': ticket.status === 'CREADO',
                     'bg-teal-50': ticket.status === 'LAVADO',
                     'bg-stone-200': ticket.status === 'RECONTEO',
-                    'bg-amber-50': ticket.status === 'PLANCHADO',
+                    'bg-amber-50': ticket.status === 'SECADO',
                     'bg-lime-50': ticket.status === 'ENTREGA',
                 }"
             >
@@ -93,7 +93,7 @@
                   <button
                     class="btn btn-warning btn-lg btn-circle tooltip p-3"
                     data-tip="PLANCHADO"
-                    *ngIf="ticket.status === 'PLANCHADO'"
+                    *ngIf="ticket.status === 'SECADO'"
                   >
                     <svg
                       aria-hidden="true"
