@@ -51,9 +51,9 @@
 
   <p style="text-align: right;" *ngIf="inclye_iva">Subtotal: $ {{subtotal}}</p>
   <p style="text-align: right;" *ngIf="inclye_iva">Impuestos: $ {{montoImpuestos}}</p>
-  <p style="text-align: right;">Total: ${{total.toFixed(2)}}</p>
-  <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO'">Anticipo: ${{anticipo.toFixed(2)}}</p>
-  <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO'">Saldo: ${{saldoPendiente.toFixed(2)}}</p>
+  <p style="text-align: right;" *ngIf="total">Total: ${{total.toFixed(2)}}</p>
+  <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO' && anticipo">Anticipo: ${{anticipo.toFixed(2)}}</p>
+  <p style="text-align: right;" *ngIf="tipoCompra == 'CREDITO' && saldoPendiente">Saldo: ${{saldoPendiente.toFixed(2)}}</p>
 
   <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;">
     <p style="font-weight: bold;">* * DATOS DEL CLIENTE * *</p>

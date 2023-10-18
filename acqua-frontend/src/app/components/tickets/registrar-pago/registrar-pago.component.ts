@@ -63,9 +63,9 @@ export class RegistrarPagoComponent
     if(!this.isLoading)
     {
       this.isLoading = true;
-      this.ticket.anticipo = parseFloat(
-        this.ticket.anticipo?.toString() ?? '0') + parseFloat(this.monto.value);
-      this.ticketService.actualizarTicket(this.ticket).subscribe({
+      const anticipo = parseFloat(this.monto.value);
+      this.ticketService.registrarAnticipo(
+        this.ticket.id, anticipo, this.referencia.value, this.metodoPago).subscribe({
         next: () =>
         {
           this.isLoading = false;

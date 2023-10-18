@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth-service.service';
 import { HotToastService } from '@ngneat/hot-toast';
 import { HttpClient } from '@angular/common/http';
-import { Ticket, TicketResponse } from '../dtos/ticket';
+import { ReimpimirTicket, Ticket, TicketResponse } from '../dtos/ticket';
 import { Comentario } from '../dtos/comentario';
 import { API_URL } from '../environments/develop';
 import { Sucursal } from '../dtos/sucursal';
@@ -53,6 +53,17 @@ export class TicketService
     );
   }
 
+  registrarAnticipo(id_ticket: number, anticipo: number, numero_referencia: string, metodopago: string)
+  {
+    return this.httpClient.post(
+      `${API_URL}/anticipoTickets`,
+      { anticipo, numero_referencia, id_ticket, metodopago },
+      {
+        headers: this.authService.getHeaders(),
+      },
+    );
+  }
+
   agregarComentario(comentario: Comentario, id_ticket: number)
   {
     this.httpClient.post(`${API_URL}/comentario`, {
@@ -78,7 +89,7 @@ export class TicketService
 
   getTicketById(id:number)
   {
-    return this.httpClient.get<Ticket>
+    return this.httpClient.get<ReimpimirTicket>
     (`${API_URL}/tickets/${id}`, { headers: this.authService.getHeaders() });
   }
 
@@ -130,12 +141,13 @@ export class TicketService
       });
   }
 
-  updateProceso(id_proceso: number, id_lavadora?: number)
+  updateProceso(id_proceso: number, id_lavadora?: number, id_secadora?: number)
   {
     return this.httpClient.put(
       `${API_URL}/proceso-tickets/${id_proceso}`,
       {
         id_lavadora,
+        id_secadora,
       },
       { headers: this.authService.getHeaders() },
     );

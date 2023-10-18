@@ -15,7 +15,7 @@ import { Lavadora } from 'src/app/dtos/lavadora';
 import { Prenda, PrendaTicket } from 'src/app/dtos/prenda-ticket';
 import { Proceso, ProcesoTicket, ProcesosAcqua } from 'src/app/dtos/proceso';
 import { Sucursal } from 'src/app/dtos/sucursal';
-import { StatusTicket, Ticket } from 'src/app/dtos/ticket';
+import { ReimpimirTicket, StatusTicket, Ticket } from 'src/app/dtos/ticket';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { TicketService } from 'src/app/services/ticket.service';
 import { RegistrarPagoComponent } from '../registrar-pago/registrar-pago.component';
@@ -23,6 +23,8 @@ import { Rol } from 'src/app/enums/Rol.enum';
 import { TicketStats } from 'src/app/dtos/ticket-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
 import { Secadora } from 'src/app/dtos/secadora';
+import { TicketPreviewComponent } from '../ticket-preview/ticket-preview.component';
+import { Servicio } from 'src/app/dtos/servicio';
 
 @Component({
   selector: 'app-detalles-ticket',
@@ -31,14 +33,17 @@ import { Secadora } from 'src/app/dtos/secadora';
 })
 export class DetallesTicketComponent
 {
+  isLoadingTicketPreview = true;
   isLoading = true;
   showDisplayError = false;
   ticketId!: number;
-  ticket!: Ticket;
+  ticket!: ReimpimirTicket;
 
   @ViewChild('comentariosModal') comentariosModal!: ElementRef<HTMLDialogElement>;
 
   @ViewChild('pagosModal') pagosModal!: ElementRef<HTMLDialogElement>;
+
+  @ViewChild('reimprimirModal') reimprimirModal!: ElementRef<HTMLDialogElement>;
 
   @ViewChild('pagosContainer',
     {
@@ -50,6 +55,7 @@ export class DetallesTicketComponent
   cursorEntrega = 0;
 
   prendasTicket: PrendaTicket[] = [];
+  serviciosTicket: Servicio[] = [];
   prendas: Prenda[] = [];
 
   prendasForm!: FormGroup;
@@ -79,6 +85,14 @@ export class DetallesTicketComponent
 
   ticketStats!: TicketStats;
 
+  // re-imprimir ticket
+  @ViewChild('ticketPreviewContainer',
+    {
+      read: ViewContainerRef,
+    }) ticketPreviewContainer!: ViewContainerRef;
+
+  ticketPreviewRef!: ComponentRef<TicketPreviewComponent>;
+
   constructor(
     private fb: FormBuilder,
     private toast: HotToastService,
@@ -88,6 +102,7 @@ export class DetallesTicketComponent
     private ticketService: TicketService,
     private pagosModalFactory: ComponentFactoryResolver,
     private statsService: StatsService,
+    private ticketPreviewFactory: ComponentFactoryResolver,
   )
   {
     const ticketId = this.route.snapshot.params['id'];
@@ -160,6 +175,16 @@ export class DetallesTicketComponent
           this.handleCurrentProceso();
           this.setCurrentProcesoTicket();
           this.handleStatus();
+          this.ticket.servicios_ticket.forEach(st =>
+          {
+            this.serviciosTicket.push(
+              {
+                ...st.servicio,
+                subtotal: parseFloat(st.servicio.importe.toString()) * st.kilos,
+                cantidad: st.kilos,
+              },
+            );
+          });
           this.isLoading = false;
         }, 400);
       },
@@ -273,7 +298,7 @@ export class DetallesTicketComponent
     case 0:
       // update in DB
       this.isLoading = true;
-      this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? this.ticketId).subscribe({
+      this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe({
         next: () =>
         {
           this.ticketService.registrarProceso(
@@ -606,6 +631,19 @@ export class DetallesTicketComponent
     });
   }
 
+  setSecadoraSeleccionada()
+  {
+    this.isLoading = true;
+    this.ticketService.updateProceso(
+      this.currentProcesoTicket?.id ?? 0, null as unknown as number, this.idSecadora ?? 0).subscribe({
+      next: () =>
+      {
+        this.toast.success('Secadora asignada');
+        this.fetchTicketById();
+      },
+    });
+  }
+
   private populateChat()
   {
     this.chatHistory = this.ticket.comentarios ?? [];
@@ -704,6 +742,7 @@ export class DetallesTicketComponent
       const procesoSecado = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.SECADO);
       this.currentProcesoTicket =
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoSecado?.id) ?? null;
+      this.idSecadora = this.currentProcesoTicket?.id_secadora ?? null as unknown as number;
       break;
     case 3:
       const procesoReconteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.RECONTEO);
@@ -790,10 +829,8 @@ export class DetallesTicketComponent
       {
         next: (response) =>
         {
-          console.log(response);
           this.isLoadingStats = false;
           this.ticketStats = response;
-          console.log(this.ticketStats);
         },
         error: (err) =>
         {
@@ -801,5 +838,25 @@ export class DetallesTicketComponent
         },
       },
     );
+  }
+
+  parseTimeTrackerToTimer(timestamp: string)
+  {
+    const d = new Date(timestamp);
+
+    let horas: string | number = d.getHours();
+    let minutos: string | number = d.getMinutes();
+    let segundos: string | number = d.getSeconds();
+
+    horas = horas < 10 ? `0${ horas}` : horas;
+    minutos = minutos < 10 ? `0${ minutos}` : minutos;
+    segundos = segundos < 10 ? `0${ segundos}` : segundos;
+
+    return `${horas }:${ minutos }:${ segundos}`;
+  }
+
+  openReimprimirModal()
+  {
+    this.reimprimirModal.nativeElement.show();
   }
 }

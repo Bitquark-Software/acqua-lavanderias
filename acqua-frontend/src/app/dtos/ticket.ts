@@ -5,6 +5,10 @@ import { Cliente } from './cliente';
 import { Comentario } from './comentario';
 import { PrendaTicket } from './prenda-ticket';
 import { ProcesoTicket } from './proceso';
+import { Servicio } from './servicio';
+import { ServicioTicket } from './servicio-ticket';
+import { Sucursal } from './sucursal';
+import { Ubicacion } from './ubicacion';
 
 export enum StatusTicket
 {
@@ -38,6 +42,18 @@ export class Ticket
   procesos_ticket!: ProcesoTicket[];
   numero_referencia?: string;
   fecha_entrega?: string | Date;
+}
+
+export class ServiciosTicketServicio extends ServicioTicket
+{
+  servicio!: Servicio;
+}
+
+export class ReimpimirTicket extends Ticket
+{
+  sucursal!: Sucursal;
+  servicios_ticket!: ServiciosTicketServicio[];
+  direccion!: Ubicacion;
 }
 
 export class TicketReportePdf

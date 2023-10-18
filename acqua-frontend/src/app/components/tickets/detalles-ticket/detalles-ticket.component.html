@@ -12,16 +12,24 @@
   <div class="w-full my-3 mx-auto" *ngIf="ticket">
     <div class="card w-11/12 bg-base-100 shadow-sm p-0 my-4 mx-auto">
       <div class="card-body">
-        <p class="font-medium text-xl text-secondary">Cliente: {{ticket.cliente.nombre}}</p>
-        <p class="font-thin text-xs">Ticket creado: {{ticket.created_at}}</p>
         <!-- TODO: Agregar botón para re-imprimir el ticket -->
+        <div class="grid grid-cols-3 gap-2 content-between">
+          <div class="col-span-2">
+            <p class="font-medium text-xl text-secondary">Cliente: {{ticket.cliente.nombre}}</p>
+            <p class="font-thin text-xs">Ticket creado: {{ticket.created_at}}</p>
+          </div>
+          <button class="btn btn-outline btn-secondary" (click)="openReimprimirModal()">
+            Ver servicios
+          </button>
+        </div>
+        <!-- Anticipos y restantes --->
         <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-3 divide-y sm:divide-x sm:divide-y-0 items-center justify-center border-t sm:pt-3">
           <div class="flex flex-col items-center justify-center gap-2">
             <p class="font-medium text-xl text-success">Total</p>
             <p class="font-bold text-sm">$ {{ticket.total}}</p>
           </div>
           <div class="flex flex-col items-center justify-center gap-2">
-            <p class="font-medium text-xl text-warning">Anticipo</p>
+            <p class="font-medium text-xl text-secondary">Anticipo</p>
             <p class="font-bold text-sm">$ {{ticket.anticipo}}</p>
           </div>
           <div class="flex flex-col items-center justify-center gap-2">
@@ -221,27 +229,27 @@
       class="p-4 w-11/12 bg-base-100 rounded-lg border shadow-md sm:p-8 m-auto"
       *ngIf="stepCursor == 2"
     >
-      <h3 class="font-bold text-3xl ml-2 pt-6">Selecciona una lavadora</h3>
+      <h3 class="font-bold text-3xl ml-2 pt-6">Selecciona una secadora</h3>
       <div class="alert alert-warning mt-3" *ngIf="!idSecadora">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
         <span>Tip: Seleccione una secadora una vez <b>que la ropa se encuentre cargada en ella</b>, <i>Si no la encuentra contacte al administrador del negocio</i></span>
       </div>
       <div class="grid grid-cols-1 gap-4 mt-4">
         <div class="form-control w-full pb-3">
-          <select class="select select-bordered" [(ngModel)]="idSecadora" (change)="setLavadoraSeleccionada()">
+          <select class="select select-bordered" [(ngModel)]="idSecadora" (change)="setSecadoraSeleccionada()">
             <option *ngFor="let secadora of secadoras" [value]="secadora.id">{{secadora.nombre}}</option>
           </select>
         </div>
       </div>
 
-      <div class="alert alert-warning" *ngIf="idLavadora">
+      <div class="alert alert-warning" *ngIf="idSecadora">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
         <span>Alerta: No de clic en <b>"Terminar secado"</b> hasta asegurarse de que el ciclo de secado haya concluido</span>
       </div>
     </div>
     <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 2">
       <div class="flex justify-end">
-        <button [disabled]="!idLavadora" class="btn btn-outline btn-primary shadow-md md:mr-8" (click)="nextStep()">
+        <button [disabled]="!idSecadora" class="btn btn-outline btn-primary shadow-md md:mr-8" (click)="nextStep()">
           Terminar secado
           <svg
             aria-hidden="true"
@@ -444,6 +452,11 @@
               <div class="stat-title">Atendido por</div>
               <div class="stat-value truncate">{{ticketStats.Conteo.nombre}}</div>
             </div>
+
+            <div class="stat">
+              <div class="stat-title">Time Track: </div>
+              <div class="stat-value truncate">{{parseTimeTrackerToTimer(ticketStats.Conteo.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(ticketStats.Conteo.timestamp_end.toLocaleString('es-MX'))}}</div>
+            </div>
             
           </div>
         </div>
@@ -486,6 +499,11 @@
             <div class="stat">
               <div class="stat-title">Atendido por</div>
               <div class="stat-value truncate">{{ticketStats.Lavado.nombre}}</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-title">Time Track: </div>
+              <div class="stat-value truncate">{{parseTimeTrackerToTimer(ticketStats.Lavado.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(ticketStats.Lavado.timestamp_end.toLocaleString('es-MX'))}}</div>
             </div>
             
           </div>
@@ -530,6 +548,11 @@
               <div class="stat-title">Atendido por</div>
               <div class="stat-value truncate">{{ticketStats.Reconteo.nombre}}</div>
             </div>
+
+            <div class="stat">
+              <div class="stat-title">Time Track: </div>
+              <div class="stat-value truncate">{{parseTimeTrackerToTimer(ticketStats.Reconteo.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(ticketStats.Reconteo.timestamp_end.toLocaleString('es-MX'))}}</div>
+            </div>
             
           </div>
         </div>
@@ -572,6 +595,11 @@
             <div class="stat">
               <div class="stat-title">Atendido por</div>
               <div class="stat-value truncate">{{ticketStats.Entrega.nombre}}</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-title">Time Track: </div>
+              <div class="stat-value truncate">{{parseTimeTrackerToTimer(ticketStats.Entrega.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(ticketStats.Entrega.timestamp_end.toLocaleString('es-MX'))}}</div>
             </div>
             
           </div>
@@ -620,4 +648,30 @@
       <div class="w-full" #pagosContainer></div>
     </div>
   </form>
+</dialog>
+<dialog class="modal" #reimprimirModal>
+  <div class="modal-box h-fit w-fit">
+    <!-- Tabla con los servicios y los kilos -->
+    <div class="overflow-x-auto" *ngIf="serviciosTicket">
+      <table class="table table-zebra">
+        <thead>
+          <tr>
+            <th>Servicio</th>
+            <th>Kilos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let st of serviciosTicket">
+            <td>{{st.nombre_servicio}}</td>
+            <td>{{st.cantidad}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn">Cerrar</button>
+      </form>
+    </div>
+  </div>
 </dialog>

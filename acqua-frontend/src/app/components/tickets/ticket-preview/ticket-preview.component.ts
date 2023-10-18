@@ -35,6 +35,7 @@ export class TicketPreviewComponent
   esTicketCliente = false;
   montoImpuestos = 0;
   atendio!: string;
+  tarifaEnvioDomicilio = 0;
 
   constructor()
   {
@@ -51,9 +52,15 @@ export class TicketPreviewComponent
     }
   }
 
+  setTarifaEnvioADomicilio(monto: number)
+  {
+    this.tarifaEnvioDomicilio = monto;
+  }
+
   setServiciosTicket(servicios: Servicio[])
   {
     this.serviciosTicket = servicios;
+    console.log(this.anticipo, this.saldoPendiente);
   }
 
   setTotal(total: number)
@@ -125,7 +132,6 @@ export class TicketPreviewComponent
   setTicket(ticket: Ticket)
   {
     this.ticket = ticket;
-    console.log(this.ticket);
   }
 
   setAtendio(nombre: string)
