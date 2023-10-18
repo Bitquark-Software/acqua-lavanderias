@@ -296,7 +296,7 @@ class StatsController extends Controller
                 ->where('metodo_pago', 'EFECTIVO')
                 ->where('vencido', false)
                 ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('anticipos');
+                ->sum('anticipo');
 
             $efectivo = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('metodo_pago', 'EFECTIVO')

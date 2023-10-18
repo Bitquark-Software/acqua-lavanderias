@@ -22,7 +22,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        return Ticket::with('cliente')->orderBy('created_at', 'desc')->paginate(15);
+        return Ticket::with('cliente')->orderBy('created_at', 'desc')->paginate(1500);
     }
 
     /**
@@ -78,7 +78,7 @@ class TicketController extends Controller
         // Anticipos_Tickets
         if ($valor == 'TARJETA' || $valor == 'TRANSFERENCIA' || $valor == 'EFECTIVO') {
             $anticipo = AnticipoTicket::create([
-                'anticipo' => $ticket->anticipo,
+                'anticipo' => $request->tipo_credito == 'CREDITO' ? $ticket->anticipo : $ticket->total,
                 'metodopago' => $ticket->metodo_pago,
                 'id_ticket' => $ticket->id,
                 'cobrado_por' => $request->user()->id,
@@ -109,7 +109,7 @@ class TicketController extends Controller
     public function show($id)
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
-        $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'prendasTicket', 'procesosTicket')->find($id);
+        $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios','serviciosTicket', 'serviciosTicket.servicio', 'prendasTicket', 'procesosTicket')->find($id);
 
         // Verifica si el número de referencia está presente y desencripta si es necesario
         if (!is_null($ticket->numero_referencia)) {
