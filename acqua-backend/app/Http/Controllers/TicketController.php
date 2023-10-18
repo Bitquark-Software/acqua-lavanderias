@@ -96,7 +96,14 @@ class TicketController extends Controller
 
         return response()->json([
             'mensaje' => 'Ticket creado exitosamente',
-            'data' => Ticket::with('cliente', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'anticipos')->find($ticket->id),
+            'data' => Ticket::with(
+                'cliente',
+                'direccion',
+                'sucursal',
+                'comentarios',
+                'serviciosTicket',
+                'anticipos'
+            )->find($ticket->id),
         ], 201);
     }
 
@@ -109,7 +116,16 @@ class TicketController extends Controller
     public function show($id)
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
-        $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios','serviciosTicket', 'serviciosTicket.servicio', 'prendasTicket', 'procesosTicket')->find($id);
+        $ticket = Ticket::with(
+            'cliente.direccion',
+            'direccion',
+            'sucursal',
+            'comentarios',
+            'serviciosTicket',
+            'serviciosTicket.servicio',
+            'prendasTicket',
+            'procesosTicket'
+        )->find($id);
 
         // Verifica si el número de referencia está presente y desencripta si es necesario
         if (!is_null($ticket->numero_referencia)) {
@@ -118,7 +134,7 @@ class TicketController extends Controller
 
         $ticket->comentarios->transform(function ($t) {
             $empleado = User::where('id', $t->user_id)->first();
-            $t->sender = $empleado ? $empleado->name : "UNKNOWN";
+            $t->sender = $empleado ? $empleado->name : 'UNKNOWN';
             $t->errorState = $empleado ? false : true;
             $t->date = Carbon::parse($t->created_at)->format('d/m/Y, h:m:s');
             return $t;
@@ -126,7 +142,7 @@ class TicketController extends Controller
 
         $ticket->prendasTicket->transform(function ($t) {
             $prenda = Prenda::where('id', $t->id_prenda)->first();
-            $t->nombre = $prenda ? $prenda->nombre : "UNKNOWN";
+            $t->nombre = $prenda ? $prenda->nombre : 'UNKNOWN';
             return $t;
         });
         return $ticket;
@@ -182,7 +198,7 @@ class TicketController extends Controller
         ]);
 
         return response()->json([
-            'mensaje' => "Ticket actualizado",
+            'mensaje' => 'Ticket actualizado',
             'data' => $ticket
         ], 200);
     }

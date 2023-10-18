@@ -30,14 +30,12 @@ class AnticiposTicketsController extends Controller
         // Actualizar el ticket
         $ticket = Ticket::where('id', $request->id_ticket)->first();
 
-        if(!$ticket)
-        {
+        if (!$ticket) {
             return response()->json([
                 'message' => 'Ticket no existente',
             ], 422);
         }
-        if(floatval($request->anticipo) > $ticket->restante || floatval($request->anticipo) < 1)
-        {
+        if (floatval($request->anticipo) > $ticket->restante || floatval($request->anticipo) < 1) {
             return response()->json([
                 'message' => 'El anticipo no puede ser mayor o menor al restante',
             ], 422);
@@ -58,8 +56,7 @@ class AnticiposTicketsController extends Controller
             'numero_referencia' => $numeroTarjetaCifrado
         ]);
 
-        if($ticket->tipo_credito == 'CREDITO')
-        {
+        if ($ticket->tipo_credito == 'CREDITO') {
             $nuevoRestante = floatval($ticket->restante) - floatval($request->anticipo);
             $nuevoAnticipo = floatval($ticket->anticipo) + floatval($request->anticipo);
             $ticket->update([
