@@ -27,6 +27,10 @@ class ProcesoSeeder extends Seeder
         ]);
 
         Proceso::create([
+            'nombre' => "SECADO",
+        ]);
+
+        Proceso::create([
             'nombre' => "DOBLADO",
         ]);
 

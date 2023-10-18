@@ -22,6 +22,7 @@ import { RegistrarPagoComponent } from '../registrar-pago/registrar-pago.compone
 import { Rol } from 'src/app/enums/Rol.enum';
 import { TicketStats } from 'src/app/dtos/ticket-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
+import { Secadora } from 'src/app/dtos/secadora';
 
 @Component({
   selector: 'app-detalles-ticket',
@@ -56,7 +57,9 @@ export class DetallesTicketComponent
   conteo = 0;
   reconteoOk = false;
   idLavadora!:number;
+  idSecadora!:number;
   lavadoras: Lavadora[] = [];
+  secadoras: Secadora[] = [];
 
   chatHistory: Comentario[] = [];
   chatForm!: FormGroup;
@@ -266,6 +269,7 @@ export class DetallesTicketComponent
   {
     switch(this.stepCursor)
     {
+    // conteo inicial
     case 0:
       // update in DB
       this.isLoading = true;
@@ -291,6 +295,7 @@ export class DetallesTicketComponent
         error: () => this.isLoading = false,
       });
       break;
+    // Lavado
     case 1:
     {
       const lavadora = this.lavadoras.find(lav => lav.id == this.idLavadora);
@@ -303,7 +308,7 @@ export class DetallesTicketComponent
             this.ticketService.registrarProceso(
               this.ticket.id,
               this.PROCESOS_EXISTENTES.find(
-                p => p.nombre === ProcesosAcqua.RECONTEO) as unknown as Proceso,
+                p => p.nombre === ProcesosAcqua.SECADO) as unknown as Proceso,
             ).subscribe({
               next: () =>
               {
@@ -326,7 +331,40 @@ export class DetallesTicketComponent
       }
       break;
     }
+    // Secado
     case 2:
+      this.isLoading = true;
+      this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe({
+        next: () =>
+        {
+          this.ticketService.registrarProceso(
+            this.ticket.id,
+            this.PROCESOS_EXISTENTES.find(
+              p => p.nombre === ProcesosAcqua.RECONTEO) as unknown as Proceso,
+          ).subscribe({
+            next: () =>
+            {
+              this.stepCursor+= 1;
+              this.fetchTicketById();
+            },
+            error: (err) =>
+            {
+              this.toast.error(`Error: ${err.message ?? 'Desconocido'}`);
+              console.error(err);
+              this.isLoading = false;
+            },
+          });
+        },
+        error: (err) =>
+        {
+          this.isLoading = false;
+          console.error(err);
+        },
+      });
+      // TODO: Update proceso ticket y registrar reconteo
+      break;
+    // Reconteo
+    case 3:
       this.isLoading = true;
       this.ticketService.updatePrendasTicket(this.prendasTicket).subscribe({
         next: () =>
@@ -368,7 +406,8 @@ export class DetallesTicketComponent
         },
       });
       break;
-    case 3:
+    // Entrega
+    case 4:
       this.isLoading = true;
       this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe(
         {
@@ -529,8 +568,12 @@ export class DetallesTicketComponent
       this.populateLavadoras();
       this.stepCursor = 1;
       break;
-    case StatusTicket.Reconteo:
+    case StatusTicket.Secado:
+      this.populateSecadoras();
       this.stepCursor = 2;
+      break;
+    case StatusTicket.Reconteo:
+      this.stepCursor = 3;
       break;
     case StatusTicket.Entrega:
       const procesoExistenteEntrega =
@@ -539,11 +582,11 @@ export class DetallesTicketComponent
         this.ticket.procesos_ticket.find((p) => p.id_proceso == procesoExistenteEntrega?.id);
       if(procesoEntregado?.timestamp_start && procesoEntregado.timestamp_end)
       {
-        this.stepCursor = 4;
+        this.stepCursor = 5;
       }
       else
       {
-        this.stepCursor = 3;
+        this.stepCursor = 4;
       }
       break;
     }
@@ -605,6 +648,13 @@ export class DetallesTicketComponent
       }
       break;
     case 2:
+      const procesoSecado = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.SECADO);
+      if(!procesoSecado)
+      {
+        this.toast.error('Error: No encontramos el proceso interno para el secado');
+      }
+      break;
+    case 3:
       const procesoReconteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.RECONTEO);
       if(!procesoReconteo)
       {
@@ -615,7 +665,7 @@ export class DetallesTicketComponent
         this.checkReconteo();
       }
       break;
-    case 3:
+    case 4:
       const procesoEntrega = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.ENTREGA);
       if(!procesoEntrega)
       {
@@ -628,7 +678,7 @@ export class DetallesTicketComponent
         this.idUbicacionEnvio = this.ticket.id_direccion ?? 0;
       }
       break;
-    case 4:
+    case 5:
       this.isLoadingStats = true;
       this.fetchTicketStats();
       break;
@@ -651,11 +701,16 @@ export class DetallesTicketComponent
       this.idLavadora = this.currentProcesoTicket?.id_lavadora ?? null as unknown as number;
       break;
     case 2:
+      const procesoSecado = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.SECADO);
+      this.currentProcesoTicket =
+        this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoSecado?.id) ?? null;
+      break;
+    case 3:
       const procesoReconteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.RECONTEO);
       this.currentProcesoTicket =
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoReconteo?.id) ?? null;
       break;
-    case 3:
+    case 4:
       const procesoEntrega = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.ENTREGA);
       this.currentProcesoTicket =
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoEntrega?.id) ?? null;
@@ -676,6 +731,21 @@ export class DetallesTicketComponent
       error: (err) =>
       {
         this.toast.error('Error al obtener las lavadoras disponibles');
+        console.error(err);
+      },
+    });
+  }
+
+  private populateSecadoras()
+  {
+    this.ticketService.getSecadoras().subscribe({
+      next: (response) =>
+      {
+        this.secadoras = response;
+      },
+      error: (err) =>
+      {
+        this.toast.error('Error al obtener las secadoras disponibles');
         console.error(err);
       },
     });

@@ -12,7 +12,7 @@ class AnticipoTicket extends Model
     protected $fillable = [
         'id_ticket',
         'anticipo',
-        'metodoPago',
+        'metodopago',
         'cobrado_por',
         'numero_referencia'
     ];
