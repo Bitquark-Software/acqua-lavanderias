@@ -58,8 +58,8 @@
   <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;">
     <p style="font-weight: bold;">* * DATOS DEL CLIENTE * *</p>
     <p class="centered">Cliente: {{cliente.nombre.toUpperCase()}}</p>
-    <p *ngIf="ticket.restante == 0" class="font-bold centered">SERVICIO PAGADO</p>
-    <p *ngIf="ticket.restante != 0" class="font-bold centered">SALDO PENDIENTE</p>
+    <p *ngIf="saldoPendiente == 0" class="font-bold centered">SERVICIO PAGADO</p>
+    <p *ngIf="(saldoPendiente ?? 0) > 0" class="font-bold centered">SALDO PENDIENTE</p>
 
   </div>
 
@@ -69,7 +69,7 @@
     <p class="centered">LUGAR: {{ubicacionEnvio.calle}}, no. {{ubicacionEnvio.numero}}, Col. {{ubicacionEnvio.colonia}}, C.P: {{ubicacionEnvio.codigo_postal}}</p>
   </div>
 
-  <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="tipoEntrega == 'SUCURSAL'">
+  <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="tipoEntrega == 'SUCURSAL' && sucursal">
     <p style="font-weight: bold;">* * CENTRO DE RECOLECCIÓN * *</p>
     <p class="centered">ENTREGAR EN: {{sucursal.nombre}}</p>
   </div>
@@ -83,7 +83,7 @@
     <p style="font-weight: bold;">* * COMENTARIOS * *</p>
     <p *ngIf="!ticket.comentarios">Sin comentarios</p>
     <p *ngFor="let comentario of ticket.comentarios">
-      <b>{{comentario.sender}}</b>: "{{comentario.texto}}" - <i>{{comentario.date.toLocaleLowerCase('es-mx')}}</i>
+      <b>{{comentario.sender}}</b>: "{{comentario.texto}}" - <i>{{comentario.date}}</i>
     </p>
   </div>
   

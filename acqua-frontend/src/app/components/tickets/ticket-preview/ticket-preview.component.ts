@@ -60,7 +60,6 @@ export class TicketPreviewComponent
   setServiciosTicket(servicios: Servicio[])
   {
     this.serviciosTicket = servicios;
-    console.log(this.anticipo, this.saldoPendiente);
   }
 
   setTotal(total: number)
@@ -82,6 +81,7 @@ export class TicketPreviewComponent
   setSaldoPendiente(saldoPendiente: number)
   {
     this.saldoPendiente = saldoPendiente;
+    console.log(saldoPendiente);
   }
 
   setTipoCompra(tipoCompra: TipoCredito)
@@ -117,6 +117,7 @@ export class TicketPreviewComponent
   setSucursal(sucursal: Sucursal)
   {
     this.sucursal = sucursal;
+    console.log('sucursal => ', sucursal);
   }
 
   setTipoTicket(es_cliente: boolean)

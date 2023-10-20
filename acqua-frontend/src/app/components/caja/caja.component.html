@@ -162,7 +162,7 @@
           <label class="label">
             <span class="label-text">Selecciona el tipo de pago</span>
           </label>
-          <select class="select select-bordered" [(ngModel)]="tipoDeCredito">
+          <select class="select select-bordered" [(ngModel)]="tipoDeCredito" (change)="changeTipoCredito($event)">
             <option value="CREDITO">Crédito</option>
             <option value="CONTADO">Contado</option>
           </select>
@@ -253,7 +253,7 @@
             </div>
           </div>
 
-          <div class="w-full mt-3" *ngIf="cursorEntrega == 1">
+          <div class="w-full mt-3">
             <div class="form-control w-full">
               <label class="label">
                 <span class="label-text">Fecha estimada de entrega</span>

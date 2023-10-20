@@ -158,7 +158,10 @@ export class CajaComponent
 
   fetchSucursales()
   {
-    this.ticketService.getSucursales().subscribe({ next: (sucursales) => this.sucursales = sucursales });
+    this.ticketService.getSucursales().subscribe({ next: (sucursales) =>
+    {
+      this.sucursales = sucursales;
+    }});
   }
 
   inputServicioChange(e: Event)
@@ -246,7 +249,7 @@ export class CajaComponent
     {
       this.chatHistory.push(
         {
-          date: new Date().toISOString(),
+          date: `${new Date().toLocaleDateString('es-MX')} ${new Date().toLocaleTimeString('es-MX')}`,
           sender: this.authService.session?.datos.name ?? '',
           texto: this.chatText,
         },
@@ -387,7 +390,6 @@ export class CajaComponent
   setCliente()
   {
     const { id, nombre } = this.splitIdAndNombreCliente();
-    console.log(id, nombre);
     if(id != null && nombre)
     {
       this.cursorEntrega = 0;
@@ -554,7 +556,11 @@ export class CajaComponent
 
   private recalcularSaldoPendiente()
   {
-    if(this.anticipo >= 0 && this.anticipo <= this.total)
+    if(this.tipoDeCredito == TipoCredito.Contado)
+    {
+      this.saldoPendiente = 0;
+    }
+    else if(this.anticipo >= 0 && this.anticipo <= this.total)
     {
       this.saldoPendiente = this.total - this.anticipo;
     }
@@ -568,6 +574,21 @@ export class CajaComponent
       this.anticipo = 0;
       this.saldoPendiente = 0;
     }
+  }
+
+  changeTipoCredito(event:any)
+  {
+    const tipoCredito = event.target.value;
+
+    if(tipoCredito != this.tipoDeCredito)
+    {
+      this.anticipo = 0;
+      this.recibido = 0;
+      this.metodoPago = MetodoPago.Efectivo;
+    }
+
+    this.tipoDeCredito = tipoCredito;
+    this.recalcularSaldoPendiente();
   }
 
   private recalcularRecibidoYCambioParaCredito()
@@ -795,6 +816,8 @@ export class CajaComponent
     this.cursorEntrega = 0;
     this.idSucursal = 0;
     this.idDireccionEnvio = 0;
+    this.fechaEstimadaEntrega = '';
+    this.costoEnvio = 0;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -931,7 +954,11 @@ export class CajaComponent
         ticketPreviewRef.instance.setTicket(tempTicket);
         ticketPreviewRef.instance.setAtendio(this.authService.session?.datos.name ?? '');
         ticketPreviewRef.instance.setUbicacionEnvio(
-          this.clienteSeleccionado.direccion?.find((d) => d.id === this.idDireccionEnvio),
+          this.clienteSeleccionado.direccion?.find((d) => d.id == this.idDireccionEnvio),
+        );
+        const sucursalSeleccionada = this.sucursales?.find((s) => s.id == this.idSucursal);
+        ticketPreviewRef.instance.setSucursal(
+          sucursalSeleccionada as Sucursal,
         );
         this.ticketPreviewRef = ticketPreviewRef;
       }, 1000);
@@ -986,6 +1013,10 @@ export class CajaComponent
     ticketPreviewRef.instance.setUbicacionEnvio(
       this.clienteSeleccionado.direccion?.find((d) => d.id == this.idDireccionEnvio),
     );
+    const sucursalSeleccionada = this.sucursales?.find((s) => s.id == this.idSucursal);
+    ticketPreviewRef.instance.setSucursal(
+      sucursalSeleccionada as Sucursal,
+    );
     this.ticketPreviewRef.instance.esTicketCliente = false;
     this.ticketPreviewRef.instance.setTipoTicket(false);
     this.ticketPreviewRef = ticketPreviewRef;
@@ -1038,6 +1069,10 @@ export class CajaComponent
     ticketPreviewRef.instance.setAtendio(this.authService.session?.datos.name ?? '');
     ticketPreviewRef.instance.setUbicacionEnvio(
       this.clienteSeleccionado.direccion?.find((d) => d.id == this.idDireccionEnvio),
+    );
+    const sucursalSeleccionada = this.sucursales?.find((s) => s.id == this.idSucursal);
+    ticketPreviewRef.instance.setSucursal(
+      sucursalSeleccionada as Sucursal,
     );
     this.ticketPreviewRef.instance.esTicketCliente = true;
     this.ticketPreviewRef.instance.setTipoTicket(true);
@@ -1357,7 +1392,6 @@ export class CajaComponent
 
   onDireccionAgregadaEvent()
   {
-    console.log('EVENTO...');
     this.setCliente();
     this.cursorEntrega = 0;
   }
