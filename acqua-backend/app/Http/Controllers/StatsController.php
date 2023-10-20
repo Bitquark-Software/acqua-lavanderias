@@ -304,23 +304,47 @@ class StatsController extends Controller
                 ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
+            // * Tranferencia Pagada
             $transferencia = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('metodo_pago', 'TRANSFERENCIA')
                 ->where('vencido', false)
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
+            
+            // Transferencia Anticipos (no se a pagado del todo)
+            $transferenciaAnticipos = Ticket::where('restante', '>', 0)
+                ->where('tipo_credito', 'CONTADO')
+                ->where('metodo_pago', 'TRANSFERENCIA')
+                ->where('vencido', false)
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('anticipo');
 
+            // * Tarjeta Pagada
             $tarjeta = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('metodo_pago', 'TARJETA')
                 ->where('vencido', false)
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
+            // Tarjeta Anticipos
+            $tarjetaAnticipos = Ticket::where('restante', '>', 0)
+                ->where('tipo_credito', 'CONTADO')
+                ->where('metodo_pago', 'TARJETA')
+                ->where('vencido', false)
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('anticipo');
+
+            $efectivoT = (float) ($efectivo + $efectivoCredPendiente + $efectivoCredPagado);
+            $transferenciaT = (float) ($transferencia + $transferenciaAnticipos);
+            $tarjetaT = (float) ($tarjeta + $tarjetaAnticipos);
+            $montoTotal = (float) ($efectivoT + $transferenciaT + $tarjetaT);
+
             return response()->json([
                 'tickets' => $tickets,
-                'efectivo' => $efectivo + $efectivoCredPendiente + $efectivoCredPagado,
-                'transferencia' => $transferencia,
-                'tarjeta' => $tarjeta
+                'efectivo' => $efectivoT,
+                'transferencia' => $transferenciaT,
+                'tarjeta' => $tarjetaT,
+                'montoTotal' => $montoTotal
             ]);
         } catch (\Exception $e) {
             // Fecha no valida
