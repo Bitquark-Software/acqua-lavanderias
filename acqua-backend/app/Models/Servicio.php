@@ -19,6 +19,6 @@ class Servicio extends Model
 
     public function catalogo()
     {
-        return $this->belongsTo(Catalogo::class);
+        return $this->belongsTo(Catalogo::class)->where('activo', true);
     }
 }

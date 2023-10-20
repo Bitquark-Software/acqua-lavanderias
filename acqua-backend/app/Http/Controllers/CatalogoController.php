@@ -15,7 +15,8 @@ class CatalogoController extends Controller
      */
     public function index()
     {
-        return Catalogo::paginate(10);
+        return Catalogo::where('activo', true)
+            ->paginate(10);
     }
 
     /**
@@ -48,7 +49,9 @@ class CatalogoController extends Controller
      */
     public function show($id)
     {
-        return Catalogo::with('servicios')->find($id);
+        return Catalogo::where('activo', true)
+            ->with('servicios')
+            ->find($id);
     }
 
     /**
@@ -81,8 +84,8 @@ class CatalogoController extends Controller
     public function destroy($id)
     {
         $catalogo = Catalogo::findOrFail($id);
-        $catalogo->servicios()->delete();
-        $catalogo->delete();
+        $catalogo->activo = false;
+        $catalogo->save();
 
         return response()->json(['mensaje' => 'Catalogo eliminado correctamente'], 204);
     }

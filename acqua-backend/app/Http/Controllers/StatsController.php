@@ -35,37 +35,30 @@ class StatsController extends Controller
             }
 
             // * Consulta para metodo de pago "Contado" Pagado
-            $montoTicketsPagadosAContado = Ticket::where('restante', 0)
-                ->where('tipo_credito', 'CONTADO')
+            $montoTicketsPagadosAContado = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('vencido', false)
                 ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
-            // * Consulta para metodo de pago "Credito" Total
-            $montoTicketsTotalACredito = Ticket::where('restante', 0)
-                ->where('tipo_credito', 'CREDITO')
-                ->where('vencido', false)
+            // * Total Ingresos suma de todos los Tickets
+            $montoTicketsTotal = Ticket::where('vencido', false)
                 ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
             // * Consulta para metodo de pago "Credito" Pagado
-            $montoTicketsACreditoPagado = Ticket::where('restante', 0)
-                ->where('tipo_credito', 'CREDITO')
+            $montoTicketsACreditoPagado = Ticket::where('tipo_credito', 'CREDITO')
                 ->where('vencido', false)
                 ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('anticipo');
 
-            // * Consulta para metodo de pago "Credito" Pendiente
-            $montoTicketsACreditoPendiente = Ticket::where('restante', '>', 0)
-                ->where('tipo_credito', 'CREDITO')
-                ->where('vencido', false)
-                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('restante');
+            $totalIngresos = (float) $montoTicketsTotal;
+            $montoCobrado = (float) ($montoTicketsPagadosAContado + $montoTicketsACreditoPagado);
+            $montoPorCobrar = (float) ($montoTicketsTotal - $montoCobrado);
 
             return response()->json([
-                'totalIngresos' => (floatval($montoTicketsPagadosAContado + $montoTicketsTotalACredito)),
-                'montoCobrado' => floatval(($montoTicketsPagadosAContado + $montoTicketsACreditoPagado)),
-                'montoPorCobrar' => floatVal($montoTicketsACreditoPendiente)
+                'totalIngresos' => $totalIngresos,
+                'montoCobrado' => $montoCobrado,
+                'montoPorCobrar' => $montoPorCobrar
             ], 200);
         } catch (\Exception $e) {
             // Fecha no valida
@@ -291,12 +284,19 @@ class StatsController extends Controller
                 }
             }
 
-            $efectivoCred = Ticket::where('restante', '>', 0)
+            $efectivoCredPendiente = Ticket::where('restante', '>', 0)
                 ->where('tipo_credito', 'CREDITO')
                 ->where('metodo_pago', 'EFECTIVO')
                 ->where('vencido', false)
                 ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('anticipo');
+
+            $efectivoCredPagado = Ticket::where('restante', 0)
+                ->where('tipo_credito', 'CREDITO')
+                ->where('metodo_pago', 'EFECTIVO')
+                ->where('vencido', false)
+                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('total');
 
             $efectivo = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('metodo_pago', 'EFECTIVO')
@@ -304,23 +304,47 @@ class StatsController extends Controller
                 ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
+            // * Tranferencia Pagada
             $transferencia = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('metodo_pago', 'TRANSFERENCIA')
                 ->where('vencido', false)
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
+            
+            // Transferencia Anticipos (no se a pagado del todo)
+            $transferenciaAnticipos = Ticket::where('restante', '>', 0)
+                ->where('tipo_credito', 'CONTADO')
+                ->where('metodo_pago', 'TRANSFERENCIA')
+                ->where('vencido', false)
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('anticipo');
 
+            // * Tarjeta Pagada
             $tarjeta = Ticket::where('tipo_credito', 'CONTADO')
                 ->where('metodo_pago', 'TARJETA')
                 ->where('vencido', false)
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
                 ->sum('total');
 
+            // Tarjeta Anticipos
+            $tarjetaAnticipos = Ticket::where('restante', '>', 0)
+                ->where('tipo_credito', 'CONTADO')
+                ->where('metodo_pago', 'TARJETA')
+                ->where('vencido', false)
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('anticipo');
+
+            $efectivoT = (float) ($efectivo + $efectivoCredPendiente + $efectivoCredPagado);
+            $transferenciaT = (float) ($transferencia + $transferenciaAnticipos);
+            $tarjetaT = (float) ($tarjeta + $tarjetaAnticipos);
+            $montoTotal = (float) ($efectivoT + $transferenciaT + $tarjetaT);
+
             return response()->json([
                 'tickets' => $tickets,
-                'efectivo' => $efectivo + $efectivoCred,
-                'transferencia' => $transferencia,
-                'tarjeta' => $tarjeta
+                'efectivo' => $efectivoT,
+                'transferencia' => $transferenciaT,
+                'tarjeta' => $tarjetaT,
+                'montoTotal' => $montoTotal
             ]);
         } catch (\Exception $e) {
             // Fecha no valida
