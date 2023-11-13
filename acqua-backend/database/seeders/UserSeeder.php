@@ -17,8 +17,8 @@ class UserSeeder extends Seeder
     {
         User::create([
             'name' => 'Administrador',
-            'email' => 'alfa@acqua.com.mx',
-            'password' => Hash::make('acqua.alfa'),
+            'email' => 'administrador@acqua.com.mx',
+            'password' => Hash::make('Acqua.2023$'),
             'role' => 'administrador'
         ]);
     }
