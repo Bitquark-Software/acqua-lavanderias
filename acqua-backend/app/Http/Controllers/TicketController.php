@@ -157,7 +157,7 @@ class TicketController extends Controller
             'metodo_pago' => ['required', 'in:EFECTIVO,TARJETA,TRANSFERENCIA'],
             'total' => ['required', 'numeric', 'min:0'],
             'anticipo' => ['numeric', 'min:0'],
-            'status' => ['in:CREADO,LAVADO,PLANCHADO,RECONTEO,ENTREGA'],
+            'status' => ['in:CREADO,LAVADO,PLANCHADO,RECONTEO,SECADO,ENTREGA'],
             'vencido' => ['boolean'],
             'fecha_entrega' => ['nullable', 'date_format:Y-m-d H:i:s'],
             'numero_referencia' => ['nullable', 'string']

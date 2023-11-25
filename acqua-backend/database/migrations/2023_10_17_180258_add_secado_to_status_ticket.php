@@ -18,7 +18,7 @@ class AddSecadoToStatusTicket extends Migration
     public function up()
     {
         Schema::table('tickets', function (Blueprint $table) {
-            $this->changeColumnType('tickets', 'status', "enum('CREADO','LAVADO','SECADO','PLANCHADO','RECONTEO','ENTREGA')");
+            $this->changeColumnType('tickets', 'status', "enum('CREADO','LAVADO','SECADO','PLANCHADO','RECONTEO','ENTREGA') DEFAULT 'CREADO'");
         });
     }
 
@@ -30,7 +30,7 @@ class AddSecadoToStatusTicket extends Migration
     public function down()
     {
         Schema::table('tickets', function (Blueprint $table) {
-            $this->changeColumnType('tickets', 'status', "enum('CREADO','LAVADO','PLANCHADO','RECONTEO','ENTREGA')");
+            $this->changeColumnType('tickets', 'status', "enum('CREADO','LAVADO','SECADO','PLANCHADO','RECONTEO','ENTREGA')");
         });
     }
 }
