@@ -76,6 +76,20 @@ class StatsController extends Controller
 
         $ticket = Ticket::find($id_ticket);
 
+        // Desencriptado de Numero de referencia, pero solo mostrando los tres ultimos caracteres
+        if (!empty($ticket->numero_referencia)) {
+            $ticket->numero_referencia = Crypt::decrypt($ticket->numero_referencia);
+
+            // Esto sirve para mostrar solo los ultimos tres digitos de numero_referencia
+            $longitud = strlen($ticket->numero_referencia);
+            if ($longitud >= 3) {
+                $ultimosTresCaracteres = substr($ticket->numero_referencia, -3);
+                $ticket->numero_referencia = str_repeat('*', $longitud - 3) . $ultimosTresCaracteres;
+            }
+        } else {
+            $ticket->numero_referencia;
+        }
+
         // * Query de Proceso Conteo
         $conteo = Ticket::join('proceso_tickets', 'tickets.id', '=', 'proceso_tickets.id_ticket')
             ->join('procesos', 'proceso_tickets.id_proceso', '=', 'procesos.id')
@@ -191,6 +205,35 @@ class StatsController extends Controller
                 ];
             });
 
+        // * Query de Proceso de Secado
+        $secado = Ticket::join('proceso_tickets', 'tickets.id', '=', 'proceso_tickets.id_ticket')
+        ->join('procesos', 'proceso_tickets.id_proceso', '=', 'procesos.id')
+        ->join('users', 'users.id', '=', 'proceso_tickets.user_id')
+        ->select('users.name', 'proceso_tickets.timestamp_start', 'proceso_tickets.timestamp_end')
+        ->where('tickets.id', $id_ticket)
+        ->where('procesos.nombre', 'SECADO')
+        ->get();
+
+        // * Logica de Proceso de Secado
+        $resultSecado = $secado->isEmpty()
+            ? null
+            : $secado->map(function ($procesoTicket) {
+                $timestampStart = Carbon::parse($procesoTicket->timestamp_start);
+                $timestampEnd = Carbon::parse($procesoTicket->timestamp_end);
+
+                $diff = $timestampStart->diff($timestampEnd);
+
+                return [
+                    'nombre' => $procesoTicket->name,
+                    'timestamp_start' => $procesoTicket->timestamp_start,
+                    'timestamp_end' => $procesoTicket->timestamp_end,
+                    'diferencia_en_dias' => $timestampStart->diffInDays($timestampEnd),
+                    'diferencia_en_horas' => $diff->h,
+                    'diferencia_en_minutos' => $diff->i,
+                    'diferencia_en_segundos' => $diff->s,
+                ];
+            });
+
         // * Query de Proceso Entrega
         $entrega = Ticket::join('proceso_tickets', 'tickets.id', '=', 'proceso_tickets.id_ticket')
             ->join('procesos', 'proceso_tickets.id_proceso', '=', 'procesos.id')
@@ -224,6 +267,7 @@ class StatsController extends Controller
             'Ticket' => $ticket,
             'Conteo' => $resultConteo ? $resultConteo[0] : null,
             'Lavado' => $resultLavado ? $resultLavado[0] : null,
+            'Secado' => $resultSecado ? $resultSecado[0] : null,
             'Reconteo' => $resultReconteo ? $resultReconteo[0] : null,
             'Planchado' => $resultPlanchado ? $resultPlanchado[0] : null,
             'Entrega' => $resultEntrega ? $resultEntrega[0] : null
