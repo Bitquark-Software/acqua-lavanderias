@@ -518,27 +518,27 @@
         <div class="collapse-title text-xl font-medium">
           Secado - Click para ver más detalles
         </div>
-        <div class="collapse-content" *ngIf="ticketStats.Lavado"> 
+        <div class="collapse-content" *ngIf="ticketStats.Secado"> 
           <div class="w-full stats stats-vertical sm:stats-horizontal shadow">
   
             <div class="stat">
               <div class="stat-title">Días</div>
-              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_dias}}</div>
+              <div class="stat-value">{{ticketStats.Secado.diferencia_en_dias}}</div>
             </div>
             
             <div class="stat">
               <div class="stat-title">Horas</div>
-              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_horas}}</div>
+              <div class="stat-value">{{ticketStats.Secado.diferencia_en_horas}}</div>
             </div>
             
             <div class="stat">
               <div class="stat-title">Minutos</div>
-              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_minutos}}</div>
+              <div class="stat-value">{{ticketStats.Secado.diferencia_en_minutos}}</div>
             </div>
 
             <div class="stat">
               <div class="stat-title">Segundos</div>
-              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_segundos}}</div>
+              <div class="stat-value">{{ticketStats.Secado.diferencia_en_segundos}}</div>
             </div>
             
           </div>
@@ -547,12 +547,12 @@
   
             <div class="stat">
               <div class="stat-title">Atendido por</div>
-              <div class="stat-value truncate">{{ticketStats.Lavado.nombre}}</div>
+              <div class="stat-value truncate">{{ticketStats.Secado.nombre}}</div>
             </div>
 
             <div class="stat">
               <div class="stat-title">Time Track: </div>
-              <div class="stat-value truncate">{{parseTimeTrackerToTimer(ticketStats.Lavado.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(ticketStats.Lavado.timestamp_end.toLocaleString('es-MX'))}}</div>
+              <div class="stat-value truncate">{{parseTimeTrackerToTimer(ticketStats.Secado.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(ticketStats.Secado.timestamp_end.toLocaleString('es-MX'))}}</div>
             </div>
             
           </div>
