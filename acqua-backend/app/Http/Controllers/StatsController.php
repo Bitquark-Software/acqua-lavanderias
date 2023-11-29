@@ -296,7 +296,7 @@ class StatsController extends Controller
             }
 
             $tickets = Ticket::join('clientes', 'clientes.id', '=', 'tickets.id_cliente')
-                ->leftJoin('anticipo_tickets', 'anticipo_tickets.id_ticket', '=', 'tickets.id')
+                ->join('anticipo_tickets', 'anticipo_tickets.id_ticket', '=', 'tickets.id')
                 ->select(
                     'tickets.id',
                     'tickets.metodo_pago',
@@ -308,6 +308,7 @@ class StatsController extends Controller
                     'anticipo_tickets.cobrado_por'
                 )
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->distinct('anticipo_tickets.id_ticket')
                 ->get();
 
             // Desencriptar la referencia y agregarla al array $tickets
