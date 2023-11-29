@@ -31,7 +31,7 @@
           {{st.nombre_servicio}}
         </td>
         <td style="white-space: wrap; max-width:1px;">
-          ${{st.importe}}
+          {{st.importe | currency: 'MXN':'symbol-narrow':'1.2-2'}}
         </td>
         <td style="white-space: wrap; max-width:1px;">
           {{st.cantidad}}
