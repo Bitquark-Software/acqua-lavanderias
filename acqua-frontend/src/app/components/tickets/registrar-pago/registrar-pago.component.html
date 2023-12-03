@@ -19,13 +19,27 @@
     </div>
     <div class="divider">Cobro</div>
     <form *ngIf="ticket" class="w-full grid grid-cols-4 gap-3 items-center justify-center" [formGroup]="formPagos">
-        <div class="form-control col-span-4">
+        <div class="form-control col-span-4" *ngIf="metodoPago == 'EFECTIVO'">
             <label class="label">
               <span class="label-text">Anticipo del cliente</span>
             </label>
             <input type="number" min="1" placeholder="0" class="input input-bordered" formControlName="monto"/>
             <label class="label" *ngIf="monto.invalid && (monto.dirty || monto.touched)">
-              <span class="label-text-alt text-red-500">Monto no válido</span>
+              <span class="label-text-alt text-red-500">Ingrese una cantidad positiva menor o igual a {{ticket.restante}}</span>
+            </label>
+            <label class="label">
+              <span class="label-text">Pago con</span>
+            </label>
+            <input type="number" min="1" placeholder="0" class="input input-bordered" formControlName="cantidadRecibida"/>
+            <label class="label" *ngIf="cantidadRecibida.invalid && (cantidadRecibida.dirty || cantidadRecibida.touched)">
+              <span class="label-text-alt text-red-500">La cantidad a ingresar no puede ser menor a su anticipo</span>
+            </label>
+            <label class="label">
+              <span class="label-text">Cambio</span>
+            </label>
+            <input type="text" min="1" placeholder="0" class="input input-bordered" formControlName="cantidadDevuelta" readonly/>
+            <label class="label" *ngIf="cantidadDevuelta.invalid && (cantidadDevuelta.dirty || cantidadDevuelta.touched)">
+              <span class="label-text-alt text-red-500">Los datos ingresados no son valido</span>
             </label>
         </div>
         <div class="form-control col-span-4" *ngIf="metodoPago == 'TARJETA' || metodoPago == 'TRANSFERENCIA'">

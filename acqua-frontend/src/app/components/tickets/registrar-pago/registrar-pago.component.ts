@@ -37,8 +37,18 @@ export class RegistrarPagoComponent
   {
     this.ticket = ticket;
     this.formPagos = this.fb.group({
-      monto: ['', [Validators.required, Validators.min(1), Validators.max(this.ticket.restante ?? 0)]],
+      monto: ['', [Validators.required, Validators.min(1), Validators.max(this.ticket.restante ?? 1)]],
+      cantidadRecibida: ['', [Validators.required, Validators.min(1)]],
+      cantidadDevuelta: ['', [Validators.required, Validators.min(0)]],
       referencia: [''],
+    });
+    this.formPagos.controls['monto'].valueChanges.subscribe(() =>
+    {
+      this.calcularDevolucionCambio();
+    });
+    this.formPagos.controls['cantidadRecibida'].valueChanges.subscribe(() =>
+    {
+      this.calcularDevolucionCambio();
     });
   }
 
@@ -51,6 +61,38 @@ export class RegistrarPagoComponent
   get monto()
   {
     return this.formPagos.controls['monto'];
+  }
+
+  get cantidadRecibida()
+  {
+    return this.formPagos.controls['cantidadRecibida'];
+  }
+
+  get cantidadDevuelta()
+  {
+    return this.formPagos.controls['cantidadDevuelta'];
+  }
+
+  calcularDevolucionCambio()
+  {
+    const anticipo_cliente = this.monto.value;
+    const cantidad_recibida = this.cantidadRecibida.value;
+    if (!isNaN(anticipo_cliente) && !isNaN(cantidad_recibida))
+    {
+      const devolucionCambio = cantidad_recibida - anticipo_cliente;
+      if(devolucionCambio >= 0)
+      {
+        this.formPagos.controls['cantidadDevuelta'].setValue(devolucionCambio);
+      }
+      else
+      {
+        this.formPagos.controls['cantidadDevuelta'].setValue(null);
+      }
+    }
+    else
+    {
+      this.formPagos.controls['cantidadDevuelta'].setValue(null);
+    }
   }
 
   get referencia()
