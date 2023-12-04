@@ -36,26 +36,58 @@ export class RegistrarPagoComponent
   setTicket(ticket: Ticket)
   {
     this.ticket = ticket;
-    this.formPagos = this.fb.group({
-      monto: ['', [Validators.required, Validators.min(1), Validators.max(this.ticket.restante ?? 1)]],
-      cantidadRecibida: ['', [Validators.required, Validators.min(1)]],
-      cantidadDevuelta: ['', [Validators.required, Validators.min(0)]],
+    this.formPagos = this.getFormValidationForCashPaymentType();
+    this.SubscribeToFormChangesInCashPaymentType();
+  }
+
+  private getFormValidationForCashPaymentType()
+  {
+    return this.fb.group({
+      monto: ['', [
+        Validators.required,
+        Validators.min(1),
+        Validators.max(this.ticket.restante ?? 1),
+        Validators.pattern(/^[0-9]+$/)],
+      ],
+      cantidadRecibida: ['', [
+        Validators.required,
+        Validators.min(1),
+        Validators.pattern(/^[0-9]+$/),
+      ]],
+      cantidadDevuelta: ['', [
+        Validators.required,
+        Validators.min(0),
+        Validators.pattern(/^[0-9]+$/),
+      ]],
       referencia: [''],
-    });
-    this.formPagos.controls['monto'].valueChanges.subscribe(() =>
-    {
-      this.calcularDevolucionCambio();
-    });
-    this.formPagos.controls['cantidadRecibida'].valueChanges.subscribe(() =>
-    {
-      this.calcularDevolucionCambio();
     });
   }
 
-  reImprimirTickets()
+  private getFormValidationForCardPaymentType()
   {
-    // eslint-disable-next-line max-len
-    // TODO: Renderizar el componente de ticket preview, agregando los botones para imprimir ambos tickets
+    return this.fb.group({
+      monto: [''],
+      cantidadRecibida: [''],
+      cantidadDevuelta: [''],
+      referencia: ['', [
+        Validators.required,
+        Validators.minLength(10),
+        Validators.maxLength(25),
+        Validators.pattern(/^[a-zA-Z0-9]+$/),
+      ]],
+    });
+  }
+
+  private SubscribeToFormChangesInCashPaymentType()
+  {
+    this.formPagos.controls['monto'].valueChanges.subscribe(() =>
+    {
+      this.ActualizarDevolucionCambio();
+    });
+    this.formPagos.controls['cantidadRecibida'].valueChanges.subscribe(() =>
+    {
+      this.ActualizarDevolucionCambio();
+    });
   }
 
   get monto()
@@ -73,31 +105,48 @@ export class RegistrarPagoComponent
     return this.formPagos.controls['cantidadDevuelta'];
   }
 
-  calcularDevolucionCambio()
+  get referencia()
+  {
+    return this.formPagos.controls['referencia'];
+  }
+
+  ActualizarDevolucionCambio()
   {
     const anticipo_cliente = this.monto.value;
     const cantidad_recibida = this.cantidadRecibida.value;
-    if (!isNaN(anticipo_cliente) && !isNaN(cantidad_recibida))
+    const devolucion_cambio = this.calcularDevolucionCambio(anticipo_cliente, cantidad_recibida);
+    this.formPagos.controls['cantidadDevuelta'].setValue(devolucion_cambio);
+  }
+
+  calcularDevolucionCambio(anticipo_cliente = 0, cantidad_recibida = 0): number | null
+  {
+    if(anticipo_cliente > 0 && cantidad_recibida > 0)
     {
       const devolucionCambio = cantidad_recibida - anticipo_cliente;
       if(devolucionCambio >= 0)
       {
-        this.formPagos.controls['cantidadDevuelta'].setValue(devolucionCambio);
+        return devolucionCambio;
       }
-      else
-      {
-        this.formPagos.controls['cantidadDevuelta'].setValue(null);
-      }
+      return null;
     }
     else
     {
-      this.formPagos.controls['cantidadDevuelta'].setValue(null);
+      return null;
     }
   }
 
-  get referencia()
+  changeMetodoPago(metodoPago: string)
   {
-    return this.formPagos.controls['referencia'];
+    this.metodoPago = metodoPago as MetodoPago;
+    if(this.metodoPago == MetodoPago.Tarjeta || this.metodoPago == MetodoPago.Transferencia)
+    {
+      this.formPagos = this.getFormValidationForCardPaymentType();
+    }
+    else
+    {
+      this.formPagos = this.getFormValidationForCashPaymentType();
+      this.SubscribeToFormChangesInCashPaymentType();
+    }
   }
 
   agregarMonto()
@@ -124,16 +173,10 @@ export class RegistrarPagoComponent
     }
   }
 
-  changeMetodoPago(metodoPago: string)
+  reImprimirTickets()
   {
-    this.metodoPago = metodoPago as MetodoPago;
-    if(this.metodoPago == MetodoPago.Tarjeta || this.metodoPago == MetodoPago.Transferencia)
-    {
-      this.formPagos = this.fb.group({
-        monto: ['', [Validators.required, Validators.min(1), Validators.max(this.ticket.restante ?? 0)]],
-        referencia: ['', [Validators.required]],
-      });
-    }
+    // eslint-disable-next-line max-len
+    // TODO: Renderizar el componente de ticket preview, agregando los botones para imprimir ambos tickets
   }
 
 }
