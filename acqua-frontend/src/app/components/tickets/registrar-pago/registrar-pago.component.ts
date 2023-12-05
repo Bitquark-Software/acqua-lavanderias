@@ -2,6 +2,7 @@
 import { Component, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HotToastService } from '@ngneat/hot-toast';
+import { Subscription } from 'rxjs';
 import { Ticket } from 'src/app/dtos/ticket';
 import { MetodoPago } from 'src/app/enums/MetodoPago.enum';
 import { TicketService } from 'src/app/services/ticket.service';
@@ -18,6 +19,8 @@ export class RegistrarPagoComponent
   isLoading = false;
   metodoPago: MetodoPago = MetodoPago.Efectivo;
   componentParent!: ElementRef<HTMLDialogElement>;
+  private montoSub: Subscription | undefined;
+  private cantidadRecibidaSub: Subscription | undefined;
 
   constructor(
     private ticketService: TicketService,
@@ -66,9 +69,6 @@ export class RegistrarPagoComponent
   private getFormValidationForCardPaymentType()
   {
     return this.fb.group({
-      monto: [''],
-      cantidadRecibida: [''],
-      cantidadDevuelta: [''],
       referencia: ['', [
         Validators.required,
         Validators.minLength(5),
@@ -80,14 +80,26 @@ export class RegistrarPagoComponent
 
   private subscribeToFormChangesInCashPaymentType()
   {
-    this.formPagos.controls['monto'].valueChanges.subscribe(() =>
+    this.montoSub = this.formPagos.controls['monto'].valueChanges.subscribe(() =>
     {
       this.actualizarDevolucionCambio();
     });
-    this.formPagos.controls['cantidadRecibida'].valueChanges.subscribe(() =>
+    this.cantidadRecibidaSub = this.formPagos.controls['cantidadRecibida'].valueChanges.subscribe(() =>
     {
       this.actualizarDevolucionCambio();
     });
+  }
+
+  private unsubscribeToFormChangesInCashPaymentType()
+  {
+    if(this.montoSub)
+    {
+      this.montoSub.unsubscribe();
+    }
+    if(this.cantidadRecibidaSub)
+    {
+      this.cantidadRecibidaSub.unsubscribe();
+    }
   }
 
   get monto()
@@ -136,11 +148,14 @@ export class RegistrarPagoComponent
     this.metodoPago = metodoPago as MetodoPago;
     if(this.metodoPago == MetodoPago.Tarjeta || this.metodoPago == MetodoPago.Transferencia)
     {
+      // Esto evitará suscripciones acumulativas
+      this.unsubscribeToFormChangesInCashPaymentType();
       this.formPagos = this.getFormValidationForCardPaymentType();
     }
     else
     {
       this.formPagos = this.getFormValidationForCashPaymentType();
+      // Es necesario cuando el usuario alterno entre las opciones del método de pago
       this.subscribeToFormChangesInCashPaymentType();
     }
   }
