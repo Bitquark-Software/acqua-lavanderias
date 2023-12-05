@@ -146,7 +146,7 @@ export class RegistrarPagoComponent
   changeMetodoPago(metodoPago: string)
   {
     this.metodoPago = metodoPago as MetodoPago;
-    if(this.metodoPago == MetodoPago.Tarjeta || this.metodoPago == MetodoPago.Transferencia)
+    if(metodoPago == MetodoPago.Tarjeta || metodoPago == MetodoPago.Transferencia)
     {
       // Esto evitará suscripciones acumulativas
       this.unsubscribeToFormChangesInCashPaymentType();
