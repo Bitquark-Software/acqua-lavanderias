@@ -30,7 +30,7 @@ export class Ticket
   id_sucursal?: number;
   incluye_iva!: boolean;
   tipo_credito!: TipoCredito;
-  metodo_pago!: MetodoPago;
+  metodopago!: MetodoPago;
   total!: number;
   anticipo?: number;
   restante?: number;
@@ -59,7 +59,7 @@ export class ReimpimirTicket extends Ticket
 export class TicketReportePdf
 {
   id!: number;
-  metodo_pago!: MetodoPago;
+  metodopago!: MetodoPago;
   numero_referencia?: string;
   total!: number;
   anticipo?: number;

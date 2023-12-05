@@ -82,7 +82,8 @@ class TicketController extends Controller
                 'metodopago' => $ticket->metodo_pago,
                 'id_ticket' => $ticket->id,
                 'cobrado_por' => $request->user()->id,
-                'numero_referencia' => $numeroTarjetaCifrado
+                'numero_referencia' => $numeroTarjetaCifrado,
+                'restante' => $restante
             ]);
         }
 

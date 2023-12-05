@@ -22,13 +22,19 @@ class AnticiposTicketsController extends Controller
             'anticipo' => ['required', 'numeric', 'min:0'],
             'metodopago' => ['required', 'in:EFECTIVO,TARJETA,TRANSFERENCIA'],
             'id_ticket' => ['required', 'exists:tickets,id'],
-            'numero_referencia' => ['nullable', 'string', 'min:5']
+            'numero_referencia' => ['nullable', 'string', 'min:5'],
+            'restante' => ['nullable']
         ]);
 
         Log::info($request->metodopago);
 
         // Actualizar el ticket
         $ticket = Ticket::where('id', $request->id_ticket)->first();
+
+        $total_anticipos = AnticipoTicket::where('id_ticket', $ticket->id)->sum('anticipo');
+        $total_anticipos += $request->anticipo;
+
+        $restante = $ticket->total - $total_anticipos;
 
         if(!$ticket)
         {
@@ -55,7 +61,8 @@ class AnticiposTicketsController extends Controller
             'metodopago' => $request->metodopago,
             'id_ticket' => $request->id_ticket,
             'cobrado_por' => $request->user()->id,
-            'numero_referencia' => $numeroTarjetaCifrado
+            'numero_referencia' => $numeroTarjetaCifrado,
+            'restante' => $restante
         ]);
 
         if($ticket->tipo_credito == 'CREDITO')
