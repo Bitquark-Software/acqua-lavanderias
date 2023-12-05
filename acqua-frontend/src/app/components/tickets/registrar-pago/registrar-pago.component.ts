@@ -71,7 +71,7 @@ export class RegistrarPagoComponent
       cantidadDevuelta: [''],
       referencia: ['', [
         Validators.required,
-        Validators.minLength(10),
+        Validators.minLength(5),
         Validators.maxLength(25),
         Validators.pattern(/^[a-zA-Z0-9]+$/),
       ]],
