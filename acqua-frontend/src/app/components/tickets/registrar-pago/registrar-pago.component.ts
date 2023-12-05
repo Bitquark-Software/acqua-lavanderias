@@ -127,12 +127,8 @@ export class RegistrarPagoComponent
       {
         return devolucionCambio;
       }
-      return null;
     }
-    else
-    {
-      return null;
-    }
+    return null;
   }
 
   changeMetodoPago(metodoPago: string)
