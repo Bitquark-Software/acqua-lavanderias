@@ -25,7 +25,7 @@
             </label>
             <input type="number" min="1" placeholder="0" class="input input-bordered" formControlName="monto"/>
             <label class="label" *ngIf="monto.invalid && (monto.dirty || monto.touched)">
-              <span class="label-text-alt text-red-500">Ingrese una cantidad positiva menor o igual a {{ticket.restante}}</span>
+              <span class="label-text-alt text-red-500">El monto tiene que ser menor o igual a {{ticket.restante}}</span>
             </label>
             <label class="label">
               <span class="label-text">Pago con</span>
@@ -39,7 +39,7 @@
             </label>
             <input type="text" min="1" placeholder="0" class="input input-bordered" formControlName="cantidadDevuelta" readonly/>
             <label class="label" *ngIf="cantidadDevuelta.invalid && (cantidadDevuelta.dirty || cantidadDevuelta.touched)">
-              <span class="label-text-alt text-red-500">Los datos ingresados no son valido</span>
+              <span class="label-text-alt text-red-500">Los datos ingresados no son válidos</span>
             </label>
         </div>
         <div class="form-control col-span-4" *ngIf="metodoPago == 'TARJETA' || metodoPago == 'TRANSFERENCIA'">
