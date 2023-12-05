@@ -37,7 +37,7 @@ export class RegistrarPagoComponent
   {
     this.ticket = ticket;
     this.formPagos = this.getFormValidationForCashPaymentType();
-    this.SubscribeToFormChangesInCashPaymentType();
+    this.subscribeToFormChangesInCashPaymentType();
   }
 
   private getFormValidationForCashPaymentType()
@@ -78,15 +78,15 @@ export class RegistrarPagoComponent
     });
   }
 
-  private SubscribeToFormChangesInCashPaymentType()
+  private subscribeToFormChangesInCashPaymentType()
   {
     this.formPagos.controls['monto'].valueChanges.subscribe(() =>
     {
-      this.ActualizarDevolucionCambio();
+      this.actualizarDevolucionCambio();
     });
     this.formPagos.controls['cantidadRecibida'].valueChanges.subscribe(() =>
     {
-      this.ActualizarDevolucionCambio();
+      this.actualizarDevolucionCambio();
     });
   }
 
@@ -110,7 +110,7 @@ export class RegistrarPagoComponent
     return this.formPagos.controls['referencia'];
   }
 
-  ActualizarDevolucionCambio()
+  actualizarDevolucionCambio()
   {
     const anticipo_cliente = this.monto.value;
     const cantidad_recibida = this.cantidadRecibida.value;
@@ -145,7 +145,7 @@ export class RegistrarPagoComponent
     else
     {
       this.formPagos = this.getFormValidationForCashPaymentType();
-      this.SubscribeToFormChangesInCashPaymentType();
+      this.subscribeToFormChangesInCashPaymentType();
     }
   }
 
