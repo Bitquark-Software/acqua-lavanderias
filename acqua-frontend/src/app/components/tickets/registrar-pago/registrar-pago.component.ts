@@ -2,6 +2,7 @@
 import { Component, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HotToastService } from '@ngneat/hot-toast';
+import { Subscription } from 'rxjs';
 import { Ticket } from 'src/app/dtos/ticket';
 import { MetodoPago } from 'src/app/enums/MetodoPago.enum';
 import { TicketService } from 'src/app/services/ticket.service';
@@ -18,6 +19,8 @@ export class RegistrarPagoComponent
   isLoading = false;
   metodoPago: MetodoPago = MetodoPago.Efectivo;
   componentParent!: ElementRef<HTMLDialogElement>;
+  private montoSub: Subscription | undefined;
+  private cantidadRecibidaSub: Subscription | undefined;
 
   constructor(
     private ticketService: TicketService,
@@ -36,16 +39,67 @@ export class RegistrarPagoComponent
   setTicket(ticket: Ticket)
   {
     this.ticket = ticket;
-    this.formPagos = this.fb.group({
-      monto: ['', [Validators.required, Validators.min(1), Validators.max(this.ticket.restante ?? 0)]],
+    this.formPagos = this.getFormValidationForCashPaymentType();
+    this.subscribeToFormChangesInCashPaymentType();
+  }
+
+  private getFormValidationForCashPaymentType()
+  {
+    return this.fb.group({
+      monto: ['', [
+        Validators.required,
+        Validators.min(1),
+        Validators.max(this.ticket.restante ?? 1),
+        Validators.pattern(/^[0-9]+$/)],
+      ],
+      cantidadRecibida: ['', [
+        Validators.required,
+        Validators.min(1),
+        Validators.pattern(/^[0-9]+$/),
+      ]],
+      cantidadDevuelta: ['', [
+        Validators.required,
+        Validators.min(0),
+        Validators.pattern(/^[0-9]+$/),
+      ]],
       referencia: [''],
     });
   }
 
-  reImprimirTickets()
+  private getFormValidationForCardPaymentType()
   {
-    // eslint-disable-next-line max-len
-    // TODO: Renderizar el componente de ticket preview, agregando los botones para imprimir ambos tickets
+    return this.fb.group({
+      referencia: ['', [
+        Validators.required,
+        Validators.minLength(5),
+        Validators.maxLength(25),
+        Validators.pattern(/^[a-zA-Z0-9]+$/),
+      ]],
+    });
+  }
+
+  private subscribeToFormChangesInCashPaymentType()
+  {
+    this.montoSub = this.formPagos.controls['monto'].valueChanges.subscribe(() =>
+    {
+      this.actualizarDevolucionCambio();
+    });
+    this.cantidadRecibidaSub = this.formPagos.controls['cantidadRecibida'].valueChanges.subscribe(() =>
+    {
+      this.actualizarDevolucionCambio();
+    });
+  }
+
+  private unsubscribeToFormChangesInCashPaymentType()
+  {
+    if(this.montoSub)
+    {
+      this.montoSub.unsubscribe();
+    }
+    if(this.cantidadRecibidaSub)
+    {
+      this.cantidadRecibidaSub.unsubscribe();
+    }
   }
 
   get monto()
@@ -53,9 +107,57 @@ export class RegistrarPagoComponent
     return this.formPagos.controls['monto'];
   }
 
+  get cantidadRecibida()
+  {
+    return this.formPagos.controls['cantidadRecibida'];
+  }
+
+  get cantidadDevuelta()
+  {
+    return this.formPagos.controls['cantidadDevuelta'];
+  }
+
   get referencia()
   {
     return this.formPagos.controls['referencia'];
+  }
+
+  actualizarDevolucionCambio()
+  {
+    const anticipo_cliente = this.monto.value;
+    const cantidad_recibida = this.cantidadRecibida.value;
+    const devolucion_cambio = this.calcularDevolucionCambio(anticipo_cliente, cantidad_recibida);
+    this.formPagos.controls['cantidadDevuelta'].setValue(devolucion_cambio);
+  }
+
+  calcularDevolucionCambio(anticipo_cliente = 0, cantidad_recibida = 0): number | null
+  {
+    if(anticipo_cliente > 0 && cantidad_recibida > 0)
+    {
+      const devolucionCambio = cantidad_recibida - anticipo_cliente;
+      if(devolucionCambio >= 0)
+      {
+        return devolucionCambio;
+      }
+    }
+    return null;
+  }
+
+  changeMetodoPago(metodoPago: string)
+  {
+    this.metodoPago = metodoPago as MetodoPago;
+    if(metodoPago == MetodoPago.Tarjeta || metodoPago == MetodoPago.Transferencia)
+    {
+      // Esto evitará suscripciones acumulativas
+      this.unsubscribeToFormChangesInCashPaymentType();
+      this.formPagos = this.getFormValidationForCardPaymentType();
+    }
+    else
+    {
+      this.formPagos = this.getFormValidationForCashPaymentType();
+      // Es necesario cuando el usuario alterno entre las opciones del método de pago
+      this.subscribeToFormChangesInCashPaymentType();
+    }
   }
 
   agregarMonto()
@@ -82,16 +184,10 @@ export class RegistrarPagoComponent
     }
   }
 
-  changeMetodoPago(metodoPago: string)
+  reImprimirTickets()
   {
-    this.metodoPago = metodoPago as MetodoPago;
-    if(this.metodoPago == MetodoPago.Tarjeta || this.metodoPago == MetodoPago.Transferencia)
-    {
-      this.formPagos = this.fb.group({
-        monto: ['', [Validators.required, Validators.min(1), Validators.max(this.ticket.restante ?? 0)]],
-        referencia: ['', [Validators.required]],
-      });
-    }
+    // eslint-disable-next-line max-len
+    // TODO: Renderizar el componente de ticket preview, agregando los botones para imprimir ambos tickets
   }
 
 }
