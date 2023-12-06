@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Ticket;
+use App\Models\AnticipoTicket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
@@ -207,12 +208,12 @@ class StatsController extends Controller
 
         // * Query de Proceso de Secado
         $secado = Ticket::join('proceso_tickets', 'tickets.id', '=', 'proceso_tickets.id_ticket')
-        ->join('procesos', 'proceso_tickets.id_proceso', '=', 'procesos.id')
-        ->join('users', 'users.id', '=', 'proceso_tickets.user_id')
-        ->select('users.name', 'proceso_tickets.timestamp_start', 'proceso_tickets.timestamp_end')
-        ->where('tickets.id', $id_ticket)
-        ->where('procesos.nombre', 'SECADO')
-        ->get();
+            ->join('procesos', 'proceso_tickets.id_proceso', '=', 'procesos.id')
+            ->join('users', 'users.id', '=', 'proceso_tickets.user_id')
+            ->select('users.name', 'proceso_tickets.timestamp_start', 'proceso_tickets.timestamp_end')
+            ->where('tickets.id', $id_ticket)
+            ->where('procesos.nombre', 'SECADO')
+            ->get();
 
         // * Logica de Proceso de Secado
         $resultSecado = $secado->isEmpty()
@@ -296,18 +297,19 @@ class StatsController extends Controller
             }
 
             $tickets = Ticket::join('clientes', 'clientes.id', '=', 'tickets.id_cliente')
-                ->leftJoin('anticipo_tickets', 'anticipo_tickets.id_ticket', '=', 'tickets.id')
+                ->join('anticipo_tickets', 'anticipo_tickets.id_ticket', '=', 'tickets.id')
                 ->select(
                     'tickets.id',
-                    'tickets.metodo_pago',
-                    'tickets.numero_referencia',
+                    'anticipo_tickets.metodopago',
+                    'anticipo_tickets.numero_referencia',
                     'tickets.total',
-                    'tickets.anticipo',
-                    'tickets.restante',
+                    'anticipo_tickets.anticipo',
+                    'anticipo_tickets.restante',
                     'clientes.nombre',
                     'anticipo_tickets.cobrado_por'
                 )
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->distinct('anticipo_tickets.id_ticket')
                 ->get();
 
             // Desencriptar la referencia y agregarla al array $tickets
@@ -328,58 +330,69 @@ class StatsController extends Controller
                 }
             }
 
-            $efectivoCredPendiente = Ticket::where('restante', '>', 0)
-                ->where('tipo_credito', 'CREDITO')
-                ->where('metodo_pago', 'EFECTIVO')
-                ->where('vencido', false)
-                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('anticipo');
-
-            $efectivoCredPagado = Ticket::where('restante', 0)
-                ->where('tipo_credito', 'CREDITO')
-                ->where('metodo_pago', 'EFECTIVO')
-                ->where('vencido', false)
-                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('total');
-
-            $efectivo = Ticket::where('tipo_credito', 'CONTADO')
-                ->where('metodo_pago', 'EFECTIVO')
-                ->where('vencido', false)
-                ->whereBetween('created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('total');
-
-            // * Tranferencia Pagada
-            $transferencia = Ticket::where('tipo_credito', 'CONTADO')
-                ->where('metodo_pago', 'TRANSFERENCIA')
-                ->where('vencido', false)
+            $efectivoCredPendiente = AnticipoTicket::join('tickets', 'tickets.id', '=', 'anticipo_tickets.id_ticket')
+                ->where('anticipo_tickets.restante', '>', 0)
+                ->where('tickets.tipo_credito', 'CREDITO')
+                ->where('anticipo_tickets.metodopago', 'EFECTIVO')
+                ->where('tickets.vencido', false)
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('total');
-            
-            // Transferencia Anticipos (no se a pagado del todo)
-            $transferenciaAnticipos = Ticket::where('restante', '>', 0)
-                ->where('tipo_credito', 'CONTADO')
-                ->where('metodo_pago', 'TRANSFERENCIA')
-                ->where('vencido', false)
-                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('anticipo');
+                ->sum('anticipo_tickets.anticipo');
 
-            // * Tarjeta Pagada
-            $tarjeta = Ticket::where('tipo_credito', 'CONTADO')
-                ->where('metodo_pago', 'TARJETA')
-                ->where('vencido', false)
+            $efectivoCredPagado = AnticipoTicket::join('tickets', 'tickets.id', '=', 'anticipo_tickets.id_ticket')
+                ->where('anticipo_tickets.restante', 0)
+                ->where('tickets.tipo_credito', 'CREDITO')
+                ->where('anticipo_tickets.metodopago', 'EFECTIVO')
+                ->where('tickets.vencido', false)
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('total');
+                ->sum('anticipo_tickets.anticipo');
 
-            // Tarjeta Anticipos
-            $tarjetaAnticipos = Ticket::where('restante', '>', 0)
-                ->where('tipo_credito', 'CONTADO')
-                ->where('metodo_pago', 'TARJETA')
-                ->where('vencido', false)
+            $efectivo = AnticipoTicket::join('tickets', 'tickets.id', '=', 'anticipo_tickets.id_ticket')
+                ->where('tickets.tipo_credito', 'CONTADO')
+                ->where('anticipo_tickets.metodopago', 'EFECTIVO')
+                ->where('tickets.vencido', false)
                 ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
-                ->sum('anticipo');
+                ->sum('tickets.total');
+
+            $transferencia = AnticipoTicket::join('tickets', 'tickets.id', '=', 'anticipo_tickets.id_ticket')
+                ->where('tickets.tipo_credito', 'CONTADO')
+                ->where('anticipo_tickets.metodopago', 'TRANSFERENCIA')
+                ->where('tickets.vencido', false)
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('tickets.total');
+
+            $transferenciaAnticipos = AnticipoTicket::join('tickets', 'tickets.id', '=', 'anticipo_tickets.id_ticket')
+                ->where('anticipo_tickets.restante', '>', 0)
+                ->where('tickets.tipo_credito', 'CONTADO')
+                ->where('anticipo_tickets.metodopago', 'TRANSFERENCIA')
+                ->where('tickets.vencido', false)
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('anticipo_tickets.anticipo');
+
+            $transferenciaAnticiposX = AnticipoTicket::join('tickets', 'tickets.id', '=', 'anticipo_tickets.id_ticket')
+                ->where('anticipo_tickets.restante', '>=' , 0)
+                ->where('tickets.tipo_credito', 'CREDITO')
+                ->where('anticipo_tickets.metodopago', 'TRANSFERENCIA')
+                ->where('tickets.vencido', false)
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('anticipo_tickets.anticipo');
+
+            $tarjeta = AnticipoTicket::join('tickets', 'tickets.id', '=', 'anticipo_tickets.id_ticket')
+                ->where('tickets.tipo_credito', 'CONTADO')
+                ->where('anticipo_tickets.metodopago', 'TARJETA')
+                ->where('tickets.vencido', false)
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('tickets.total');
+
+            $tarjetaAnticipos = AnticipoTicket::join('tickets', 'tickets.id', '=', 'anticipo_tickets.id_ticket')
+                ->where('anticipo_tickets.restante', '>', 0)
+                ->whereIn('tickets.tipo_credito', ['CONTADO','CREDITO'])
+                ->where('anticipo_tickets.metodopago', 'TARJETA')
+                ->where('tickets.vencido', false)
+                ->whereBetween('tickets.created_at', [$inicioFechaConsulta, $finFechaConsulta])
+                ->sum('anticipo_tickets.anticipo');
 
             $efectivoT = (float) ($efectivo + $efectivoCredPendiente + $efectivoCredPagado);
-            $transferenciaT = (float) ($transferencia + $transferenciaAnticipos);
+            $transferenciaT = (float) ($transferencia + $transferenciaAnticipos + $transferenciaAnticiposX);
             $tarjetaT = (float) ($tarjeta + $tarjetaAnticipos);
             $montoTotal = (float) ($efectivoT + $transferenciaT + $tarjetaT);
 

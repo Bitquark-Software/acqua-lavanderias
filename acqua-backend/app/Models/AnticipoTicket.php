@@ -14,7 +14,8 @@ class AnticipoTicket extends Model
         'anticipo',
         'metodopago',
         'cobrado_por',
-        'numero_referencia'
+        'numero_referencia',
+        'restante'
     ];
 
     public function ticket()
