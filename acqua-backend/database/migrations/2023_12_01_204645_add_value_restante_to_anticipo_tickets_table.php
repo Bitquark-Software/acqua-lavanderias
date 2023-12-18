@@ -19,7 +19,7 @@ class AddValueRestanteToAnticipoTicketsTable extends Migration
             $anticipoTickets = DB::table('anticipo_tickets')->where('restante', 0.00)->get();
         
             // Obtener todos los totales de los tickets de una sola vez (evitara demasiadas consultas de Eloquent)
-            $totals = DB::table('Tickets')->pluck('total', 'id');
+            $totals = DB::table('tickets')->pluck('total', 'id');
 
             /* 
                 Agrupar los anticipos por id_ticket
