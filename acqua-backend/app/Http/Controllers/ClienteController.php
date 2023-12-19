@@ -141,13 +141,15 @@ class ClienteController extends Controller
         $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'unique:clientes'],
-            'telefono' => ['required', 'string', 'max:15', 'not_regex:/[^0-9\-]/']
+            'telefono' => ['required', 'string', 'max:15', 'not_regex:/[^0-9\-]/'],
+            'id_sucursal' => ['nullable', 'exists:sucursales,id']
         ]);
 
         $cliente = Cliente::create([
             'nombre' => Str::title($request->nombre),
             'email' => $request->email,
-            'telefono' => $request->telefono
+            'telefono' => $request->telefono,
+            'id_sucursal' => $request->id_sucursal
         ]);
 
         return response()->json([
@@ -164,7 +166,7 @@ class ClienteController extends Controller
      */
     public function show($id)
     {
-        return Cliente::with('direccion')->find($id);
+        return Cliente::with('direccion', 'sucursal')->find($id);
     }
 
     /**
@@ -179,14 +181,16 @@ class ClienteController extends Controller
         $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'email' => ['nullable'],
-            'telefono' => ['required', 'string', 'max:15', 'not_regex:/[^0-9\-]/']
+            'telefono' => ['required', 'string', 'max:15', 'not_regex:/[^0-9\-]/'],
+            'id_sucursal' => ['nullable', 'exists:sucursales,id']
         ]);
 
         $cliente = Cliente::findOrFail($id);
         $cliente->update([
             'nombre' => Str::title($request->nombre),
             'email' => $request->email,
-            'telefono' => $request->telefono
+            'telefono' => $request->telefono,
+            'id_sucursal' => $request->id_sucursal
         ]);
 
         return response()->json([

@@ -37,11 +37,13 @@ class SecadoraController extends Controller
         $nombreSecadora = 'DEFAULT SECADORA ' . $siguienteId;
 
         $request->validate([ // No es requerido por que tiene un nombre por default
-            'nombre' => ['string', 'max:80']
+            'nombre' => ['string', 'max:80'],
+            'id_sucursal' => ['nullable', 'exists:sucursales,id']
         ]);
 
         $secadora = Secadora::create([
-            'nombre' => Str::upper($request->input('nombre', $nombreSecadora))
+            'nombre' => Str::upper($request->input('nombre', $nombreSecadora)),
+            'id_sucursal' => $request->id_sucursal
         ]);
 
         return response()->json([
@@ -58,7 +60,7 @@ class SecadoraController extends Controller
      */
     public function show($id)
     {
-        return Secadora::find($id);
+        return Secadora::with('sucursal')->find($id);
     }
 
     /**
@@ -71,12 +73,14 @@ class SecadoraController extends Controller
     public function update(Request $request, $id) : JsonResponse
     {
         $request->validate([
-            'nombre' => ['string', 'max:80']
+            'nombre' => ['string', 'max:80'],
+            'id_sucursal' => ['nullable', 'exists:sucursales,id']
         ]);
 
         $secadora = Secadora::findOrFail($id);
         $secadora->update([
-            'nombre' => Str::upper($request->nombre)
+            'nombre' => Str::upper($request->nombre),
+            'id_sucursal' => $request->id_sucursal
         ]);
 
         return response()->json([
