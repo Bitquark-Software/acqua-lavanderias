@@ -12,7 +12,8 @@ class Cliente extends Model
     protected $fillable = [
         'nombre',
         'email',
-        'telefono'
+        'telefono',
+        'id_sucursal'
     ];
 
     public function direccion()
@@ -23,5 +24,10 @@ class Cliente extends Model
     public function tickets()
     {
         return $this->hasMany(Ticket::class, 'id_cliente');
+    }
+
+    public function sucursal()
+    {
+        return $this->belongsTo(Sucursal::class, 'id_sucursal');
     }
 }
