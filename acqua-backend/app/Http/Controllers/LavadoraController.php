@@ -37,11 +37,13 @@ class LavadoraController extends Controller
         $nombreLavadora = 'DEFAULT LAVADORA ' . $siguienteId;
 
         $request->validate([ // No es requerido por que tiene un nombre por default
-            'nombre' => ['string', 'max:80']
+            'nombre' => ['string', 'max:80'],
+            'id_sucursal' => ['nullable', 'exists:sucursales,id']
         ]);
 
         $lavadora = Lavadora::create([
-            'nombre' => Str::upper($request->input('nombre', $nombreLavadora))
+            'nombre' => Str::upper($request->input('nombre', $nombreLavadora)),
+            'id_sucursal' => $request->input('id_sucursal')
         ]);
 
         return response()->json([
@@ -58,7 +60,7 @@ class LavadoraController extends Controller
      */
     public function show($id)
     {
-        return Lavadora::find($id);
+        return Lavadora::with('sucursal')->find($id);
     }
 
     /**
@@ -71,12 +73,14 @@ class LavadoraController extends Controller
     public function update(Request $request, $id) : JsonResponse
     {
         $request->validate([
-            'nombre' => ['string', 'max:80']
-        ]);
+            'nombre' => ['string', 'max:80'],
+            'id_sucursal' => ['nullable', 'exists:sucursales,id'] 
+        ]); 
 
         $lavadora = Lavadora::findOrFail($id);
         $lavadora->update([
-            'nombre' => Str::upper($request->nombre)
+            'nombre' => Str::upper($request->nombre),
+            'id_sucursal' => $request->id_sucursal
         ]);
 
         return response()->json([

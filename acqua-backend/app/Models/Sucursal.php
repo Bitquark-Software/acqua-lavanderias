@@ -19,4 +19,19 @@ class Sucursal extends Model
     {
         return $this->hasMany(Ticket::class, 'id_sucursal');
     }
+
+    public function lavadoras()
+    {
+        return $this->hasMany(Lavadora::class, 'id_sucursal');
+    }
+
+    public function secadoras()
+    {
+        return $this->hasMany(Secadora::class, 'id_sucursal');
+    }
+
+    public function clientes()
+    {
+        return $this->hasMany(Cliente::class, 'id_sucursal');
+    }
 }
