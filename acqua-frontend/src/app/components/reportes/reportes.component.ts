@@ -145,6 +145,11 @@ export class ReportesComponent
     link.remove();
   }
 
+  showFutureFeatureMessage()
+  {
+    this.toast.info('Seguimos trabajando en esta caracteristica para mejorar tu experiencia');
+  }
+
   setDateRangePickerText()
   {
     const startDate = this.datesForm.controls['start'].value;

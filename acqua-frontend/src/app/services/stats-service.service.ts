@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth-service.service';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { TicketStats } from '../dtos/ticket-stats';
 import { API_URL } from '../environments/develop';
 import { PDFReporteStats, ReporteStats, UsuariosReporteStats } from '../dtos/reporte-stats';
@@ -61,9 +61,6 @@ export class StatsService
     {
       url = `${API_URL}/${this.subpath}/reporte-general-ventas?fecha_inicio=${start}&fecha_fin=${end}`;
     }
-    console.log('========= this.authService.getHeaders() ========');
-    console.log(this.authService.getHeaders());
-
     return this.httpClient.get<PDFReporteStats>(url, { headers: this.authService.getHeaders() });
   }
 
