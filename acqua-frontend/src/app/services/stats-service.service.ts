@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { TicketStats } from '../dtos/ticket-stats';
 import { API_URL } from '../environments/develop';
 import { PDFReporteStats, ReporteStats, UsuariosReporteStats } from '../dtos/reporte-stats';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -60,7 +61,21 @@ export class StatsService
     {
       url = `${API_URL}/${this.subpath}/reporte-general-ventas?fecha_inicio=${start}&fecha_fin=${end}`;
     }
-
     return this.httpClient.get<PDFReporteStats>(url, { headers: this.authService.getHeaders() });
   }
+
+  getReportPDF(start?: string, end?: string): Observable<string>
+  {
+    let url = `${API_URL}/${this.subpath}/reporte-general-ventas-pdf`;
+    const body = { fecha_inicio: start, fecha_fin: end };
+
+    if(start && end)
+    {
+      url = `${API_URL}/${this.subpath}/reporte-general-ventas-pdf`;
+      return this.httpClient.post<string>(url, body, { headers: this.authService.getHeaders() });
+    }
+
+    return this.httpClient.post<string>(url, {}, { headers: this.authService.getHeaders() });
+  }
+
 }

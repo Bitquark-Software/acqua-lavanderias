@@ -73,6 +73,15 @@ export class AuthService
     });
   }
 
+  getFileHeaders()
+  {
+    return new HttpHeaders({
+      'Access-Control-Allow-Origin': '*',
+      Authorization: `Bearer ${this.session?.access_token}`,
+      Accept: 'application/pdf',
+    });
+  }
+
   getPerfil(id: number)
   {
     return this.httpClient.get(

@@ -482,11 +482,11 @@ class StatsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
-     * 
+     *
      * * Funciones usadas dentro de repGenVentPdf
      * @see statsController::reportGenVent($request)
      * @see statsController::generateReport($request)
-     * 
+     *
      * @see statsController::InformVentCategorias($Finicio, $Ffin)
      * @see statsController::InformVentSucursales($Finicio, $Ffin)
      */
@@ -554,7 +554,7 @@ class StatsController extends Controller
         foreach ($periodo as $fecha) {
             if ($fecha->isHoliday()) { // Verifica si los dias agregados anteriormente
                 $dias_festibos++;
-            } else if (!$fecha->isWeekend()) {
+            } elseif (!$fecha->isWeekend()) {
                 $dias_habiles++;
             }
         }
@@ -579,7 +579,7 @@ class StatsController extends Controller
         $resultados2 = $this->InformVentSucursales($request->fecha_inicio, $request->fecha_fin);
 
         $pdf = app('dompdf.wrapper');
-        $html = "
+        $html = '
             <style>
                 p {
                     text-align: center;
@@ -618,110 +618,114 @@ class StatsController extends Controller
                 .bordestd {
                     border-bottom: 1px solid rgb(86, 197, 252);
                 }
-            </style>";
+            </style>';
 
         $html .= "<h1 class='texto verdeBag'>Reporte General de Ventas</h1>";
-        $html .= "<p class='alinear-derecha negrita'>Dias Festivos:" . $dias_festibos . "</p>";
-        $html .= "<p class='alinear-derecha'>Periodo: " . $fecha_inicio->format('Y-m-d') . " - " . $fecha_fin->format('Y-m-d') . "</p>";
+        $html .= "<p class='alinear-derecha negrita'>Dias Festivos:" . $dias_festibos . '</p>';
+        $html .= "<p class='alinear-derecha'>Periodo: " . $fecha_inicio->format('Y-m-d') . ' - ' . $fecha_fin->format('Y-m-d') . '</p>';
         $html .= "<h5 class='negrita texto'>INFORME GENERAL DE VENTAS</h5>";
 
-        $html .= "<table>"; // Tabla Principal de Informe General de Ventas
+        $html .= '<table>'; // Tabla Principal de Informe General de Ventas
 
-        $html .= "<tr>";
-        $html .= "<td class='negrita'>" . "Importe de Ventas: " . "</td>";
-        $html .= "<td class='bordestd texto'>$ " . $datos2['montoCobrado'] . "</td>";
+        $html .= '<tr>';
+        $html .= "<td class='negrita'>" . 'Importe de Ventas: ' . '</td>';
+        $html .= "<td class='bordestd texto'>$ " . $datos2['montoCobrado'] . '</td>';
 
-        $html .= "<tr>";
-        $html .= "<td class='negrita'>" . "Ingresos Totales: " . "</td>";
-        $html .= "<td class='bordestd texto'>$ " . $datos2['totalIngresos'] . "</td>";
+        $html .= '<tr>';
+        $html .= "<td class='negrita'>" . 'Ingresos Totales: ' . '</td>';
+        $html .= "<td class='bordestd texto'>$ " . $datos2['totalIngresos'] . '</td>';
 
         // * Aqui va la parte de totales en forma de pago
-        $html .= "<tr>";
-        $html .= "<td class='texto'>" . "Efectivo" . "</td>";
-        $html .= "<td>$ " . $datos['efectivo'] . "</td>";
-        $html .= "<td class='texto negrita'>" . "Venta Diaria Promedio: " . "</td>";
+        $html .= '<tr>';
+        $html .= "<td class='texto'>" . 'Efectivo' . '</td>';
+        $html .= '<td>$ ' . $datos['efectivo'] . '</td>';
+        $html .= "<td class='texto negrita'>" . 'Venta Diaria Promedio: ' . '</td>';
 
-        $html .= "<tr>";
-        $html .= "<td class='texto'>" . "Transferencia" . "</td>";
-        $html .= "<td> $" . $datos['transferencia'] . "</td>";
-        $html .= "<td class='texto'>" . $venta_diaria_promedio . "</td>";
+        $html .= '<tr>';
+        $html .= "<td class='texto'>" . 'Transferencia' . '</td>';
+        $html .= '<td> $' . $datos['transferencia'] . '</td>';
+        $html .= "<td class='texto'>" . $venta_diaria_promedio . '</td>';
 
-        $html .= "<tr>";
-        $html .= "<td class='texto'>" . "Tarjeta" . "</td>";
-        $html .= "<td> $" . $datos['tarjeta'] . "</td>";
-        $html .= "<td class='texto negrita'>" . "Ticket Promedio: " . "</td>";
+        $html .= '<tr>';
+        $html .= "<td class='texto'>" . 'Tarjeta' . '</td>';
+        $html .= '<td> $' . $datos['tarjeta'] . '</td>';
+        $html .= "<td class='texto negrita'>" . 'Ticket Promedio: ' . '</td>';
         // * Aqui va la parte de totales en forma de pago
 
-        $html .= "<tr>";
-        $html .= "<td class='negrita'>" . "Por Cobrar: " . "</td>";
-        $html .= "<td class='bordestd texto'>$ " . $datos2['montoPorCobrar'] . "</td>";
-        $html .= "<td class='texto'> $ " . $ticketProm . "</td>";
+        $html .= '<tr>';
+        $html .= "<td class='negrita'>" . 'Por Cobrar: ' . '</td>';
+        $html .= "<td class='bordestd texto'>$ " . $datos2['montoPorCobrar'] . '</td>';
+        $html .= "<td class='texto'> $ " . $ticketProm . '</td>';
 
-        $html .= "<tr>";
-        $html .= "<td class='negrita'>" . "Dia de Mayor Venta: " . "</td>";
-        $html .= "<td class='bordestd texto'>" . $fecha_max_venta . "</td>";
+        $html .= '<tr>';
+        $html .= "<td class='negrita'>" . 'Dia de Mayor Venta: ' . '</td>';
+        $html .= "<td class='bordestd texto'>" . $fecha_max_venta . '</td>';
 
-        $html .= "<tr>";
-        $html .= "<td class='negrita'>" . "Dia de Menor Venta: " . "</td>";
-        $html .= "<td class='bordestd texto'>" . $fecha_min_venta . "</td>";
+        $html .= '<tr>';
+        $html .= "<td class='negrita'>" . 'Dia de Menor Venta: ' . '</td>';
+        $html .= "<td class='bordestd texto'>" . $fecha_min_venta . '</td>';
 
-        $html .= "<tr>";
-        $html .= "<td class='negrita'>" . "Total e Tickets: " . "</td>";
-        $html .= "<td class='bordestd texto'>" . $idSinRep . "</td>";
+        $html .= '<tr>';
+        $html .= "<td class='negrita'>" . 'Total e Tickets: ' . '</td>';
+        $html .= "<td class='bordestd texto'>" . $idSinRep . '</td>';
 
-        $html .= "</table>";
+        $html .= '</table>';
 
         $html .= "<h5 class='negrita texto'>INFORME DE VENTAS POR CATEGORÍAS</h5>";
 
-        $html .= "<table>"; // Tabla Informe Ventas por Catalogo(categorias)
-        $html .= "<tr>";
-        $html .= "<th>" . "Punto de Venta: " . "</th>";
-        $html .= "<th>" . "Importes" . "</th>";
-        $html .= "<th>" . "%" . "</th>";
-        $html .= "</tr>";
+        $html .= '<table>'; // Tabla Informe Ventas por Catalogo(categorias)
+        $html .= '<tr>';
+        $html .= '<th>' . 'Punto de Venta: ' . '</th>';
+        $html .= '<th>' . 'Importes' . '</th>';
+        $html .= '<th>' . '%' . '</th>';
+        $html .= '</tr>';
 
         if (empty($resultados)) {
             $html .= '<tr>';
-            $html .= "<td>Sin resultados que mostrar</td>";
+            $html .= '<td>Sin resultados que mostrar</td>';
             $html .= '</tr>';
         }
 
         foreach ($resultados as $resultado) :
             $porcentaje = round($resultado->total /  $datos2['montoCobrado'] * 100, 2);
-            $html .= "<tr>";
-            $html .= "<td>" . $resultado->catalogo_name . "</td>";
-            $html .= "<td>$ " . round($resultado->total, 2) . "</td>";
-            $html .= "<td>" . $porcentaje . "%</td>";
-            $html .= "</tr>";
+            $html .= '<tr>';
+            $html .= '<td>' . $resultado->catalogo_name . '</td>';
+            $html .= '<td>$ ' . round($resultado->total, 2) . '</td>';
+            $html .= '<td>' . $porcentaje . '%</td>';
+            $html .= '</tr>';
         endforeach;
-        $html .= "</table>";
+        $html .= '</table>';
 
         $html .= "<h5 class='negrita texto'>PUNTOS DE VENTA POR SITIO</h5>";
 
-        $html .= "<table>"; // Tabla Informe Ventas por Sitio(Sucursal)
-        $html .= "<tr>";
-        $html .= "<th>" . "Punto de Venta: " . "</th>";
-        $html .= "<th>" . "Importes" . "</th>";
-        $html .= "<th>" . "%" . "</th>";
-        $html .= "</tr>";
+        $html .= '<table>'; // Tabla Informe Ventas por Sitio(Sucursal)
+        $html .= '<tr>';
+        $html .= '<th>' . 'Punto de Venta: ' . '</th>';
+        $html .= '<th>' . 'Importes' . '</th>';
+        $html .= '<th>' . '%' . '</th>';
+        $html .= '</tr>';
 
         if (empty($resultados2)) {
             $html .= '<tr>';
-            $html .= "<td>Sin resultados que mostrar</td>";
+            $html .= '<td>Sin resultados que mostrar</td>';
             $html .= '</tr>';
         }
 
         foreach ($resultados2 as $resultado) :
             $porcentaje = round($resultado->total /  $datos2['montoCobrado'] * 100, 2);
             $html .= '<tr>';
-            $html .= "<td>" . $resultado->sucursales_nombre . "</td>";
-            $html .= "<td> $" . round($resultado->total, 2) . "</td>";
-            $html .= "<td>" . $porcentaje . "%</td>";
+            $html .= '<td>' . $resultado->sucursales_nombre . '</td>';
+            $html .= '<td> $' . round($resultado->total, 2) . '</td>';
+            $html .= '<td>' . $porcentaje . '%</td>';
             $html .= '<tr>';
         endforeach;
-        $html .= "</table>";
+        $html .= '</table>';
 
         $pdf->loadHTML($html);
-        return $pdf->download("ReporteGeneral $request->fecha_inicio - $request->fecha_fin.pdf");
+
+        $ouput = $pdf->stream();
+        $base64 = base64_encode($ouput);
+
+        return response()->json($base64);
     }
 }

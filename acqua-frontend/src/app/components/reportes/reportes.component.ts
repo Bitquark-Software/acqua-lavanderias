@@ -6,8 +6,10 @@ import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from
 import { HotToastService } from '@ngneat/hot-toast';
 import { ReporteStats, UsuariosReporteStats } from 'src/app/dtos/reporte-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
+import { PDFReporteStats } from 'src/app/dtos/reporte-stats';
 import { PDFPreviewComponent } from './pdfpreview/pdfpreview.component';
 import * as moment from 'moment';
+const html2pdf = require('html2pdf.js');
 
 function dateRangeValidator(): ValidatorFn
 {
@@ -42,7 +44,7 @@ export class ReportesComponent
 {
   @ViewChild('dateRange') dateRange!: ElementRef<HTMLInputElement>;
   @ViewChild('datesModal') datesModal!: ElementRef<HTMLDialogElement>;
-  @ViewChild('reportePreview') reportePreview!: PDFPreviewComponent;
+  @ViewChild('contenidoPDF') contenidoPDF!: ElementRef;
 
   dateRangePlaceholder = '';
   startDate!: Date;
@@ -54,6 +56,7 @@ export class ReportesComponent
 
   statsIngresos!: ReporteStats;
   statsUsuarios!: UsuariosReporteStats;
+  statsPDFReporte!: PDFReporteStats;
 
   constructor(
     private statsService: StatsService,
@@ -78,16 +81,6 @@ export class ReportesComponent
         this.isLoading = false;
         this.statsIngresos = response;
         this.fetchUsuariosStats(start, end);
-        try
-        {
-          const startDate = start ? new Date(start) : undefined;
-          const endDate = end ? new Date(end) : undefined;
-          this.reportePreview.fetchData(startDate, endDate);
-        }
-        catch (error)
-        {
-          console.error(error);
-        }
       },
       error: (err) =>
       {
@@ -112,6 +105,48 @@ export class ReportesComponent
         console.log(err);
       },
     });
+  }
+
+  descargarReporteVentasPDF()
+  {
+    const start = moment(this.startDate).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment(this.endDate).format('YYYY-MM-DD HH:mm:ss');
+    const nombre = 'Reporte de Ventas General';
+
+    this.isLoading = true;
+    this.statsService.getReportPDF(start, end).subscribe({
+      next: (response) =>
+      {
+        this.isLoading = false;
+        this.descargarArchivo(response, nombre);
+      },
+      error: (err) =>
+      {
+        this.isLoading = false;
+        console.log(err);
+      },
+    });
+  }
+
+  private descargarArchivo(response: string, nombre: string): void
+  {
+    const byteArray = new Uint8Array(atob(response).split('').map(char => char.charCodeAt(0)));
+    const pdfBlob = new Blob([byteArray], {type: 'application/pdf'});
+
+    const url = window.URL.createObjectURL(pdfBlob);
+    const link = document.createElement('a');
+    document.body.appendChild(link);
+    link.setAttribute('style', 'display: none');
+    link.href = url;
+    link.download = nombre;
+    link.click();
+    window.URL.revokeObjectURL(url);
+    link.remove();
+  }
+
+  showFutureFeatureMessage()
+  {
+    this.toast.info('Seguimos trabajando en esta caracteristica para mejorar tu experiencia');
   }
 
   setDateRangePickerText()
