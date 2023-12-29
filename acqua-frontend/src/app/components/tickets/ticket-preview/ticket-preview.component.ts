@@ -46,9 +46,11 @@ export class TicketPreviewComponent
   {
     if(this.inclye_iva)
     {
-      const iva = this.total - this.total/1.16;
+      const iva = this.total*0.16;
+      this.subtotal = this.total;
       this.montoImpuestos = parseFloat(iva.toFixed(2));
-      this.subtotal = this.total - this.montoImpuestos;
+      this.total = this.subtotal + this.montoImpuestos;
+      this.saldoPendiente = this.total;
     }
   }
 
@@ -81,6 +83,7 @@ export class TicketPreviewComponent
   setSaldoPendiente(saldoPendiente: number)
   {
     this.saldoPendiente = saldoPendiente;
+    console.log('Saldo pendiente');
     console.log(saldoPendiente);
   }
 
