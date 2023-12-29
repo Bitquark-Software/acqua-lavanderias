@@ -44,7 +44,6 @@ export class ReportesComponent
 {
   @ViewChild('dateRange') dateRange!: ElementRef<HTMLInputElement>;
   @ViewChild('datesModal') datesModal!: ElementRef<HTMLDialogElement>;
-  //  @ViewChild('reportePreview') reportePreview!: PDFPreviewComponent;
   @ViewChild('contenidoPDF') contenidoPDF!: ElementRef;
 
   dateRangePlaceholder = '';
