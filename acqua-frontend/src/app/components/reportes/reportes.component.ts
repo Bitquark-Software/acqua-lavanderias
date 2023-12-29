@@ -67,7 +67,6 @@ export class ReportesComponent
   )
   {
     this.fetchStats();
-    //    this.fetchDataReport();
     this.datesForm = this.fb.group({
       start: ['', [Validators.required]],
       end: ['', [Validators.required]],
@@ -83,16 +82,6 @@ export class ReportesComponent
         this.isLoading = false;
         this.statsIngresos = response;
         this.fetchUsuariosStats(start, end);
-        try
-        {
-          const startDate = start ? new Date(start) : undefined;
-          const endDate = end ? new Date(end) : undefined;
-          //          this.reportePreview.fetchData(startDate, endDate);
-        }
-        catch (error)
-        {
-          console.error(error);
-        }
       },
       error: (err) =>
       {
@@ -119,68 +108,41 @@ export class ReportesComponent
     });
   }
 
-  fetchDataReport(start?: string, end?:string)
+  descargarReporteVentasPDF()
   {
+    const start = moment(this.startDate).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment(this.endDate).format('YYYY-MM-DD HH:mm:ss');
+    const nombre = 'Reporte de Ventas General';
+
     this.isLoading = true;
     this.statsService.getReportPDF(start, end).subscribe({
       next: (response) =>
       {
         this.isLoading = false;
-        const dataType = response.type;
-        console.log(dataType);
-        const binaryData = [];
-        binaryData.push(response);
-        const downloadLink = document.createElement('a');
-        //        downloadLink.href = window.URL.createObjectURL(new Blob(binaryData, {type: dataType}));
-        //        if ("getReportPDF.pdf")
-        downloadLink.setAttribute('download', 'getReportPDF.pdf');
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
+        this.descargarArchivo(response, nombre);
       },
       error: (err) =>
       {
         this.isLoading = false;
-        console.log('====> Ocurrieron algunos errores <====\n');
         console.log(err);
       },
     });
   }
 
-  descargarReporteVentasPDF()
+  private descargarArchivo(response: string, nombre: string): void
   {
-    this.fetchDataReport(
-      moment(this.startDate).format('YYYY-MM-DD HH:mm:ss'),
-      moment(this.endDate).format('YYYY-MM-DD HH:mm:ss'),
-    );
-  }
+    const byteArray = new Uint8Array(atob(response).split('').map(char => char.charCodeAt(0)));
+    const pdfBlob = new Blob([byteArray], {type: 'application/pdf'});
 
-  private descargarArchivo(response: any): void
-  {
-    const blob = new Blob([response.body], { type: 'application/pdf' });
-
-    const contentDispositionHeader = response.headers.get('content-disposition');
-    const fileNameMatch = contentDispositionHeader?.match(/filename="(.+)"$/);
-
-    const fileName = fileNameMatch ? fileNameMatch[1] : 'archivo.pdf';
-
-    const downloadLink = document.createElement('a');
-    downloadLink.href = window.URL.createObjectURL(blob);
-    downloadLink.download = fileName;
-
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-  }
-
-  downLoadFile(data: any, type: string)
-  {
-    const blob = new Blob([data], { type: type});
-    const url = window.URL.createObjectURL(blob);
-    const pwa = window.open(url);
-    if (!pwa || pwa.closed || typeof pwa.closed == 'undefined')
-    {
-      alert( 'Please disable your Pop-up blocker and try again.');
-    }
+    const url = window.URL.createObjectURL(pdfBlob);
+    const link = document.createElement('a');
+    document.body.appendChild(link);
+    link.setAttribute('style', 'display: none');
+    link.href = url;
+    link.download = nombre;
+    link.click();
+    window.URL.revokeObjectURL(url);
+    link.remove();
   }
 
   setDateRangePickerText()
