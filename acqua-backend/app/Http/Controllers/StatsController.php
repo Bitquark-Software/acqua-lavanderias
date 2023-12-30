@@ -560,12 +560,17 @@ class StatsController extends Controller
         }
 
         // Asume que $importe_ventas es el importe total de las ventas en el rango de fechas
-        $resultadoDiarioPromedio = $datos2['montoCobrado'] / $dias_habiles;
+        if ($dias_habiles != 0) {
+            $resultadoDiarioPromedio = $datos2['montoCobrado'] / $dias_habiles;
+        } else {
+            // Manejar el caso cuando $dias_habiles es cero
+            $resultadoDiarioPromedio = 0;
+        }
         $venta_diaria_promedio = round($resultadoDiarioPromedio, 2);
 
         // * >>>> Ticket Promedio <<<<<
         if ($datos2['montoCobrado']) {
-            $ticketProm = round($datos2['montoCobrado'] / $idSinRep);
+            $ticketProm = $idSinRep != 0 ? round($datos2['montoCobrado'] / $idSinRep) : 0;
         } else {
             $ticketProm = 0;
         }
@@ -666,7 +671,7 @@ class StatsController extends Controller
         $html .= "<td class='bordestd texto'>" . $fecha_min_venta . '</td>';
 
         $html .= '<tr>';
-        $html .= "<td class='negrita'>" . 'Total e Tickets: ' . '</td>';
+        $html .= "<td class='negrita'>" . 'Total de Tickets: ' . '</td>';
         $html .= "<td class='bordestd texto'>" . $idSinRep . '</td>';
 
         $html .= '</table>';
