@@ -80,7 +80,7 @@ class TicketController extends Controller
             'restante' => $restante,
             'fecha_entrega' => $request->fecha_entrega,
             'numero_referencia' => $numeroTarjetaCifrado,
-            'total_iva' =>  $request->incluye_iva ? $request->total_iva : 0
+            'total_iva' =>  $request->incluye_iva ? round($request->total_iva,2) : 0
         ]);
 
         // Anticipos_Tickets
