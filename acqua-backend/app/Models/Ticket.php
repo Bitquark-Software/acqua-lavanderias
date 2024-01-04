@@ -24,7 +24,8 @@ class Ticket extends Model
         'status',
         'vencido',
         'fecha_entrega',
-        'numero_referencia'
+        'numero_referencia',
+        'total_iva'
     ];
 
     protected $dates = ['deleted_at'];

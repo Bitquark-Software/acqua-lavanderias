@@ -46,13 +46,20 @@ class TicketController extends Controller
             'anticipo' => ['numeric', 'min:0'],
             'servicios' => ['required', 'array'],
             'fecha_entrega' => ['nullable', 'date_format:Y-m-d H:i:s'],
-            'numero_referencia' => ['nullable', 'string', 'max:19']
+            'numero_referencia' => ['nullable', 'string', 'max:19'],
+            'total_iva' => ['nullable', 'numeric']
         ]);
 
-        $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
-        $restante = $request->tipo_credito === 'CREDITO' ? $request->total - $request->anticipo : 0.00;
-
         $valor = $request->metodo_pago;
+        $totIva = $request->total_iva !== null ? round($request->total_iva, 2) : 0;
+        $total = $request->total;
+
+        if($request->incluye_iva) { // este me dice si quiere que la compra tenga IVA
+            $total += $totIva; // Suma del iva más el total
+        }
+
+        $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
+        $restante = $request->tipo_credito === 'CREDITO' ? $total - $request->anticipo : 0.00;
 
         // Encyptacion de refencia
         $numeroTarjetaCifrado = !is_null($request->numero_referencia)
@@ -68,17 +75,18 @@ class TicketController extends Controller
             'incluye_iva' => $request->incluye_iva ?? false,
             'tipo_credito' => $request->tipo_credito,
             'metodo_pago' => $request->metodo_pago,
-            'total' => $request->total,
+            'total' => $total,
             'anticipo' => $anticipo,
             'restante' => $restante,
             'fecha_entrega' => $request->fecha_entrega,
-            'numero_referencia' => $numeroTarjetaCifrado
+            'numero_referencia' => $numeroTarjetaCifrado,
+            'total_iva' =>  $request->incluye_iva ? round($request->total_iva,2) : 0
         ]);
 
         // Anticipos_Tickets
         if ($valor == 'TARJETA' || $valor == 'TRANSFERENCIA' || $valor == 'EFECTIVO') {
             $anticipo = AnticipoTicket::create([
-                'anticipo' => $request->tipo_credito == 'CREDITO' ? $ticket->anticipo : $ticket->total,
+                'anticipo' => $request->tipo_credito == 'CREDITO' ? $ticket->anticipo : $total,
                 'metodopago' => $ticket->metodo_pago,
                 'id_ticket' => $ticket->id,
                 'cobrado_por' => $request->user()->id,
