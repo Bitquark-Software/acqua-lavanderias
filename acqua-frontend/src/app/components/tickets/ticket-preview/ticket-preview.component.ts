@@ -21,7 +21,8 @@ export class TicketPreviewComponent
   ticketURLCliente = 'https://drive.google.com/file/d/1tAdeOqLWAnnHxH6sGpvCnPBa_9LC6ICq/view?pli=1';
   subtotal = 0;
   total = 0;
-  inclye_iva = false;
+  calculo_iva = 0;
+  incluye_iva = false;
   anticipo = 0;
   saldoPendiente = 0;
   cambio = 0;
@@ -44,14 +45,11 @@ export class TicketPreviewComponent
 
   private calculaMontoImpuestos()
   {
-    if(this.inclye_iva)
-    {
-      const iva = this.total*0.16;
-      this.subtotal = this.total;
-      this.montoImpuestos = parseFloat(iva.toFixed(2));
-      this.total = this.subtotal + this.montoImpuestos;
-      this.saldoPendiente = this.total;
-    }
+    const iva = this.total*0.16;
+    this.subtotal = this.total;
+    this.montoImpuestos = parseFloat(iva.toFixed(2));
+    this.total = this.subtotal + this.montoImpuestos;
+    this.saldoPendiente = this.total - this.anticipo;
   }
 
   setTarifaEnvioADomicilio(monto: number)
@@ -67,12 +65,20 @@ export class TicketPreviewComponent
   setTotal(total: number)
   {
     this.total = total;
-    this.calculaMontoImpuestos();
+    if(this.incluye_iva)
+    {
+      this.calculaMontoImpuestos();
+    }
+  }
+
+  setCalculoIva(calculo_iva: number)
+  {
+    this.calculo_iva = calculo_iva;
   }
 
   setIncluyeIva(incluyeIva: boolean)
   {
-    this.inclye_iva = incluyeIva;
+    this.incluye_iva = incluyeIva;
   }
 
   setAnticipo(anticipo: number)

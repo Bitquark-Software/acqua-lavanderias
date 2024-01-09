@@ -31,6 +31,7 @@ export class TicketService
 
   registrarTicket(ticket: Partial<Ticket>, servicios: Servicio[])
   {
+
     return this.httpClient.post(`${API_URL}/tickets`,
       {
         ...ticket,

@@ -32,6 +32,7 @@ export class Ticket
   tipo_credito!: TipoCredito;
   metodo_pago!: MetodoPago;
   total!: number;
+  total_iva!: number;
   anticipo?: number;
   restante?: number;
   status!: StatusTicket;
