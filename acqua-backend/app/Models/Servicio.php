@@ -21,4 +21,9 @@ class Servicio extends Model
     {
         return $this->belongsTo(Catalogo::class)->where('activo', true);
     }
+
+    public function servicio_tickets()
+    {
+        return $this->hasMany(ServicioTicket::class, 'id_servicio');
+    }
 }

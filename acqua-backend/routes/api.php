@@ -20,6 +20,7 @@ use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ProcesoTicketController;
 use App\Http\Controllers\StatsController;
+use App\Http\Controllers\ReportesController;
 
 Route::middleware('auth:api')->group(function () { // Para Empleados
     Route::apiResource('catalogos', CatalogoController::class)->only('index', 'show'); 
@@ -89,6 +90,8 @@ Route::prefix('stats')->middleware(['auth:api', AdminOnlyMiddleware::class])->gr
     Route::get('/reporte-general-ventas', [StatsController::class, 'reportGenVent'])->name('stats.reporte-general-ventas');
     // Generacion de Reporte General de Ventas PDF
     Route::post('/reporte-general-ventas-pdf', [StatsController::class, 'repGenVentPdf'])->name('stats.rep-gen-vent-Pdf');
+    // Generacion de Reporte Detallado
+    Route::post('/reporte-detallado-ventas-pdf', [ReportesController::class, 'repDetPdf'])->name('stats.rep-deta-vent-pdf');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
