@@ -89,7 +89,6 @@ export class TicketPreviewComponent
   setSaldoPendiente(saldoPendiente: number)
   {
     this.saldoPendiente = saldoPendiente;
-    console.log('Saldo pendiente');
     console.log(saldoPendiente);
   }
 
