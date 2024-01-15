@@ -27,8 +27,7 @@ class AddIdSucursalToMultipleTables extends Migration
             // Actualiza solo los registros existentes donde 'id_sucursal' es NULL en la tabla 'clientes'
             DB::table('clientes')->whereNull('id_sucursal')->update(['id_sucursal' => $sucursal->id]);
         } else {
-            // Mostrara si El registro matriz no se encuentra en Dicha tabla
-            throw new Exception('El registro "Matriz" no se encontró en la tabla "sucursales".');
+
         }
     }
 

@@ -497,8 +497,12 @@ class StatsController extends Controller
             'fecha_fin' => ['date_format:Y-m-d H:i:s', 'nullable', 'after_or_equal:fecha_inicio']
         ]);
 
-        $reportGeneral = $this->reportGenVent($request); // Accede a la funcion reportGenVent de esta misma clase
-        $totalesReporte = $this->generateReport($request); // Accede a la funcion reportGenVent de esta misma clase
+        try {
+            $reportGeneral = $this->reportGenVent($request); // Accede a la funcion reportGenVent de esta misma clase
+            $totalesReporte = $this->generateReport($request); // Accede a la funcion reportGenVent de esta misma clase
+        } catch (\Exception $e) {
+            echo "Error al mostrar reporte general y totales", $e->getMessage(), "\n";
+        }
 
         // Obtiene el contenido de la respuesta
         $contenidoRG = $reportGeneral->getContent();
@@ -509,8 +513,16 @@ class StatsController extends Controller
         $datos2 = json_decode($contenidoTotal, true);
 
         // Inicializamos la fecha con Carbon
-        $fecha_inicio = Carbon::parse($request->fecha_inicio);
-        $fecha_fin = Carbon::parse($request->fecha_fin);
+        $fecha_inicio = $request->fecha_inicio;
+        $fecha_fin = $request->fecha_fin;
+
+        if (empty($fecha_inicio) && empty($fecha_fin)) {
+            $fecha_inicio = Carbon::now()->startOfDay();
+            $fecha_fin = Carbon::now()->endOfDay();
+        } else {
+            $fecha_inicio = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_inicio'))->startOfDay();
+            $fecha_fin = Carbon::createFromFormat('Y-m-d H:i:s', request('fecha_fin'))->endOfDay();
+        }
 
         // Numero de Tickets En el Periodo Dado
         $contenedor = [];
@@ -519,19 +531,27 @@ class StatsController extends Controller
         }
         $idSinRep = count(array_unique($contenedor));
 
-        // * Dia con Mayor venta
-        $resultado = Ticket::selectRaw('DATE(created_at) as fecha, SUM(total) as totalAnticipos')
+        try {
+            // * Dia con Mayor venta
+            $resultado = Ticket::selectRaw('DATE(created_at) as fecha, SUM(total) as totalAnticipos')
             ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
             ->groupBy(DB::raw('DATE(created_at)'))
             ->orderBy('totalAnticipos', 'desc')
             ->first();
+        } catch (\Exception $e) {
+            echo "Error al mostrar dia con mayor venta", $e->getMessage(), "\n";
+        }
 
-        // * Dia con ventas más bajas
-        $resultado_min = Ticket::selectRaw('DATE(created_at) as fecha, SUM(total) as totalAnticipos')
+        try {
+            // * Dia con ventas más bajas
+            $resultado_min = Ticket::selectRaw('DATE(created_at) as fecha, SUM(total) as totalAnticipos')
             ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
             ->groupBy(DB::raw('DATE(created_at)')) // Agrupo los created_at
             ->orderBy('totalAnticipos', 'asc')
             ->first();
+        } catch (\Exception $e) {
+            echo "Error al mostrar dia con menor venta", $e->getMessage(), "\n";
+        }
 
         $fecha_max_venta = optional($resultado)->fecha; // Obtengo la fecha de la consulta
         $total_max_anticipos = optional($resultado)->totalAnticipos; // Obtengo la caontidad maxima ganada
@@ -575,13 +595,17 @@ class StatsController extends Controller
             $ticketProm = 0;
         }
 
-        // * INFORME DE VENTAS POR CATEGORIA
-        //      Resultados Iterados en el Contanido del Documento $html
-        $resultados = $this->InformVentCategorias($request->fecha_inicio, $request->fecha_fin);
+        try {
+            // * INFORME DE VENTAS POR CATEGORIA
+            //  Resultados Iterados en el Contanido del Documento $html
+            $resultados = $this->InformVentCategorias($request->fecha_inicio, $request->fecha_fin);
 
-        // * INFORME DE VENTAS POR SITIO
-        //      Resultados Iterados en el Contanido del Documento $html
-        $resultados2 = $this->InformVentSucursales($request->fecha_inicio, $request->fecha_fin);
+            // * INFORME DE VENTAS POR SITIO
+            //      Resultados Iterados en el Contanido del Documento $html
+            $resultados2 = $this->InformVentSucursales($request->fecha_inicio, $request->fecha_fin);
+        } catch (\Exception $e) {
+            echo "Error al mostrar informacion de categorias y sucursales", $e->getMessage(), "\n";
+        }
 
         $pdf = app('dompdf.wrapper');
         $html = '
@@ -623,7 +647,19 @@ class StatsController extends Controller
                 .bordestd {
                     border-bottom: 1px solid rgb(86, 197, 252);
                 }
+                .watermark {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    opacity: 0.05;
+                    z-index: 1000;
+                    font-size: 90px;
+                    text-align: center;
+                }
             </style>';
+
+        $html .= '<div class="watermark"> Acqua Lavanderias </div>'; // Marca de Agua
 
         $html .= "<h1 class='texto verdeBag'>Reporte General de Ventas</h1>";
         $html .= "<p class='alinear-derecha negrita'>Dias Festivos:" . $dias_festibos . '</p>';
