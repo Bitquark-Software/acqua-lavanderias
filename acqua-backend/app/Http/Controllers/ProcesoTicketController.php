@@ -7,7 +7,6 @@ use App\Models\Ticket;
 use App\Models\Proceso;
 use Illuminate\Http\Request;
 use App\Models\ProcesoTicket;
-use Illuminate\Validation\ValidationException;
 
 
 class ProcesoTicketController extends Controller
@@ -24,25 +23,19 @@ class ProcesoTicketController extends Controller
     public function addLavadorasSecadoras(Request $request)
     {
         // Validar que solo uno de los dos, lavadora o secadora, tenga un valor
-        if ($request->has('lavadora') == $request->has('secadora')) {
+        if ($request->has('lavadora') === $request->has('secadora')) {
             return response()->json([
                 'mensaje' => 'Solo se puede enviar un valor entre lavadora y secadora.',
             ], 400);
         }
 
-        try {
-            $request->validate([
-                'timestamp_start' => ['nullable', 'date_format:Y-m-d H:i:s'],
-                'timestamp_end' => ['nullable', 'date_format:Y-m-d H:i:s', 'after:timestamp_start'],
-                'lavadora' => ['nullable', 'exists:lavadoras,id'],
-                'secadora' => ['nullable', 'exists:secadoras,id'],
-                'id_ticket' => ['required', 'exists:tickets,id']
-            ]);
-        } catch (ValidationException $e) {
-            // En caso de que la validación falle, puedes obtener los errores así:
-            $errors = $e->validator->getMessageBag();
-            dd($errors);
-        }
+        $request->validate([
+            'timestamp_start' => ['nullable', 'date_format:Y-m-d H:i:s'],
+            'timestamp_end' => ['nullable', 'date_format:Y-m-d H:i:s', 'after:timestamp_start'],
+            'lavadora' => ['nullable', 'exists:lavadoras,id'],
+            'secadora' => ['nullable', 'exists:secadoras,id'],
+            'id_ticket' => ['required', 'exists:tickets,id']
+        ]);
 
         // * Seccion para verificar que la lavadora no sea la misma
         // Obtén los procesos 'LAVADO' y 'SECADO'
@@ -59,29 +52,35 @@ class ProcesoTicketController extends Controller
             $cambio = 'secadora';
         }
 
-        $registros = Ticket::join('proceso_tickets', 'tickets.id', '=', 'proceso_tickets.id_ticket')
+        try {
+            $registros = Ticket::join('proceso_tickets', 'tickets.id', '=', 'proceso_tickets.id_ticket')
             ->where('tickets.id', $request->id_ticket)
             ->where('proceso_tickets.id_proceso', $id_proceso)
             ->first();
+        } catch (\Exception $e) {
+            return response()->json([
+                'mensaje' => 'No se encontraron registros guardados de lavoras y secadoras'
+            ], 404);
+        }
 
         // *  No fueron encontrados registros de Lavado y Secado
         if (!$procesos['LAVADO'] || !$procesos['SECADO']) {
             return response()->json([
                 'mensaje' => 'Los procesos LAVADO y/o SECADO no fueron encontrados'
-            ]);
+            ], 404);
         }
 
         // * Bloque que verifica si la lavadora o secadora ingresada es igual a la BD
         if (isset($registros['id_lavadora']) && $registros['id_lavadora'] === $request->lavadora) {
             return response()->json([
                 'mensaje' => 'Lavadora adicional ingresada es la misma que la ya registrada.'
-            ]);
+            ], 400);
         }
 
         if (isset($registros['id_secadora']) && $registros['id_secadora'] === $request->secadora) {
             return response()->json([
                 'mensaje' => 'Secadora adicional ingresada es la misma que la ya registrada.'
-            ]);
+            ], 400);
         }
 
         $procesoTicket = ProcesoTicket::create([
