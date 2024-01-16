@@ -67,6 +67,9 @@ Route::middleware('auth:api')->group( function () {
 
     Route::apiResource('proceso-tickets', ProcesoTicketController::class)->except('destroy');
 
+    // Agrega las lavadoras extras para ropa de color
+    Route::post('lavadora-secadora-adicional', [ProcesoTicketController::class, 'addLavadorasSecadoras'])->name('procesotickets.addLavSec');
+
     Route::get('/anticipoTickets', [AnticiposTicketsController::class, 'index'])->name('anticipo.index');
     Route::post('/anticipoTickets', [AnticiposTicketsController::class, 'store'])->name('anticipo.store');
 });
