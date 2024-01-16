@@ -295,8 +295,8 @@ class StatsController extends Controller
         return response()->json([
             'Ticket' => $ticket,
             'Conteo' => $resultConteo ? $resultConteo[0] : null,
-            'Lavado' => $resultLavado ? $resultLavado[0] : null,
-            'Secado' => $resultSecado ? $resultSecado[0] : null,
+            'Lavado' => $resultLavado ? $resultLavado : null,
+            'Secado' => $resultSecado ? $resultSecado : null,
             'Reconteo' => $resultReconteo ? $resultReconteo[0] : null,
             'Planchado' => $resultPlanchado ? $resultPlanchado[0] : null,
             'Entrega' => $resultEntrega ? $resultEntrega[0] : null
