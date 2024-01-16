@@ -30,8 +30,9 @@ export class Ticket
   id_sucursal?: number;
   incluye_iva!: boolean;
   tipo_credito!: TipoCredito;
-  metodopago!: MetodoPago;
+  metodo_pago!: MetodoPago;
   total!: number;
+  total_iva!: number;
   anticipo?: number;
   restante?: number;
   status!: StatusTicket;

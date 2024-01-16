@@ -76,6 +76,7 @@ export class CajaComponent
   recibido = 0;
   cambio = 0;
   total = 0;
+  total_iva = 0;
   costoEnvio = 0;
   incluir_iva = false;
   numero_referencia = '';
@@ -527,9 +528,28 @@ export class CajaComponent
     }
   }
 
+  obtenerCalculoIva(cantidad: number): number
+  {
+    return parseFloat((cantidad*0.16).toFixed(2));
+  }
+
+  setCalculoIva(total_iva: number)
+  {
+    this.total_iva = total_iva;
+  }
+
+  verificarSiGuardarIva(monto: number, incluir_iva: boolean)
+  {
+    if(incluir_iva)
+    {
+      this.setCalculoIva(parseFloat((monto*0.16).toFixed(2)));
+    }
+  }
+
   recalcularTotal()
   {
     let tempTotal = 0;
+
     this.serviciosTicket.forEach((s) =>
     {
       tempTotal += parseFloat(s.subtotal?.toString() ?? '1');
@@ -537,6 +557,7 @@ export class CajaComponent
 
     tempTotal += parseFloat(this.costoEnvio.toString());
     this.total = parseFloat(tempTotal.toFixed(2));
+    this.verificarSiGuardarIva(this.total, this.incluir_iva);
 
     if(this.metodoPago == MetodoPago.Tarjeta || this.metodoPago == MetodoPago.Transferencia)
     {
@@ -556,20 +577,25 @@ export class CajaComponent
 
   private recalcularSaldoPendiente()
   {
+    let tempTotal = this.total;
+    if(this.incluir_iva)
+    {
+      tempTotal = this.total + this.total_iva;
+    }
     if(this.tipoDeCredito == TipoCredito.Contado)
     {
       this.saldoPendiente = 0;
     }
-    else if(this.anticipo >= 0 && this.anticipo <= this.total)
+    else if(this.anticipo >= 0 && this.anticipo <= tempTotal)
     {
-      this.saldoPendiente = this.total - this.anticipo;
+      this.saldoPendiente = tempTotal - this.anticipo;
     }
     else
     {
-      if(this.anticipo > this.total)
+      if(this.anticipo > tempTotal)
       {
         this.toastService.warning(
-          `El anticipo es mayor que el total del servicio: ${'$'} ${this.total}`);
+          `El anticipo es mayor que el total del servicio: ${'$'} ${tempTotal}`);
       }
       this.anticipo = 0;
       this.saldoPendiente = 0;
@@ -914,6 +940,9 @@ export class CajaComponent
 
     if(this.stepFinalizarVenta == 1)
     {
+
+      this.verificarSiGuardarIva(this.total, this.incluir_iva);
+
       const tempTicket = {
         id_cliente: this.clienteSeleccionado.id,
         envio_domicilio: this.cursorEntrega == 1,
@@ -921,8 +950,9 @@ export class CajaComponent
         id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
         incluye_iva: this.incluir_iva,
         tipo_credito: this.tipoDeCredito,
-        metodopago: this.metodoPago,
+        metodo_pago: this.metodoPago,
         total: this.total,
+        total_iva: this.total_iva,
         anticipo: this.anticipo,
         restante: this.saldoPendiente,
         comentarios: this.chatHistory,
@@ -946,6 +976,7 @@ export class CajaComponent
         ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
         ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
         ticketPreviewRef.instance.setTotal(this.total);
+        ticketPreviewRef.instance.setCalculoIva(this.total_iva);
         ticketPreviewRef.instance.setCambio(this.cambio);
         ticketPreviewRef.instance.setRecibido(this.recibido);
         ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
@@ -980,8 +1011,9 @@ export class CajaComponent
       id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
       incluye_iva: this.incluir_iva,
       tipo_credito: this.tipoDeCredito,
-      metodopago: this.metodoPago,
+      metodo_pago: this.metodoPago,
       total: this.total,
+      total_iva: this.total_iva,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
       comentarios: this.chatHistory,
@@ -1003,6 +1035,7 @@ export class CajaComponent
     ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
     ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
     ticketPreviewRef.instance.setTotal(this.total);
+    ticketPreviewRef.instance.setCalculoIva(this.total_iva);
     ticketPreviewRef.instance.setCambio(this.cambio);
     ticketPreviewRef.instance.setRecibido(this.recibido);
     ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
@@ -1037,7 +1070,7 @@ export class CajaComponent
       id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
       incluye_iva: this.incluir_iva,
       tipo_credito: this.tipoDeCredito,
-      metodopago: this.metodoPago,
+      metodo_pago: this.metodoPago,
       total: this.total,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
@@ -1060,6 +1093,7 @@ export class CajaComponent
     ticketPreviewRef.instance.setSaldoPendiente(this.saldoPendiente);
     ticketPreviewRef.instance.setTipoCompra(this.tipoDeCredito);
     ticketPreviewRef.instance.setTotal(this.total);
+    ticketPreviewRef.instance.setCalculoIva(this.total_iva);
     ticketPreviewRef.instance.setCambio(this.cambio);
     ticketPreviewRef.instance.setRecibido(this.recibido);
     ticketPreviewRef.instance.setMetodoPago(this.metodoPago);
@@ -1299,8 +1333,9 @@ export class CajaComponent
       id_sucursal: this.cursorEntrega == 0 ? this.idSucursal : null,
       incluye_iva: this.incluir_iva,
       tipo_credito: this.tipoDeCredito,
-      metodopago: this.metodoPago,
+      metodo_pago: this.metodoPago,
       total: this.total,
+      total_iva: this.total_iva,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
       fecha_entrega: moment(this.fechaEstimadaEntrega).format('YYYY-MM-DD HH:mm:ss'),
