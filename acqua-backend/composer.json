@@ -13,7 +13,8 @@
         "laravel/framework": "^8.75",
         "laravel/passport": "*",
         "laravel/sanctum": "^2.11",
-        "laravel/tinker": "^2.5"
+        "laravel/tinker": "^2.5",
+        "twilio/sdk": "^7.13"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

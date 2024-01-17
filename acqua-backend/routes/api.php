@@ -21,6 +21,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ProcesoTicketController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\ReportesController;
+use App\Http\Controllers\WhatsAppController;
 
 Route::middleware('auth:api')->group(function () { // Para Empleados
     Route::apiResource('catalogos', CatalogoController::class)->only('index', 'show'); 
@@ -95,6 +96,12 @@ Route::prefix('stats')->middleware(['auth:api', AdminOnlyMiddleware::class])->gr
     Route::post('/reporte-general-ventas-pdf', [StatsController::class, 'repGenVentPdf'])->name('stats.rep-gen-vent-Pdf');
     // Generacion de Reporte Detallado
     Route::post('/reporte-detallado-ventas-pdf', [ReportesController::class, 'repDetPdf'])->name('stats.rep-deta-vent-pdf');
+});
+
+Route::prefix('whatsapp')->group(function () {
+    // Enviar mensaje
+    Route::post('/enviar-mensaje-conteo', [WhatsAppController::class, 'mensajeConteo'])->name('whatsapp.mensaje-conteo');
+    Route::post('/enviar-mensaje-entrega', [WhatsAppController::class, 'mensajeEntrega'])->name('whatsapp.mensaje-entrega');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
