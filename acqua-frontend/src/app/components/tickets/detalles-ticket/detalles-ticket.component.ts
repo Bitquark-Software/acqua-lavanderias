@@ -64,6 +64,10 @@ export class DetallesTicketComponent
   reconteoOk = false;
   idLavadora!:number;
   idSecadora!:number;
+  idLavadoraExtra!:number;
+  idSecadoraExtra!:number;
+  idProcLavadoraExtra!:number;
+  idProcSecadoraExtra!:number;
   lavadoras: Lavadora[] = [];
   secadoras: Secadora[] = [];
 
@@ -307,8 +311,24 @@ export class DetallesTicketComponent
           ).subscribe({
             next: () =>
             {
-              this.stepCursor+= 1;
-              this.fetchTicketById();
+              this.ticketService.agregarLavadoraSecadoraExtra(
+                this.ticket.id,
+                this.idLavadoraExtra ?? 3,
+              ).subscribe({
+                next: (responseProcesoExtra) =>
+                {
+                  console.log('Respuesta del proceso de la lavadora extra: ');
+                  console.log(responseProcesoExtra);
+                  //                  this.idProcLavadoraExtra = responseProcesoExtra.data.id;
+                  this.stepCursor+= 1;
+                  this.fetchTicketById();
+                },
+                error: (err) =>
+                {
+                  this.toast.error(`Error al agregar la lavadora extra: ${err.message}`);
+                  console.error(err);
+                },
+              });
             },
             error: (err) =>
             {
@@ -339,6 +359,26 @@ export class DetallesTicketComponent
               {
                 this.stepCursor+= 1;
                 this.fetchTicketById();
+                /*
+                this.ticketService.agregarLavadoraSecadoraExtra(
+                  this.ticket.id,
+                  this.idSecadoraExtra ?? 3,
+                ).subscribe({
+                  next: (responseProcesoExtra) =>
+                  {
+                    console.log("Respuesta del proceso de la secadora extra: ");
+                    console.log(responseProcesoExtra);
+  //                  this.idProcLavadoraExtra = responseProcesoExtra.data.id;
+                    this.stepCursor+= 1;
+                    this.fetchTicketById();
+                  },
+                  error: (err) =>
+                  {
+                    this.toast.error(`Error al agregar la secadora extra: ${err.message}`);
+                    console.error(err);
+                  },
+                });
+*/
               },
               error: (err) =>
               {
@@ -618,8 +658,35 @@ export class DetallesTicketComponent
 
   }
 
+  setLavadoraExtraSeleccionada()
+  {
+    if(this.idLavadora === this.idLavadoraExtra)
+    {
+      this.idLavadoraExtra = 0;
+    }
+    else
+    {
+      // Aún no funciona por que el "idProcesoLavadoraExtra" no tiene un valor
+      /*
+      this.isLoading = true;
+      this.ticketService.updateProceso(
+        this.idProcesoLavadoraExtra ?? 0, this.idLavadoraExtra ?? 0).subscribe({
+        next: () =>
+        {
+          this.toast.success('Lavadora extra asignada');
+          this.fetchTicketById();
+        },
+      });
+*/
+    }
+  }
+
   setLavadoraSeleccionada()
   {
+    if(this.idLavadora === this.idLavadoraExtra)
+    {
+      this.idLavadoraExtra = 0;
+    }
     this.isLoading = true;
     this.ticketService.updateProceso(
       this.currentProcesoTicket?.id ?? 0, this.idLavadora ?? 0).subscribe({
@@ -631,8 +698,35 @@ export class DetallesTicketComponent
     });
   }
 
+  setSecadoraExtraSeleccionada()
+  {
+    if(this.idSecadora === this.idSecadoraExtra)
+    {
+      this.idSecadoraExtra = 0;
+    }
+    else
+    {
+      // Aún no funciona por que el "idProcesoSecadoraExtra" no tiene un valor
+      /*
+      this.isLoading = true;
+      this.ticketService.updateProceso(
+        this.idProcSecadoraExtra ?? 0, null as unknown as number, this.idSecadoraExtra ?? 0).subscribe({
+        next: () =>
+        {
+          this.toast.success('Secadora extra asignada');
+          this.fetchTicketById();
+        },
+      });
+*/
+    }
+  }
+
   setSecadoraSeleccionada()
   {
+    if(this.idSecadora === this.idSecadoraExtra)
+    {
+      this.idSecadoraExtra = 0;
+    }
     this.isLoading = true;
     this.ticketService.updateProceso(
       this.currentProcesoTicket?.id ?? 0, null as unknown as number, this.idSecadora ?? 0).subscribe({

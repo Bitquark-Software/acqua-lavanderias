@@ -195,6 +195,19 @@
         </div>
       </div>
 
+      <!-- Lavadoras extra que excluye la seleccionada en la primera lista -->
+      <h3 class="font-bold text-3xl ml-2 pt-6">Lavadora extra</h3>
+      <div>
+        <br><p>* Seleccionar una lavadora extra para separar las ropas blancas de las ropas de color</p><br>
+      </div>
+      <div class="grid grid-cols-1 gap-4 mt-4">
+        <div class="form-control w-full pb-3">
+          <select class="select select-bordered" [(ngModel)]="idLavadoraExtra" (change)="setLavadoraExtraSeleccionada()">
+            <option *ngFor="let lavadoraExtra of lavadoras" [value]="lavadoraExtra.id" [disabled]="lavadoraExtra.id === idLavadora">{{lavadoraExtra.nombre}}</option>
+          </select>
+        </div>
+      </div>
+    
       <div class="alert alert-warning" *ngIf="idLavadora">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
         <span>Alerta: No de clic en <b>"Terminar lavado"</b> hasta asegurarse de que el ciclo de lavado haya concluido</span>
@@ -241,6 +254,19 @@
           </select>
         </div>
       </div>
+
+      <h3 class="font-bold text-3xl ml-2 pt-6">Selecciona una secadora</h3>
+      <div>
+        <br><p>* Seleccionar una secadora extra para separar roblas blancas de las ropas de color</p><br>
+      </div>
+      <div class="grid grid-cols-1 gap-4 mt-4">
+        <div class="form-control w-full pb-3">
+          <select class="select select-bordered" [(ngModel)]="idSecadoraExtra" (change)="setSecadoraExtraSeleccionada()">
+            <option *ngFor="let secadoraExtra of secadoras" [value]="secadoraExtra.id" [disabled]="secadoraExtra.id === idSecadora">{{secadoraExtra.nombre}}</option>
+          </select>
+        </div>
+      </div>
+
 
       <div class="alert alert-warning" *ngIf="idSecadora">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
