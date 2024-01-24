@@ -746,6 +746,10 @@ class ReportesController extends Controller
         $html .= '</body>';
 
         $pdf->loadHTML($html);
-        return $pdf->download("ReporteProduccion.pdf");
+
+        $ouput = $pdf->stream();
+        $base64 = base64_encode($ouput);
+
+        return response()->json($base64);
     }
 }
