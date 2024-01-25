@@ -569,7 +569,6 @@ class ReportesController extends Controller
 
         $html .= '<header>'; // Inicio de Encabezado
         $html .= "<h1 class='texto verdeBag'>REPORTE DE PRODUCCIÓN (PROCESOS)</h1>";
-        $html .= "<p class='alinear-derecha negrita'>Dias Festivos:" . 'CONSULTA' . '</p>';
         $html .= "<p class='alinear-derecha'>Periodo: " . $inicioFechaConsulta->format('Y-m-d') . ' - ' . $finFechaConsulta->format('Y-m-d') . '</p>';
         $html .= "<h3 class='texto'>Sucursal: " . '<span class="verdeBag">' . $sucursal->nombre . '</span>' . '</h3>';
         $html .= '</header>'; // Fin de Encabezado
