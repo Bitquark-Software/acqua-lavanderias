@@ -64,8 +64,8 @@ export class DetallesTicketComponent
   reconteoOk = false;
   idLavadora!:number;
   idSecadora!:number;
-  idLavadoraExtra!:number;
-  idSecadoraExtra!:number;
+  idLavadoraExtra:number | undefined;
+  idSecadoraExtra:number | undefined;
   idProcLavadoraExtra!:number;
   idProcSecadoraExtra!:number;
   lavadoras: Lavadora[] = [];
@@ -835,12 +835,18 @@ export class DetallesTicketComponent
       this.currentProcesoTicket =
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoLavado?.id) ?? null;
       this.idLavadora = this.currentProcesoTicket?.id_lavadora ?? null as unknown as number;
+      const procesos_de_lavado: ProcesoTicket[] = this.getTicketProcessesById(3);
+      this.idProcLavadoraExtra = procesos_de_lavado[1].id;
+      this.idLavadoraExtra = procesos_de_lavado[1].id_lavadora;
       break;
     case 2:
       const procesoSecado = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.SECADO);
       this.currentProcesoTicket =
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoSecado?.id) ?? null;
       this.idSecadora = this.currentProcesoTicket?.id_secadora ?? null as unknown as number;
+      const procesos_de_secado: ProcesoTicket[] = this.getTicketProcessesById(4);
+      this.idProcSecadoraExtra = procesos_de_secado[1].id;
+      this.idSecadoraExtra = procesos_de_secado[1].id_secadora;
       break;
     case 3:
       const procesoReconteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.RECONTEO);
@@ -856,6 +862,19 @@ export class DetallesTicketComponent
     default:
       break;
     }
+  }
+
+  private getTicketProcessesById(id: number): ProcesoTicket[]
+  {
+    const process_by_id: ProcesoTicket[] = [];
+    this.ticket.procesos_ticket.forEach(process =>
+    {
+      if(process.id_proceso === id)
+      {
+        process_by_id.push(process);
+      }
+    });
+    return process_by_id;
   }
 
   private populateLavadoras()
