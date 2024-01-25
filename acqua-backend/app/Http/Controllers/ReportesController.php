@@ -347,7 +347,6 @@ class ReportesController extends Controller
                 $ticketsProcesados[$id_ticket][$nombreProceso] = true;
             }
         }
-        // dd($ticketsProcesados);
         return $resultadosOrdenados;
     }
 
