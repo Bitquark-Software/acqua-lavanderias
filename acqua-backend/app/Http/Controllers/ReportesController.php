@@ -395,12 +395,13 @@ class ReportesController extends Controller
         return $tiempo;
     }
 
-    public function LavadorasTabla($fecha_inicio, $fecha_fin)
+    public function LavadorasTabla($fecha_inicio, $fecha_fin, $sucursal)
     {
         $resultado = Ticket::join('servicio_tickets', 'tickets.id', '=', 'servicio_tickets.id_ticket')
             ->join('prendas_tickets', 'tickets.id', '=', 'prendas_tickets.id_ticket')
             ->join('proceso_tickets', 'tickets.id', '=', 'proceso_tickets.id_ticket')
             ->join('lavadoras', 'lavadoras.id', '=', 'proceso_tickets.id_lavadora')
+            ->where('lavadoras.id_sucursal', '=', $sucursal)
             ->whereBetween('tickets.created_at', [$fecha_inicio, $fecha_fin])
             ->select([
                 'lavadoras.nombre',
@@ -426,12 +427,13 @@ class ReportesController extends Controller
         return $resultado;
     }
 
-    public function SecadorasTabla($fecha_inicio, $fecha_fin)
+    public function SecadorasTabla($fecha_inicio, $fecha_fin, $sucursal)
     {
         $resultado = Ticket::join('servicio_tickets', 'tickets.id', '=', 'servicio_tickets.id_ticket')
             ->join('prendas_tickets', 'tickets.id', '=', 'prendas_tickets.id_ticket')
             ->join('proceso_tickets', 'tickets.id', '=', 'proceso_tickets.id_ticket')
             ->join('secadoras', 'secadoras.id', '=', 'proceso_tickets.id_secadora')
+            ->where('secadoras.id_sucursal', '=', $sucursal)
             ->whereBetween('tickets.created_at', [$fecha_inicio, $fecha_fin])
             ->select([
                 'secadoras.nombre',
@@ -546,11 +548,11 @@ class ReportesController extends Controller
             $resultadosOrdenados2 = $this->calcularResultadosOrdenados($resServiciosKilos, true); // Tabla 2
 
             // Lavadpras
-            $resultadoLavadoras = $this->LavadorasTabla($inicioFechaConsulta, $finFechaConsulta);
+            $resultadoLavadoras = $this->LavadorasTabla($inicioFechaConsulta, $finFechaConsulta, $request->sucursal);
             $resOrdenadosLav = $this->resultadosOrdenadosLavSec($resultadoLavadoras);
 
             // Secadoras
-            $resultadoSecadoras = $this->SecadorasTabla($inicioFechaConsulta, $finFechaConsulta);
+            $resultadoSecadoras = $this->SecadorasTabla($inicioFechaConsulta, $finFechaConsulta, $request->sucursal);
             $resOrdenadosSec = $this->resultadosOrdenadosLavSec(null, $resultadoSecadoras);
         } catch (\Exception $e) {
             return response()->json([
