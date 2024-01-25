@@ -94,8 +94,10 @@ Route::prefix('stats')->middleware(['auth:api', AdminOnlyMiddleware::class])->gr
     Route::get('/reporte-general-ventas', [StatsController::class, 'reportGenVent'])->name('stats.reporte-general-ventas');
     // Generacion de Reporte General de Ventas PDF
     Route::post('/reporte-general-ventas-pdf', [StatsController::class, 'repGenVentPdf'])->name('stats.rep-gen-vent-Pdf');
-    // Generacion de Reporte Detallado
+    // Generacion de Reporte Detallado PDF
     Route::post('/reporte-detallado-ventas-pdf', [ReportesController::class, 'repDetPdf'])->name('stats.rep-deta-vent-pdf');
+    // Generacion de Reporte de Produccion PDF
+    Route::post('/reporte-produccion-pdf', [ReportesController::class, 'repProdPdf'])->name('stats.rep-prod-pdf');
 });
 
 Route::prefix('whatsapp')->group(function () {
