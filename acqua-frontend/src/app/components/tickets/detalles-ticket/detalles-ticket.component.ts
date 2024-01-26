@@ -311,7 +311,7 @@ export class DetallesTicketComponent
           ).subscribe({
             next: () =>
             {
-              this.ticketService.agregarLavadoraExtra(
+              this.ticketService.addLavadoraExtra(
                 this.ticket.id,
                 this.idLavadoraExtra ?? 3,
               ).subscribe({
@@ -358,7 +358,7 @@ export class DetallesTicketComponent
             ).subscribe({
               next: () =>
               {
-                this.ticketService.agregarSecadoraExtra(
+                this.ticketService.addSecadoraExtra(
                   this.ticket.id,
                   this.idSecadoraExtra ?? 3,
                 ).subscribe({
