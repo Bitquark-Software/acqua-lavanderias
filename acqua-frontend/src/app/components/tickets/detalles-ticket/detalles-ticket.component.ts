@@ -68,6 +68,8 @@ export class DetallesTicketComponent
   idSecadoraExtra:number | undefined;
   idProcLavadoraExtra!:number;
   idProcSecadoraExtra!:number;
+  procLavadoraExtra!:ResLavSecXtra | null;
+  procSecadoraExtra!:ResLavSecXtra | null;
   lavadoras: Lavadora[] = [];
   secadoras: Secadora[] = [];
 
@@ -317,9 +319,9 @@ export class DetallesTicketComponent
               ).subscribe({
                 next: (responseProcXtra: ResLavSecXtra) =>
                 {
+                  this.procLavadoraExtra = responseProcXtra;
                   console.log('Respuesta del proceso de la lavadora extra: ');
-                  console.log(responseProcXtra);
-                  this.idProcLavadoraExtra = responseProcXtra.data!.id;
+                  console.log(this.procLavadoraExtra);
                   this.stepCursor+= 1;
                   this.fetchTicketById();
                 },
@@ -364,9 +366,9 @@ export class DetallesTicketComponent
                 ).subscribe({
                   next: (responseProcXtra: ResLavSecXtra) =>
                   {
+                    this.procSecadoraExtra = responseProcXtra;
                     console.log('Respuesta del proceso de la secadora extra: ');
-                    console.log(responseProcXtra);
-                    this.idProcSecadoraExtra = responseProcXtra.data!.id;
+                    console.log(this.procSecadoraExtra);
                     this.stepCursor+= 1;
                     this.fetchTicketById();
                   },
