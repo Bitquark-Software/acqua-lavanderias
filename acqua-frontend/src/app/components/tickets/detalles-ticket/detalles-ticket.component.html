@@ -190,7 +190,7 @@
       <div class="grid grid-cols-1 gap-4 mt-4">
         <div class="form-control w-full pb-3">
           <select class="select select-bordered" [(ngModel)]="idLavadora" (change)="setLavadoraSeleccionada()">
-            <option *ngFor="let lavadora of lavadoras" [value]="lavadora.id">{{lavadora.nombre}}</option>
+            <option *ngFor="let lavadora of lavadoras" [value]="lavadora.id" [disabled]="lavadora.id === idLavadoraExtra">{{lavadora.nombre}}</option>
           </select>
         </div>
       </div>
@@ -250,7 +250,7 @@
       <div class="grid grid-cols-1 gap-4 mt-4">
         <div class="form-control w-full pb-3">
           <select class="select select-bordered" [(ngModel)]="idSecadora" (change)="setSecadoraSeleccionada()">
-            <option *ngFor="let secadora of secadoras" [value]="secadora.id">{{secadora.nombre}}</option>
+            <option *ngFor="let secadora of secadoras" [value]="secadora.id" [disabled]="secadora.id === idSecadoraExtra">{{secadora.nombre}}</option>
           </select>
         </div>
       </div>
