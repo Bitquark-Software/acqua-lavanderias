@@ -665,44 +665,44 @@ export class DetallesTicketComponent
 
   setLavadoraExtraSeleccionada()
   {
-    if(!this.existeProcesoLavadoraExtra())
+    if(this.idLavadoraValido(this.idLavadoraExtra))
     {
-      this.crearRegistroLavadoraExtra();
-    }
-    else if (this.idLavadoraValido(this.idLavadoraExtra!))
-    {
-      this.actualizarRegistroLavadoraExtra();
+      if(!this.existeProcesoLavadoraExtra())
+      {
+        this.crearRegistroLavadoraExtra();
+      }
+      else
+      {
+        this.actualizarRegistroLavadoraExtra();
+      }
     }
     else
     {
-      this.toast.error('Error inesperado en el proceso la lavadora extra');
+      this.toast.error('Error al seleccionar la lavadora extra');
     }
   }
 
   private crearRegistroLavadoraExtra()
   {
-    if(this.idLavadoraValido(this.idLavadoraExtra))
-    {
-      this.isLoading = true;
-      this.ticketService.addLavadoraExtra(
-        this.ticket.id,
-        this.idLavadoraExtra!,
-      ).subscribe({
-        next: (responseProcXtra: ResLavSecXtra) =>
-        {
-          this.procLavadoraExtra = responseProcXtra;
-          this.idProcLavadoraExtra = responseProcXtra.data!.id;
-          this.toast.success('Lavadora extra agregada!');
-          this.fetchTicketById();
-        },
-        error: (err) =>
-        {
-          this.toast.error(`Error al registrar la lavadora extra: ${err.message}`);
-          console.error(err);
-          this.isLoading = false;
-        },
-      });
-    }
+    this.isLoading = true;
+    this.ticketService.addLavadoraExtra(
+      this.ticket.id,
+      this.idLavadoraExtra!,
+    ).subscribe({
+      next: (responseProcXtra: ResLavSecXtra) =>
+      {
+        this.procLavadoraExtra = responseProcXtra;
+        this.idProcLavadoraExtra = responseProcXtra.data!.id;
+        this.toast.success('Lavadora extra agregada!');
+        this.fetchTicketById();
+      },
+      error: (err) =>
+      {
+        this.toast.error(`Error al registrar la lavadora extra: ${err.message}`);
+        console.error(err);
+        this.isLoading = false;
+      },
+    });
   }
 
   private actualizarRegistroLavadoraExtra()
@@ -739,43 +739,43 @@ export class DetallesTicketComponent
 
   setSecadoraExtraSeleccionada()
   {
-    if(!this.existeProcesoSecadoraExtra())
+    if(this.idSecadoraValido(this.idSecadoraExtra))
     {
-      this.crearRegistroSecadoraExtra();
-    }
-    else if (this.idSecadoraValido(this.idSecadoraExtra!))
-    {
-      this.actualizarRegistroSecadoraExtra();
+      if(!this.existeProcesoSecadoraExtra())
+      {
+        this.crearRegistroSecadoraExtra();
+      }
+      else
+      {
+        this.actualizarRegistroSecadoraExtra();
+      }
     }
     else
     {
-      this.toast.error('Error inesperado en el proceso la lavadora extra');
+      this.toast.error('Error al seleccionar la secadora extra');
     }
   }
 
   private crearRegistroSecadoraExtra()
   {
-    if(this.idSecadoraValido(this.idSecadoraExtra))
-    {
-      this.ticketService.addSecadoraExtra(
-        this.ticket.id,
-        this.idSecadoraExtra!,
-      ).subscribe({
-        next: (responseProcXtra: ResLavSecXtra) =>
-        {
-          this.procSecadoraExtra = responseProcXtra;
-          this.idProcSecadoraExtra = responseProcXtra.data!.id;
-          this.toast.success('Lavadora extra agregada!');
-          this.fetchTicketById();
-        },
-        error: (err) =>
-        {
-          this.toast.error(`Error al agregar la secadora extra: ${err.message}`);
-          console.error(err);
-          this.isLoading = false;
-        },
-      });
-    }
+    this.ticketService.addSecadoraExtra(
+      this.ticket.id,
+      this.idSecadoraExtra!,
+    ).subscribe({
+      next: (responseProcXtra: ResLavSecXtra) =>
+      {
+        this.procSecadoraExtra = responseProcXtra;
+        this.idProcSecadoraExtra = responseProcXtra.data!.id;
+        this.toast.success('Lavadora extra agregada!');
+        this.fetchTicketById();
+      },
+      error: (err) =>
+      {
+        this.toast.error(`Error al agregar la secadora extra: ${err.message}`);
+        console.error(err);
+        this.isLoading = false;
+      },
+    });
   }
 
   private actualizarRegistroSecadoraExtra()
