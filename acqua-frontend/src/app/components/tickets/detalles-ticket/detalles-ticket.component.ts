@@ -313,25 +313,8 @@ export class DetallesTicketComponent
           ).subscribe({
             next: () =>
             {
-              this.ticketService.addLavadoraExtra(
-                this.ticket.id,
-                this.idLavadoraExtra ?? 3,
-              ).subscribe({
-                next: (responseProcXtra: ResLavSecXtra) =>
-                {
-                  this.procLavadoraExtra = responseProcXtra;
-                  console.log('Respuesta del proceso de la lavadora extra: ');
-                  console.log(this.procLavadoraExtra);
-                  this.stepCursor+= 1;
-                  this.fetchTicketById();
-                },
-                error: (err) =>
-                {
-                  this.toast.error(`Error en del proceso la lavadora extra: ${err.message}`);
-                  console.error(err);
-                  this.isLoading = false;
-                },
-              });
+              this.stepCursor+= 1;
+              this.fetchTicketById();
             },
             error: (err) =>
             {
@@ -360,25 +343,8 @@ export class DetallesTicketComponent
             ).subscribe({
               next: () =>
               {
-                this.ticketService.addSecadoraExtra(
-                  this.ticket.id,
-                  this.idSecadoraExtra ?? 3,
-                ).subscribe({
-                  next: (responseProcXtra: ResLavSecXtra) =>
-                  {
-                    this.procSecadoraExtra = responseProcXtra;
-                    console.log('Respuesta del proceso de la secadora extra: ');
-                    console.log(this.procSecadoraExtra);
-                    this.stepCursor+= 1;
-                    this.fetchTicketById();
-                  },
-                  error: (err) =>
-                  {
-                    this.toast.error(`Error al agregar la secadora extra: ${err.message}`);
-                    console.error(err);
-                    this.isLoading = false;
-                  },
-                });
+                this.stepCursor+= 1;
+                this.fetchTicketById();
               },
               error: (err) =>
               {
@@ -658,14 +624,95 @@ export class DetallesTicketComponent
 
   }
 
+  private getTicketProcessesById(id: number): ProcesoTicket[]
+  {
+    const process_by_id: ProcesoTicket[] = [];
+    this.ticket.procesos_ticket.forEach(process =>
+    {
+      if(process.id_proceso === id)
+      {
+        process_by_id.push(process);
+      }
+    });
+    return process_by_id;
+  }
+
+  private noExisteProcesoExtras(id = 0): boolean
+  {
+    const procesos_extras: ProcesoTicket[] = this.getTicketProcessesById(id);
+    return procesos_extras.length <= 1;
+  }
+
+  private existeProcesoLavadoraExtra(): boolean
+  {
+    return !this.noExisteProcesoExtras(3);
+  }
+
+  private existeProcesoSecadoraExtra(): boolean
+  {
+    return !this.noExisteProcesoExtras(4);
+  }
+
+  private idLavadoraValido(id = 0)
+  {
+    return id>0 && id<=this.lavadoras.length;
+  }
+
+  private idSecadoraValido(id = 0)
+  {
+    return id>0 && id<=this.secadoras.length;
+  }
+
   setLavadoraExtraSeleccionada()
+  {
+    if(!this.existeProcesoLavadoraExtra())
+    {
+      this.crearRegistroLavadoraExtra();
+    }
+    else if (this.idLavadoraValido(this.idLavadoraExtra!))
+    {
+      this.actualizarRegistroLavadoraExtra();
+    }
+    else
+    {
+      this.toast.error('Error inesperado en el proceso la lavadora extra');
+    }
+  }
+
+  private crearRegistroLavadoraExtra()
+  {
+    if(this.idLavadoraValido(this.idLavadoraExtra))
+    {
+      this.isLoading = true;
+      this.ticketService.addLavadoraExtra(
+        this.ticket.id,
+        this.idLavadoraExtra,
+      ).subscribe({
+        next: (responseProcXtra: ResLavSecXtra) =>
+        {
+          this.procLavadoraExtra = responseProcXtra;
+          this.idProcLavadoraExtra = responseProcXtra.data!.id;
+          this.toast.success('Lavadora extra agregada!');
+          this.fetchTicketById();
+        },
+        error: (err) =>
+        {
+          this.toast.error(`Error al registrar la lavadora extra: ${err.message}`);
+          console.error(err);
+          this.isLoading = false;
+        },
+      });
+    }
+  }
+
+  private actualizarRegistroLavadoraExtra()
   {
     this.isLoading = true;
     this.ticketService.updateProceso(
       this.idProcLavadoraExtra ?? 0, this.idLavadoraExtra ?? 0).subscribe({
       next: () =>
       {
-        this.toast.success('Lavadora extra asignada');
+        this.toast.success('Lavadora extra actualizada');
         this.fetchTicketById();
       },
       error: (err) =>
@@ -692,12 +739,53 @@ export class DetallesTicketComponent
 
   setSecadoraExtraSeleccionada()
   {
+    if(!this.existeProcesoSecadoraExtra())
+    {
+      this.crearRegistroSecadoraExtra();
+    }
+    else if (this.idSecadoraValido(this.idSecadoraExtra!))
+    {
+      this.actualizarRegistroSecadoraExtra();
+    }
+    else
+    {
+      this.toast.error('Error inesperado en el proceso la lavadora extra');
+    }
+  }
+
+  private crearRegistroSecadoraExtra()
+  {
+    if(this.idSecadoraValido(this.idSecadoraExtra))
+    {
+      this.ticketService.addSecadoraExtra(
+        this.ticket.id,
+        this.idSecadoraExtra,
+      ).subscribe({
+        next: (responseProcXtra: ResLavSecXtra) =>
+        {
+          this.procSecadoraExtra = responseProcXtra;
+          this.idProcSecadoraExtra = responseProcXtra.data!.id;
+          this.stepCursor+= 1;
+          this.fetchTicketById();
+        },
+        error: (err) =>
+        {
+          this.toast.error(`Error al agregar la secadora extra: ${err.message}`);
+          console.error(err);
+          this.isLoading = false;
+        },
+      });
+    }
+  }
+
+  private actualizarRegistroSecadoraExtra()
+  {
     this.isLoading = true;
     this.ticketService.updateProceso(
       this.idProcSecadoraExtra ?? 0, null as unknown as number, this.idSecadoraExtra ?? 0).subscribe({
       next: () =>
       {
-        this.toast.success('Secadora extra asignada');
+        this.toast.success('Secadora extra actualizada');
         this.fetchTicketById();
       },
       error: (err) =>
@@ -816,8 +904,11 @@ export class DetallesTicketComponent
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoLavado?.id) ?? null;
       this.idLavadora = this.currentProcesoTicket?.id_lavadora ?? null as unknown as number;
       const procesos_de_lavado: ProcesoTicket[] = this.getTicketProcessesById(3);
-      this.idProcLavadoraExtra = procesos_de_lavado[1].id;
-      this.idLavadoraExtra = procesos_de_lavado[1].id_lavadora;
+      if(procesos_de_lavado.length > 1)
+      {
+        this.idProcLavadoraExtra = procesos_de_lavado[1].id;
+        this.idLavadoraExtra = procesos_de_lavado[1].id_lavadora;
+      }
       break;
     case 2:
       const procesoSecado = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.SECADO);
@@ -825,8 +916,11 @@ export class DetallesTicketComponent
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoSecado?.id) ?? null;
       this.idSecadora = this.currentProcesoTicket?.id_secadora ?? null as unknown as number;
       const procesos_de_secado: ProcesoTicket[] = this.getTicketProcessesById(4);
-      this.idProcSecadoraExtra = procesos_de_secado[1].id;
-      this.idSecadoraExtra = procesos_de_secado[1].id_secadora;
+      if(procesos_de_secado.length > 1)
+      {
+        this.idProcSecadoraExtra = procesos_de_secado[1].id;
+        this.idSecadoraExtra = procesos_de_secado[1].id_secadora;
+      }
       break;
     case 3:
       const procesoReconteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.RECONTEO);
@@ -842,19 +936,6 @@ export class DetallesTicketComponent
     default:
       break;
     }
-  }
-
-  private getTicketProcessesById(id: number): ProcesoTicket[]
-  {
-    const process_by_id: ProcesoTicket[] = [];
-    this.ticket.procesos_ticket.forEach(process =>
-    {
-      if(process.id_proceso === id)
-      {
-        process_by_id.push(process);
-      }
-    });
-    return process_by_id;
   }
 
   private populateLavadoras()
