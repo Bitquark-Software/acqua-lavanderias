@@ -686,7 +686,7 @@ export class DetallesTicketComponent
       this.isLoading = true;
       this.ticketService.addLavadoraExtra(
         this.ticket.id,
-        this.idLavadoraExtra,
+        this.idLavadoraExtra!,
       ).subscribe({
         next: (responseProcXtra: ResLavSecXtra) =>
         {
@@ -759,13 +759,13 @@ export class DetallesTicketComponent
     {
       this.ticketService.addSecadoraExtra(
         this.ticket.id,
-        this.idSecadoraExtra,
+        this.idSecadoraExtra!,
       ).subscribe({
         next: (responseProcXtra: ResLavSecXtra) =>
         {
           this.procSecadoraExtra = responseProcXtra;
           this.idProcSecadoraExtra = responseProcXtra.data!.id;
-          this.stepCursor+= 1;
+          this.toast.success('Lavadora extra agregada!');
           this.fetchTicketById();
         },
         error: (err) =>

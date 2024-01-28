@@ -154,7 +154,7 @@ export class TicketService
     );
   }
 
-  addLavadoraExtra(id_ticket: number, id_lavadora?: number)
+  addLavadoraExtra(id_ticket: number, id_lavadora: number)
   {
     return this.httpClient.post(`${API_URL}/lavadora-secadora-adicional`, {
       lavadora: id_lavadora,
@@ -163,7 +163,7 @@ export class TicketService
     { headers: this.authService.getHeaders() });
   }
 
-  addSecadoraExtra(id_ticket: number, id_secadora?: number)
+  addSecadoraExtra(id_ticket: number, id_secadora: number)
   {
     return this.httpClient.post(`${API_URL}/lavadora-secadora-adicional`, {
       secadora: id_secadora,
