@@ -637,9 +637,9 @@ export class DetallesTicketComponent
     return process_by_id;
   }
 
-  private noExisteProcesoExtras(id = 0): boolean
+  private noExisteProcesoExtras(idProceso = 0): boolean
   {
-    const procesos_extras: ProcesoTicket[] = this.getTicketProcessesById(id);
+    const procesos_extras: ProcesoTicket[] = this.getTicketProcessesById(idProceso);
     return procesos_extras.length <= 1;
   }
 
@@ -673,7 +673,7 @@ export class DetallesTicketComponent
       }
       else
       {
-        this.actualizarRegistroLavadoraExtra();
+        this.updateLavadora(this.idProcLavadoraExtra, this.idLavadoraExtra, 'Lavadora extra');
       }
     }
     else
@@ -705,19 +705,19 @@ export class DetallesTicketComponent
     });
   }
 
-  private actualizarRegistroLavadoraExtra()
+  private updateLavadora(idProceso = 0, idLavadora = 0, nameLavadora: string)
   {
     this.isLoading = true;
     this.ticketService.updateProceso(
-      this.idProcLavadoraExtra ?? 0, this.idLavadoraExtra ?? 0).subscribe({
+      idProceso ?? 0, idLavadora ?? 0).subscribe({
       next: () =>
       {
-        this.toast.success('Lavadora extra actualizada');
+        this.toast.success(`${nameLavadora} asignada`);
         this.fetchTicketById();
       },
       error: (err) =>
       {
-        this.toast.error(`Error al actualizar la lavadora extra: ${err.message}`);
+        this.toast.error(`Error al actualizar la ${nameLavadora}: ${err.message}`);
         console.error(err);
         this.isLoading = false;
       },
@@ -726,15 +726,7 @@ export class DetallesTicketComponent
 
   setLavadoraSeleccionada()
   {
-    this.isLoading = true;
-    this.ticketService.updateProceso(
-      this.currentProcesoTicket?.id ?? 0, this.idLavadora ?? 0).subscribe({
-      next: () =>
-      {
-        this.toast.success('Lavadora asignada');
-        this.fetchTicketById();
-      },
-    });
+    this.updateLavadora(this.currentProcesoTicket!.id, this.idLavadora, 'Lavadora');
   }
 
   setSecadoraExtraSeleccionada()
@@ -747,7 +739,7 @@ export class DetallesTicketComponent
       }
       else
       {
-        this.actualizarRegistroSecadoraExtra();
+        this.updateSecadora(this.idProcSecadoraExtra, this.idSecadoraExtra, 'Secadora extra');
       }
     }
     else
@@ -778,19 +770,19 @@ export class DetallesTicketComponent
     });
   }
 
-  private actualizarRegistroSecadoraExtra()
+  private updateSecadora(idProceso = 0, idSecadora = 0, nameSecadora: string)
   {
     this.isLoading = true;
     this.ticketService.updateProceso(
-      this.idProcSecadoraExtra ?? 0, null as unknown as number, this.idSecadoraExtra ?? 0).subscribe({
+      idProceso, null as unknown as number, idSecadora).subscribe({
       next: () =>
       {
-        this.toast.success('Secadora extra actualizada');
+        this.toast.success(`${nameSecadora} asignada`);
         this.fetchTicketById();
       },
       error: (err) =>
       {
-        this.toast.error(`Error al actualizar la secadora extra: ${err.message}`);
+        this.toast.error(`Error al actualizar la ${nameSecadora}: ${err.message}`);
         console.error(err);
         this.isLoading = false;
       },
@@ -799,15 +791,7 @@ export class DetallesTicketComponent
 
   setSecadoraSeleccionada()
   {
-    this.isLoading = true;
-    this.ticketService.updateProceso(
-      this.currentProcesoTicket?.id ?? 0, null as unknown as number, this.idSecadora ?? 0).subscribe({
-      next: () =>
-      {
-        this.toast.success('Secadora asignada');
-        this.fetchTicketById();
-      },
-    });
+    this.updateSecadora(this.currentProcesoTicket!.id, this.idSecadora, 'Secadora');
   }
 
   private populateChat()
