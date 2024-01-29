@@ -307,9 +307,7 @@ export class DetallesTicketComponent
       this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe({
         next: () =>
         {
-          const proceso_acqua = this.PROCESOS_EXISTENTES.find(
-            p => p.nombre === ProcesosAcqua.LAVADO) as unknown as Proceso;
-          this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
+          this.registrarProcesoLavado();
         },
         error: () => this.isLoading = false,
       });
@@ -329,18 +327,14 @@ export class DetallesTicketComponent
               this.ticketService.updateProceso(this.idProcLavadoraExtra).subscribe({
                 next: () =>
                 {
-                  const proceso_acqua = this.PROCESOS_EXISTENTES.find(
-                    p => p.nombre === ProcesosAcqua.SECADO) as unknown as Proceso;
-                  this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
+                  this.registrarProcesoSecado();
                 },
                 error: () => this.isLoading = false,
               });
             }
             else
             {
-              const proceso_acqua = this.PROCESOS_EXISTENTES.find(
-                p => p.nombre === ProcesosAcqua.SECADO) as unknown as Proceso;
-              this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
+              this.registrarProcesoSecado();
             }
           },
         });
@@ -365,18 +359,14 @@ export class DetallesTicketComponent
               this.ticketService.updateProceso(this.idProcSecadoraExtra).subscribe({
                 next: () =>
                 {
-                  const proceso_acqua = this.PROCESOS_EXISTENTES.find(
-                    p => p.nombre === ProcesosAcqua.RECONTEO) as unknown as Proceso;
-                  this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
+                  this.registrarProcesoReconteo();
                 },
                 error: () => this.isLoading = false,
               });
             }
             else
             {
-              const proceso_acqua = this.PROCESOS_EXISTENTES.find(
-                p => p.nombre === ProcesosAcqua.RECONTEO) as unknown as Proceso;
-              this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
+              this.registrarProcesoReconteo();
             }
           },
           error: (err) =>
@@ -401,9 +391,7 @@ export class DetallesTicketComponent
           this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe({
             next: () =>
             {
-              const proceso_acqua = this.PROCESOS_EXISTENTES.find(
-                p => p.nombre === ProcesosAcqua.ENTREGA) as unknown as Proceso;
-              this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
+              this.registrarProcesoEntrega();
             },
             error: (err) =>
             {
@@ -442,6 +430,34 @@ export class DetallesTicketComponent
     default:
       this.stepCursor = 0;
     }
+  }
+
+  private registrarProcesoLavado()
+  {
+    const proceso_acqua = this.PROCESOS_EXISTENTES.find(
+      p => p.nombre === ProcesosAcqua.LAVADO) as unknown as Proceso;
+    this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
+  }
+
+  private registrarProcesoSecado()
+  {
+    const proceso_acqua = this.PROCESOS_EXISTENTES.find(
+      p => p.nombre === ProcesosAcqua.SECADO) as unknown as Proceso;
+    this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
+  }
+
+  private registrarProcesoReconteo()
+  {
+    const proceso_acqua = this.PROCESOS_EXISTENTES.find(
+      p => p.nombre === ProcesosAcqua.RECONTEO) as unknown as Proceso;
+    this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
+  }
+
+  private registrarProcesoEntrega()
+  {
+    const proceso_acqua = this.PROCESOS_EXISTENTES.find(
+      p => p.nombre === ProcesosAcqua.ENTREGA) as unknown as Proceso;
+    this.registrarProcesosAcqua(this.ticket.id, proceso_acqua);
   }
 
   private registrarProcesosAcqua(idTicket = 0, proceso_acqua: Proceso)
@@ -884,11 +900,12 @@ export class DetallesTicketComponent
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoInicial?.id) ?? null;
       break;
     case 1:
-      const procesoLavado = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.LAVADO);
-      this.currentProcesoTicket =
-        this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoLavado?.id) ?? null;
-      this.idLavadora = this.currentProcesoTicket?.id_lavadora ?? null as unknown as number;
       const procesos_de_lavado: ProcesoTicket[] = this.getTicketProcessesById(3);
+      if(procesos_de_lavado.length > 0)
+      {
+        this.currentProcesoTicket = procesos_de_lavado[0];
+        this.idLavadora = procesos_de_lavado[0].id_lavadora!;
+      }
       if(procesos_de_lavado.length > 1)
       {
         this.idProcLavadoraExtra = procesos_de_lavado[1].id;
@@ -896,11 +913,12 @@ export class DetallesTicketComponent
       }
       break;
     case 2:
-      const procesoSecado = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.SECADO);
-      this.currentProcesoTicket =
-        this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoSecado?.id) ?? null;
-      this.idSecadora = this.currentProcesoTicket?.id_secadora ?? null as unknown as number;
       const procesos_de_secado: ProcesoTicket[] = this.getTicketProcessesById(4);
+      if(procesos_de_secado.length > 0)
+      {
+        this.currentProcesoTicket = procesos_de_secado[0];
+        this.idSecadora = procesos_de_secado[0].id_secadora!;
+      }
       if(procesos_de_secado.length > 1)
       {
         this.idProcSecadoraExtra = procesos_de_secado[1].id;
