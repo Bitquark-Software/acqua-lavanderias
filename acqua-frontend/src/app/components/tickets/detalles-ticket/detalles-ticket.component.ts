@@ -663,26 +663,7 @@ export class DetallesTicketComponent
     return id>0 && id<=this.secadoras.length;
   }
 
-  setLavadoraExtraSeleccionada()
-  {
-    if(this.idLavadoraValido(this.idLavadoraExtra))
-    {
-      if(!this.existeProcesoLavadoraExtra())
-      {
-        this.crearRegistroLavadoraExtra();
-      }
-      else
-      {
-        this.updateLavadora(this.idProcLavadoraExtra, this.idLavadoraExtra, 'Lavadora extra');
-      }
-    }
-    else
-    {
-      this.toast.error('Error al seleccionar la lavadora extra');
-    }
-  }
-
-  private crearRegistroLavadoraExtra()
+  private createLavadoraExtra()
   {
     this.isLoading = true;
     this.ticketService.addLavadoraExtra(
@@ -724,31 +705,7 @@ export class DetallesTicketComponent
     });
   }
 
-  setLavadoraSeleccionada()
-  {
-    this.updateLavadora(this.currentProcesoTicket!.id, this.idLavadora, 'Lavadora');
-  }
-
-  setSecadoraExtraSeleccionada()
-  {
-    if(this.idSecadoraValido(this.idSecadoraExtra))
-    {
-      if(!this.existeProcesoSecadoraExtra())
-      {
-        this.crearRegistroSecadoraExtra();
-      }
-      else
-      {
-        this.updateSecadora(this.idProcSecadoraExtra, this.idSecadoraExtra, 'Secadora extra');
-      }
-    }
-    else
-    {
-      this.toast.error('Error al seleccionar la secadora extra');
-    }
-  }
-
-  private crearRegistroSecadoraExtra()
+  private createSecadoraExtra()
   {
     this.ticketService.addSecadoraExtra(
       this.ticket.id,
@@ -789,9 +746,52 @@ export class DetallesTicketComponent
     });
   }
 
+  setLavadoraSeleccionada()
+  {
+    this.updateLavadora(this.currentProcesoTicket!.id, this.idLavadora, 'Lavadora');
+  }
+
   setSecadoraSeleccionada()
   {
     this.updateSecadora(this.currentProcesoTicket!.id, this.idSecadora, 'Secadora');
+  }
+
+  setLavadoraExtraSeleccionada()
+  {
+    if(this.idLavadoraValido(this.idLavadoraExtra))
+    {
+      if(!this.existeProcesoLavadoraExtra())
+      {
+        this.createLavadoraExtra();
+      }
+      else
+      {
+        this.updateLavadora(this.idProcLavadoraExtra, this.idLavadoraExtra, 'Lavadora extra');
+      }
+    }
+    else
+    {
+      this.toast.error('Error al seleccionar la lavadora extra');
+    }
+  }
+
+  setSecadoraExtraSeleccionada()
+  {
+    if(this.idSecadoraValido(this.idSecadoraExtra))
+    {
+      if(!this.existeProcesoSecadoraExtra())
+      {
+        this.createSecadoraExtra();
+      }
+      else
+      {
+        this.updateSecadora(this.idProcSecadoraExtra, this.idSecadoraExtra, 'Secadora extra');
+      }
+    }
+    else
+    {
+      this.toast.error('Error al seleccionar la secadora extra');
+    }
   }
 
   private populateChat()
