@@ -20,7 +20,9 @@ use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ProcesoTicketController;
 use App\Http\Controllers\StatsController;
-use App\Http\Controllers\ReportesController;
+use App\Http\Controllers\RepotDetalladoVetasController;
+use App\Http\Controllers\ProdPersonalReportController;
+use App\Http\Controllers\ProdSucursalReportController;
 use App\Http\Controllers\WhatsAppController;
 
 Route::middleware('auth:api')->group(function () { // Para Empleados
@@ -95,9 +97,11 @@ Route::prefix('stats')->middleware(['auth:api', AdminOnlyMiddleware::class])->gr
     // Generacion de Reporte General de Ventas PDF
     Route::post('/reporte-general-ventas-pdf', [StatsController::class, 'repGenVentPdf'])->name('stats.rep-gen-vent-Pdf');
     // Generacion de Reporte Detallado PDF
-    Route::post('/reporte-detallado-ventas-pdf', [ReportesController::class, 'repDetPdf'])->name('stats.rep-deta-vent-pdf');
+    Route::post('/reporte-detallado-ventas-pdf', [RepotDetalladoVetasController::class, 'repDetPdf'])->name('stats.rep-deta-vent-pdf');
     // Generacion de Reporte de Produccion PDF
-    Route::post('/reporte-produccion-pdf', [ReportesController::class, 'repProdPdf'])->name('stats.rep-prod-pdf');
+    Route::post('/reporte-produccion-pdf', [ProdSucursalReportController::class, 'repProdPdf'])->name('stats.rep-prod-pdf');
+    // Generacion de Reporte de Usuarios PDDF
+    Route::post('/reporte-produccion-usuario-pdf', [ProdPersonalReportController::class, 'repProdUsuarioPdf'])->name('stats.rep-prod-usua-pdf');
 });
 
 Route::prefix('whatsapp')->group(function () {
