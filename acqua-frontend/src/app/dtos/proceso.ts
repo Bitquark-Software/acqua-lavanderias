@@ -27,7 +27,7 @@ export class ProcesoTicket
   id_secadora?: number;
 }
 
-export class ResDatLavSecXtra
+export class ResponseDataLavadoraSecadoraExtra
 {
   created_at?: Date | string;
   id!: number;
@@ -41,8 +41,8 @@ export class ResDatLavSecXtra
 
 }
 
-export class ResLavSecXtra
+export class ResponseLavadoraSecadoraExtra
 {
-  data?: ResDatLavSecXtra;
+  data?: ResponseDataLavadoraSecadoraExtra;
   mensaje?: string;
 }

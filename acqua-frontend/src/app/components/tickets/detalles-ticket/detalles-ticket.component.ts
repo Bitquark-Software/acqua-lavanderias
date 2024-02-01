@@ -13,7 +13,8 @@ import { HotToastService } from '@ngneat/hot-toast';
 import { Comentario } from 'src/app/dtos/comentario';
 import { Lavadora } from 'src/app/dtos/lavadora';
 import { Prenda, PrendaTicket } from 'src/app/dtos/prenda-ticket';
-import { Proceso, ProcesoTicket, ProcesosAcqua, ResLavSecXtra } from 'src/app/dtos/proceso';
+import { Proceso, ProcesoTicket, ProcesosAcqua } from 'src/app/dtos/proceso';
+import { ResponseLavadoraSecadoraExtra } from 'src/app/dtos/proceso';
 import { Sucursal } from 'src/app/dtos/sucursal';
 import { ReimpimirTicket, StatusTicket, Ticket } from 'src/app/dtos/ticket';
 import { AuthService } from 'src/app/services/auth-service.service';
@@ -68,8 +69,8 @@ export class DetallesTicketComponent
   idSecadoraExtra:number | undefined;
   idProcLavadoraExtra!:number;
   idProcSecadoraExtra!:number;
-  procLavadoraExtra!:ResLavSecXtra | null;
-  procSecadoraExtra!:ResLavSecXtra | null;
+  procLavadoraExtra!:ResponseLavadoraSecadoraExtra | null;
+  procSecadoraExtra!:ResponseLavadoraSecadoraExtra | null;
   lavadoras: Lavadora[] = [];
   secadoras: Secadora[] = [];
 
@@ -687,7 +688,7 @@ export class DetallesTicketComponent
       this.ticket.id,
       this.idLavadoraExtra!,
     ).subscribe({
-      next: (responseProcXtra: ResLavSecXtra) =>
+      next: (responseProcXtra: ResponseLavadoraSecadoraExtra) =>
       {
         this.procLavadoraExtra = responseProcXtra;
         this.idProcLavadoraExtra = responseProcXtra.data!.id;
@@ -728,7 +729,7 @@ export class DetallesTicketComponent
       this.ticket.id,
       this.idSecadoraExtra!,
     ).subscribe({
-      next: (responseProcXtra: ResLavSecXtra) =>
+      next: (responseProcXtra: ResponseLavadoraSecadoraExtra) =>
       {
         this.procSecadoraExtra = responseProcXtra;
         this.idProcSecadoraExtra = responseProcXtra.data!.id;
