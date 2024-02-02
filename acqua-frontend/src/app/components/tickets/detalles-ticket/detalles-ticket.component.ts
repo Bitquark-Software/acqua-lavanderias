@@ -316,7 +316,7 @@ export class DetallesTicketComponent
     // Lavado
     case 1:
     {
-      const procesos_de_lavado: ProcesoTicket[] = this.getTicketProcessesById(3);
+      const procesos_de_lavado: ProcesoTicket[] = this.getTicketProcessesByName(ProcesosAcqua.LAVADO);
       if(procesos_de_lavado.length > 0)
       {
         this.isLoading = true;
@@ -348,7 +348,7 @@ export class DetallesTicketComponent
     }
     // Secado
     case 2:
-      const procesos_de_secado: ProcesoTicket[] = this.getTicketProcessesById(4);
+      const procesos_de_secado: ProcesoTicket[] = this.getTicketProcessesByName(ProcesosAcqua.SECADO);
       if(procesos_de_secado.length > 0)
       {
         this.isLoading = true;
@@ -642,33 +642,28 @@ export class DetallesTicketComponent
 
   }
 
-  private getTicketProcessesById(id: number): ProcesoTicket[]
+  private getTicketProcessesByName(process_name: ProcesosAcqua): ProcesoTicket[]
   {
-    const process_by_id: ProcesoTicket[] = [];
-    this.ticket.procesos_ticket.forEach(process =>
-    {
-      if(process.id_proceso === id)
-      {
-        process_by_id.push(process);
-      }
-    });
-    return process_by_id;
+    const proceso_acqua = this.PROCESOS_EXISTENTES.find((p) => p.nombre === process_name);
+    const procesos: ProcesoTicket[] =
+      this.ticket.procesos_ticket.filter((pt) => pt.id_proceso === proceso_acqua?.id) ?? null;
+    return procesos;
   }
 
-  private noExisteProcesoExtras(idProceso = 0): boolean
+  private noExisteProcesoExtras(process_name: ProcesosAcqua): boolean
   {
-    const procesos_extras: ProcesoTicket[] = this.getTicketProcessesById(idProceso);
+    const procesos_extras: ProcesoTicket[] = this.getTicketProcessesByName(process_name);
     return procesos_extras.length <= 1;
   }
 
   private existeProcesoLavadoraExtra(): boolean
   {
-    return !this.noExisteProcesoExtras(3);
+    return !this.noExisteProcesoExtras(ProcesosAcqua.LAVADO);
   }
 
   private existeProcesoSecadoraExtra(): boolean
   {
-    return !this.noExisteProcesoExtras(4);
+    return !this.noExisteProcesoExtras(ProcesosAcqua.SECADO);
   }
 
   private idLavadoraValido(id = 0)
@@ -901,7 +896,7 @@ export class DetallesTicketComponent
         this.ticket.procesos_ticket.find((pt) => pt.id_proceso === procesoInicial?.id) ?? null;
       break;
     case 1:
-      const procesos_de_lavado: ProcesoTicket[] = this.getTicketProcessesById(3);
+      const procesos_de_lavado: ProcesoTicket[] = this.getTicketProcessesByName(ProcesosAcqua.LAVADO);
       if(procesos_de_lavado.length > 0)
       {
         this.currentProcesoTicket = procesos_de_lavado[0];
@@ -914,7 +909,7 @@ export class DetallesTicketComponent
       }
       break;
     case 2:
-      const procesos_de_secado: ProcesoTicket[] = this.getTicketProcessesById(4);
+      const procesos_de_secado: ProcesoTicket[] = this.getTicketProcessesByName(ProcesosAcqua.SECADO);
       if(procesos_de_secado.length > 0)
       {
         this.currentProcesoTicket = procesos_de_secado[0];
