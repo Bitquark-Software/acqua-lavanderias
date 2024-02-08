@@ -464,103 +464,113 @@
           <p>Sin datos</p>
         </div>
       </div>
-      <div class="collapse collapse-arrow bg-teal-50 mt-3"  *ngIf="isAdmin && !isLoadingStats">
-        <input type="radio" name="my-accordion-2" /> 
-        <div class="collapse-title text-xl font-medium">
-          Lavado - Click para ver más detalles
-        </div>
-        <div class="collapse-content" *ngIf="ticketStats.Lavado"> 
-          <div class="w-full stats stats-vertical sm:stats-horizontal shadow">
-  
-            <div class="stat">
-              <div class="stat-title">Días</div>
-              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_dias}}</div>
-            </div>
-            
-            <div class="stat">
-              <div class="stat-title">Horas</div>
-              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_horas}}</div>
-            </div>
-            
-            <div class="stat">
-              <div class="stat-title">Minutos</div>
-              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_minutos}}</div>
-            </div>
 
-            <div class="stat">
-              <div class="stat-title">Segundos</div>
-              <div class="stat-value">{{ticketStats.Lavado.diferencia_en_segundos}}</div>
+      <ng-container *ngIf="ticketStats.Lavado">
+        <ng-container *ngFor="let lavado of ticketStats.Lavado; let i=index">
+          <div class="collapse collapse-arrow bg-teal-50 mt-3"  *ngIf="isAdmin && !isLoadingStats">
+            <input type="radio" name="my-accordion-2" />
+            <div class="collapse-title text-xl font-medium">
+              Lavado {{i+1}} - Click para ver más detalles
             </div>
-            
+            <div class="collapse-content">
+              <div class="w-full stats stats-vertical sm:stats-horizontal shadow">
+
+                <div class="stat">
+                  <div class="stat-title">Días</div>
+                  <div class="stat-value">{{lavado.diferencia_en_dias}}</div>
+                </div>
+
+                <div class="stat">
+                  <div class="stat-title">Horas</div>
+                  <div class="stat-value">{{lavado.diferencia_en_horas}}</div>
+                </div>
+
+                <div class="stat">
+                  <div class="stat-title">Minutos</div>
+                  <div class="stat-value">{{lavado.diferencia_en_minutos}}</div>
+                </div>
+
+                <div class="stat">
+                  <div class="stat-title">Segundos</div>
+                  <div class="stat-value">{{lavado.diferencia_en_segundos}}</div>
+                </div>
+
+              </div>
+
+              <div class="w-full bg-base-300 stats shadow my-3">
+
+                <div class="stat">
+                  <div class="stat-title">Atendido por</div>
+                  <div class="stat-value truncate">{{lavado.nombre}}</div>
+                </div>
+
+                <div class="stat">
+                  <div class="stat-title">Time Track: </div>
+                  <div class="stat-value truncate">{{parseTimeTrackerToTimer(lavado.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(lavado.timestamp_end.toLocaleString('es-MX'))}}</div>
+                </div>
+
+              </div>
+            </div>
+            <div class="collapse-content" *ngIf="!lavado">
+              <p>Sin datos</p>
+            </div>
           </div>
+        </ng-container>
+      </ng-container>
 
-          <div class="w-full bg-base-300 stats shadow my-3">
-  
-            <div class="stat">
-              <div class="stat-title">Atendido por</div>
-              <div class="stat-value truncate">{{ticketStats.Lavado.nombre}}</div>
-            </div>
+      <ng-container *ngIf="ticketStats.Secado">
+        <ng-container *ngFor="let secado of ticketStats.Secado; let i=index">
 
-            <div class="stat">
-              <div class="stat-title">Time Track: </div>
-              <div class="stat-value truncate">{{parseTimeTrackerToTimer(ticketStats.Lavado.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(ticketStats.Lavado.timestamp_end.toLocaleString('es-MX'))}}</div>
+          <div class="collapse collapse-arrow bg-amber-50 mt-3"  *ngIf="isAdmin && !isLoadingStats">
+            <input type="radio" name="my-accordion-2" />
+            <div class="collapse-title text-xl font-medium">
+              Secado {{i+1}} - Click para ver más detalles
             </div>
-            
+            <div class="collapse-content">
+              <div class="w-full stats stats-vertical sm:stats-horizontal shadow">
+
+                <div class="stat">
+                  <div class="stat-title">Días</div>
+                  <div class="stat-value">{{secado.diferencia_en_dias}}</div>
+                </div>
+
+                <div class="stat">
+                  <div class="stat-title">Horas</div>
+                  <div class="stat-value">{{secado.diferencia_en_horas}}</div>
+                </div>
+
+                <div class="stat">
+                  <div class="stat-title">Minutos</div>
+                  <div class="stat-value">{{secado.diferencia_en_minutos}}</div>
+                </div>
+
+                <div class="stat">
+                  <div class="stat-title">Segundos</div>
+                  <div class="stat-value">{{secado.diferencia_en_segundos}}</div>
+                </div>
+
+              </div>
+
+              <div class="w-full bg-base-300 stats shadow my-3">
+
+                <div class="stat">
+                  <div class="stat-title">Atendido por</div>
+                  <div class="stat-value truncate">{{secado.nombre}}</div>
+                </div>
+
+                <div class="stat">
+                  <div class="stat-title">Time Track: </div>
+                  <div class="stat-value truncate">{{parseTimeTrackerToTimer(secado.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(secado.timestamp_end.toLocaleString('es-MX'))}}</div>
+                </div>
+
+              </div>
+            </div>
+            <div class="collapse-content" *ngIf="!secado">
+              <p>Sin datos</p>
+            </div>
           </div>
-        </div>
-        <div class="collapse-content" *ngIf="!ticketStats.Lavado"> 
-          <p>Sin datos</p>
-        </div>
-      </div>
-
-      <div class="collapse collapse-arrow bg-amber-50 mt-3"  *ngIf="isAdmin && !isLoadingStats">
-        <input type="radio" name="my-accordion-2" /> 
-        <div class="collapse-title text-xl font-medium">
-          Secado - Click para ver más detalles
-        </div>
-        <div class="collapse-content" *ngIf="ticketStats.Secado"> 
-          <div class="w-full stats stats-vertical sm:stats-horizontal shadow">
-  
-            <div class="stat">
-              <div class="stat-title">Días</div>
-              <div class="stat-value">{{ticketStats.Secado.diferencia_en_dias}}</div>
-            </div>
-            
-            <div class="stat">
-              <div class="stat-title">Horas</div>
-              <div class="stat-value">{{ticketStats.Secado.diferencia_en_horas}}</div>
-            </div>
-            
-            <div class="stat">
-              <div class="stat-title">Minutos</div>
-              <div class="stat-value">{{ticketStats.Secado.diferencia_en_minutos}}</div>
-            </div>
-
-            <div class="stat">
-              <div class="stat-title">Segundos</div>
-              <div class="stat-value">{{ticketStats.Secado.diferencia_en_segundos}}</div>
-            </div>
-            
-          </div>
-
-          <div class="w-full bg-base-300 stats shadow my-3">
-  
-            <div class="stat">
-              <div class="stat-title">Atendido por</div>
-              <div class="stat-value truncate">{{ticketStats.Secado.nombre}}</div>
-            </div>
-
-            <div class="stat">
-              <div class="stat-title">Time Track: </div>
-              <div class="stat-value truncate">{{parseTimeTrackerToTimer(ticketStats.Secado.timestamp_start.toLocaleString('es-MX'))}} - {{parseTimeTrackerToTimer(ticketStats.Secado.timestamp_end.toLocaleString('es-MX'))}}</div>
-            </div>
-            
-          </div>
-        </div>
-        <div class="collapse-content" *ngIf="!ticketStats.Secado"> 
-          <p>Sin datos</p>
-        </div>
-      </div>
+        </ng-container>
+      </ng-container>
 
       <div class="collapse collapse-arrow bg-stone-200 mt-3"  *ngIf="isAdmin && !isLoadingStats">
         <input type="radio" name="my-accordion-2" /> 
