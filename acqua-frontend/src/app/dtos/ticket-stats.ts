@@ -15,8 +15,8 @@ export class TicketStats
 {
   Ticket!: Ticket;
   Conteo?: TimeTrackerItem;
-  Lavado?: TimeTrackerItem;
-  Secado?: TimeTrackerItem;
+  Lavado?: TimeTrackerItem[];
+  Secado?: TimeTrackerItem[];
   Reconteo?: TimeTrackerItem;
   Planchado?: TimeTrackerItem;
   Entrega?: TimeTrackerItem;
