@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-vars */
+import { Location } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
@@ -24,14 +26,19 @@ export class DrawerComponent
 
   @ViewChild('modalClientesNavbar') modalClientesNavbar!: ElementRef<HTMLDialogElement>;
 
+  protected readonly DASHBOARD_URL = '/dashboard';
+  private currentUrl!: string;
+
   constructor(
     private authService: AuthService,
     private toast: HotToastService,
     private clientesService: ClientesService,
     private router: Router,
+    private location: Location,
   )
   {
     this.isAdmin = this.authService.session?.datos.role === Rol.Administrador ?? false;
+    this.currentUrl = this.location.path();
   }
 
   openClientesModal()
@@ -105,12 +112,24 @@ export class DrawerComponent
     return btoa(JSON.stringify(cliente));
   }
 
-  logout()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  logout(event:any)
   {
+    event.preventDefault();
     this.authService.logout().add(() =>
     {
       this.toast.show('¡Hasta luego!');
       this.router.navigateByUrl('/login', { skipLocationChange: true });
     });
+  }
+
+  public shouldEnableBackButton()
+  {
+    return this.currentUrl != this.DASHBOARD_URL;
+  }
+
+  public navigateBack()
+  {
+    history.back();
   }
 }
