@@ -48,19 +48,19 @@ export class RegistrarPagoComponent
     return this.fb.group({
       monto: ['', [
         Validators.required,
-        Validators.min(1),
-        Validators.max(this.ticket.restante ?? 1),
-        Validators.pattern(/^[0-9]+$/)],
-      ],
+        Validators.min(0.01),
+        Validators.max(Number(this.ticket.restante)),
+        Validators.pattern(/^\d+.?\d{0,2}$/),
+      ]],
       cantidadRecibida: ['', [
         Validators.required,
-        Validators.min(1),
-        Validators.pattern(/^[0-9]+$/),
+        Validators.min(Number(this.monto)),
+        Validators.pattern(/^\d+([0.5]?)*$/),
       ]],
       cantidadDevuelta: ['', [
         Validators.required,
         Validators.min(0),
-        Validators.pattern(/^[0-9]+$/),
+        Validators.pattern(/^\d+.?\d{0,2}$/),
       ]],
       referencia: [''],
     });
@@ -130,17 +130,43 @@ export class RegistrarPagoComponent
     this.formPagos.controls['cantidadDevuelta'].setValue(devolucion_cambio);
   }
 
-  calcularDevolucionCambio(anticipo_cliente = 0, cantidad_recibida = 0): number | null
+  private calcularDevolucionCambio(anticipo_cliente = 0, cantidad_recibida = 0): number | null
   {
     if(anticipo_cliente > 0 && cantidad_recibida > 0)
     {
-      const devolucionCambio = cantidad_recibida - anticipo_cliente;
+      const devolucionCambio = Number((cantidad_recibida - anticipo_cliente).toFixed(2));
       if(devolucionCambio >= 0)
       {
-        return devolucionCambio;
+        return this.calcularRedondeoCambio(devolucionCambio);
       }
     }
     return null;
+  }
+
+  private calcularRedondeoCambio(cambio: number): number
+  {
+    const redondeo:number = this.getNumberToRound(cambio);
+    if(redondeo >= 0.41)
+    {
+      return Number((cambio-redondeo+0.5).toFixed(2));
+    }
+    else
+    {
+      return Number((cambio-redondeo).toFixed(2));
+    }
+  }
+
+  private getNumberToRound(cantidad = 0): number
+  {
+    const modulo_cantidad:number = Number(cantidad.toFixed(2))%1;
+    if(modulo_cantidad > 0.5)
+    {
+      return Number((modulo_cantidad-0.5).toFixed(2));
+    }
+    else
+    {
+      return Number(modulo_cantidad.toFixed(2));
+    }
   }
 
   changeMetodoPago(metodoPago: string)
