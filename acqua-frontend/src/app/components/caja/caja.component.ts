@@ -494,20 +494,19 @@ export class CajaComponent
     const index = this.existeServicio(claveServicio);
     if(index >= 0)
     {
-      const newValue = event.target.value ?? 1;
-
-      if(newValue >= this.serviciosTicket[index].cantidad_minima)
+      const newValue:string = event.target.value ?? 1;
+      if(Number(newValue) >= Number(this.serviciosTicket[index].cantidad_minima))
       {
-        const importe = parseFloat(newValue) * this.serviciosTicket[index].importe;
+        const importe = parseFloat(newValue) * Number(this.serviciosTicket[index].importe);
         this.serviciosTicket[index].subtotal = parseFloat(importe.toFixed(2));
 
         this.recalcularTotal();
       }
       else
       {
-        const cantMinima = this.serviciosTicket[index].cantidad_minima;
+        const cantMinima = Number(this.serviciosTicket[index].cantidad_minima);
         this.serviciosTicket[index].cantidad = cantMinima;
-        this.serviciosTicket[index].subtotal = cantMinima * this.serviciosTicket[index].importe;
+        this.serviciosTicket[index].subtotal = cantMinima * Number(this.serviciosTicket[index].importe);
 
         this.toastService.warning(
           `La cantidad mínima para este servicio es de ${this.serviciosTicket[index].cantidad_minima}
