@@ -234,36 +234,15 @@ class ProdSucursalReportController extends BaseReportController
     {
         $request->validate([
             'fecha_inicio' => ['date_format:Y-m-d H:i:s', 'nullable'],
-            'fecha_fin' => ['date_format:Y-m-d H:i:s', 'nullable', 'after_or_equal:fecha_inicio'],
-            'sucursal' => ['required', 'exists:sucursales,id']
+            'fecha_fin' => ['date_format:Y-m-d H:i:s', 'nullable', 'after_or_equal:fecha_inicio']
         ]);
 
         $fecha = $this->verificacionFechas($request->fecha_inicio, $request->fecha_fin);
 
         try {
-            $sucursal = Sucursal::find($request->sucursal);
+            $sucursales = Sucursal::get();
         } catch (\Exception $e) {
             echo 'Error sucursal no encontrada',  $e->getMessage(), "\n";
-        }
-
-        try {
-            // Cosulta Principal para las dos primeras Tablas
-            $resServiciosKilos = $this->produccionGeneral($fecha['inicioFecha'], $fecha['finFecha'], $request->sucursal);
-            // Ordenamiento de datos retornados de la consulta
-            $resultadosOrdenados = $this->calcularResultadosOrdenados($resServiciosKilos); // Tabla 1
-            $resultadosOrdenados2 = $this->calcularResultadosOrdenados($resServiciosKilos, true); // Tabla 2
-
-            // Lavadpras
-            $resultadoLavadoras = $this->LavadorasTabla($fecha['inicioFecha'], $fecha['finFecha'], $request->sucursal);
-            $resOrdenadosLav = $this->resultadosOrdenadosLavSec($resultadoLavadoras);
-
-            // Secadoras
-            $resultadoSecadoras = $this->SecadorasTabla($fecha['inicioFecha'], $fecha['finFecha'], $request->sucursal);
-            $resOrdenadosSec = $this->resultadosOrdenadosLavSec(null, $resultadoSecadoras);
-        } catch (\Exception $e) {
-            return response()->json([
-                'mensaje' => $e->getMessage()
-            ], 404);
         }
 
         // * Seccion de Creacion de PDF
@@ -273,182 +252,207 @@ class ProdSucursalReportController extends BaseReportController
 
         $html .= '<div class="watermark"> Acqua Lavanderias </div>';
 
-        $html .= '<header>'; // Inicio de Encabezado
         $html .= "<h1 class='texto verdeBag'>REPORTE DE PRODUCCIÓN (PROCESOS)</h1>";
-        $html .= "<p class='alinear-derecha'>Periodo: " . $fecha['inicioFecha']->format('Y-m-d') . ' - ' . $fecha['finFecha']->format('Y-m-d') . '</p>';
-        $html .= "<h3 class='texto'>Sucursal: " . '<span class="verdeBag">' . $sucursal->nombre . '</span>' . '</h3>';
-        $html .= '</header>'; // Fin de Encabezado
 
         $html .= '<body>';
 
-        // -*-*-*-*-*-*-*-* SECCION 1 -*-*-*-*-*-*-*-*
+        foreach($sucursales as $sucursal)
+        {
+            try {
+                // Cosulta Principal para las dos primeras Tablas
+                $resServiciosKilos = $this->produccionGeneral($fecha['inicioFecha'], $fecha['finFecha'], $sucursal->id);
+                // Ordenamiento de datos retornados de la consulta
+                $resultadosOrdenados = $this->calcularResultadosOrdenados($resServiciosKilos); // Tabla 1
+                $resultadosOrdenados2 = $this->calcularResultadosOrdenados($resServiciosKilos, true); // Tabla 2
+    
+                // Lavadpras
+                $resultadoLavadoras = $this->LavadorasTabla($fecha['inicioFecha'], $fecha['finFecha'], $sucursal->id);
+                $resOrdenadosLav = $this->resultadosOrdenadosLavSec($resultadoLavadoras);
+    
+                // Secadoras
+                $resultadoSecadoras = $this->SecadorasTabla($fecha['inicioFecha'], $fecha['finFecha'], $sucursal->id);
+                $resOrdenadosSec = $this->resultadosOrdenadosLavSec(null, $resultadoSecadoras);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'mensaje' => $e->getMessage()
+                ], 404);
+            }
 
-        $html .= "<h5 class='negrita texto'>PRODUCCION GENERAL</h5>";
+            $html .= '<header>'; // Inicio de Encabezado
+            $html .= "<p class='alinear-derecha'>Periodo: " . $fecha['inicioFecha']->format('Y-m-d') . ' - ' . $fecha['finFecha']->format('Y-m-d') . '</p>';
+    
+            $html .= "<h3 class='texto'>Sucursal: " . '<span class="verdeBag">' . $sucursal->nombre . '</span>' . '</h3>';
+            $html .= '</header>'; // Fin de Encabezado
 
-        $html .= '<table>';
-        $html .= "<tr>";
-        $html .= "<th>  </th>";
-        $html .= "<th colspan='5' class='verdeBag bordeR'>KG/PZA TRABAJADOS</th>";
-        $html .= "</tr>";
-
-        $html .= "<tr>";
-        $html .= "<th> </th>";
-        $html .= "<th> </th>";
-        $html .= "<th>CONTEO</th>";
-        $html .= "<th>LAVADO</th>";
-        $html .= "<th>SECADO</th>";
-        $html .= "</tr>";
-
-        $arrayNombres = ['LAVANDERIA', 'ROPA DE CAMA', 'TENIS', 'PLANCHADO'];
-
-        foreach ($resultadosOrdenados as $catalogo => $valores) :
-            $totalConteo = 0;
-            $totalLavado = 0;
-            $totalSecado = 0;
-            if (in_array(strtoupper($catalogo), $arrayNombres)) {
-                foreach ($valores as $valor => $val) {
-                    $totalConteo += $val['CONTEO']['kilos'] ?? 0;
-                    $totalLavado += $val['LAVADO']['kilos'] ?? 0;
-                    $totalSecado += $val['SECADO']['kilos'] ?? 0;
-                    if (strtoupper($catalogo) === 'LAVANDERIA') {
-                        $html .= "<tr>";
-                        $html .= "<td> - " . $valor . "</td>";
-                        $html .= "<td> </td>";
-                        $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['kilos'] : 0) .  "</td>";
-                        $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['kilos'] : 0) .  "</td>";
-                        $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['kilos'] : 0) .  "</td>";
-                        $html .= "</tr>";
+            // -*-*-*-*-*-*-*-* SECCION 1 -*-*-*-*-*-*-*-*
+    
+            $html .= "<h5 class='negrita texto'>PRODUCCION GENERAL</h5>";
+    
+            $html .= '<table>';
+            $html .= "<tr>";
+            $html .= "<th>  </th>";
+            $html .= "<th colspan='5' class='verdeBag bordeR'>KG/PZA TRABAJADOS</th>";
+            $html .= "</tr>";
+    
+            $html .= "<tr>";
+            $html .= "<th> </th>";
+            $html .= "<th> </th>";
+            $html .= "<th>CONTEO</th>";
+            $html .= "<th>LAVADO</th>";
+            $html .= "<th>SECADO</th>";
+            $html .= "</tr>";
+    
+            $arrayNombres = ['LAVANDERIA', 'ROPA DE CAMA', 'TENIS', 'PLANCHADO'];
+    
+            foreach ($resultadosOrdenados as $catalogo => $valores) :
+                $totalConteo = 0;
+                $totalLavado = 0;
+                $totalSecado = 0;
+                if (in_array(strtoupper($catalogo), $arrayNombres)) {
+                    foreach ($valores as $valor => $val) {
+                        $totalConteo += $val['CONTEO']['kilos'] ?? 0;
+                        $totalLavado += $val['LAVADO']['kilos'] ?? 0;
+                        $totalSecado += $val['SECADO']['kilos'] ?? 0;
+                        if (strtoupper($catalogo) === 'LAVANDERIA') {
+                            $html .= "<tr>";
+                            $html .= "<td> - " . $valor . "</td>";
+                            $html .= "<td> </td>";
+                            $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['kilos'] : 0) .  "</td>";
+                            $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['kilos'] : 0) .  "</td>";
+                            $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['kilos'] : 0) .  "</td>";
+                            $html .= "</tr>";
+                        }
                     }
+                    $html .= "<tr>";
+                    $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
+                    $html .= "<td> </td>";
+                    $html .= "<td class='bordestd'>" . $totalConteo . "</td>";
+                    $html .= "<td class='bordestd'>" . $totalLavado . "</td>";
+                    $html .= "<td class='bordestd'>" . $totalSecado . "</td>";
+                    $html .= "</tr>";
                 }
+            endforeach;
+    
+            $html .= '</table>';
+    
+            // -*-*-*-*-*-*-*-* SECCION 2 -*-*-*-*-*-*-*-*
+    
+            $html .= "<h5 class='negrita texto'>MATRIZ DE PRODUCCIÓN POR PROCESO</h5>";
+    
+            $html .= '<table>';
+            $html .= "<tr>";
+            $html .= "<th>  </th>";
+            $html .= "<th colspan='5' class='verdeBag bordeR'>CADENCIA (KG/MIN)</th>";
+            $html .= "</tr>";
+    
+            $html .= "<tr>";
+            $html .= "<th> </th>";
+            $html .= "<th> </th>";
+            $html .= "<th>CONTEO</th>";
+            $html .= "<th>LAVADO</th>";
+            $html .= "<th>SECADO</th>";
+            $html .= "</tr>";
+    
+            $arrayNombres2 = ['LAVANDERIA', 'ROPA DE CAMA'];
+    
+            foreach ($resultadosOrdenados2 as $catalogo => $valores) {
+                $totalConteo2 = 0;
+                $totalLavado2 = 0;
+                $totalSecado2 = 0;
+                if (in_array(strtoupper($catalogo), $arrayNombres2)) {
+                    foreach ($valores as $valor => $val) {
+                        $totalConteo2 += $val['CONTEO']['kilos'] ?? 0;
+                        $totalLavado2 += $val['LAVADO']['kilos'] ?? 0;
+                        $totalSecado2 += $val['SECADO']['kilos'] ?? 0;
+                        if (strtoupper($catalogo) === 'LAVANDERIA') {
+                            $html .= "<tr>";
+                            $html .= "<td> - " . $valor . "</td>";
+                            $html .= "<td> </td>";
+                            $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['kilos'] : 0) .  "</td>";
+                            $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['kilos'] : 0) .  "</td>";
+                            $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['kilos'] : 0) .  "</td>";
+                            $html .= "</tr>";
+                        }
+                    }
+                    $html .= "<tr>";
+                    $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
+                    $html .= "<td> </td>";
+                    $html .= "<td class='bordestd'>" . $totalConteo2 . "</td>";
+                    $html .= "<td class='bordestd'>" . $totalLavado2 . "</td>";
+                    $html .= "<td class='bordestd'>" . $totalSecado2 . "</td>";
+                    $html .= "</tr>";
+                }
+            }
+    
+            $html .= '</table>';
+            $html .= '<div class="page-break"></div>';
+    
+            // -*-*-*-*-*-*-*-* SECCION 3 Tablas Lavadoras y Secadoras -*-*-*-*-*-*-*-*
+    
+            $html .= "<h5 class='negrita texto'>MATRICES DE PRODUCCIÓN POR EQUIPO</h5>";
+    
+            $html .= '<table>';
+    
+            $html .= "<tr>";
+            $html .= "<th>Lavadoras</th>";
+            $html .= "<th>Kg Lav</th>";
+            $html .= "<th>Pzas Lav</th>";
+            $html .= "<th>Tiempo Act. Lav</th>";
+            $html .= "<th>Tiempo Act. Pza</th>";
+            $html .= "<th>Cadencia Kg/Min</th>";
+            $html .= "<th>Cadencia Piz/Min</th>";
+            $html .= "</tr>";
+    
+            foreach ($resOrdenadosLav as $lavadora => $val) {
+                $kgEntreMin1 = $val['tiempoTrabajado'] !== 0 ? round($val['kilos'] / $val['tiempoTrabajado'], 2) : 0;
+                $pzEntreMin1 = $val['pzasTotal'] !== 0 ? round($val['kilos'] / $val['pzasTotal'], 2) : 0;
+                $tiempoTranajado1 = $this->convertirTiempo($val['tiempoTrabajado']) ? $this->convertirTiempo($val['tiempoTrabajado']) : '0 Minuto(s)';
+    
                 $html .= "<tr>";
-                $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
-                $html .= "<td> </td>";
-                $html .= "<td class='bordestd'>" . $totalConteo . "</td>";
-                $html .= "<td class='bordestd'>" . $totalLavado . "</td>";
-                $html .= "<td class='bordestd'>" . $totalSecado . "</td>";
+                $html .= "<td>" . $lavadora . "</td>";
+                $html .= "<td>" . $val['kilos'] . " kg</td>";
+                $html .= "<td>" . $val['pzasTotal'] . " pz</td>";
+                $html .= "<td>" . $tiempoTranajado1  . " Min </td>";
+                $html .= "<td>" . $val['vecesUtilizado'] . "</td>";
+                $html .= "<td>" . $kgEntreMin1 . "</td>";
+                $html .= "<td>" . $pzEntreMin1 . "</td>";
                 $html .= "</tr>";
             }
-        endforeach;
-
-        $html .= '</table>';
-
-        // -*-*-*-*-*-*-*-* SECCION 2 -*-*-*-*-*-*-*-*
-
-        $html .= "<h5 class='negrita texto'>MATRIZ DE PRODUCCIÓN POR PROCESO</h5>";
-
-        $html .= '<table>';
-        $html .= "<tr>";
-        $html .= "<th>  </th>";
-        $html .= "<th colspan='5' class='verdeBag bordeR'>CADENCIA (KG/MIN)</th>";
-        $html .= "</tr>";
-
-        $html .= "<tr>";
-        $html .= "<th> </th>";
-        $html .= "<th> </th>";
-        $html .= "<th>CONTEO</th>";
-        $html .= "<th>LAVADO</th>";
-        $html .= "<th>SECADO</th>";
-        $html .= "</tr>";
-
-        $arrayNombres2 = ['LAVANDERIA', 'ROPA DE CAMA'];
-
-        foreach ($resultadosOrdenados2 as $catalogo => $valores) {
-            $totalConteo2 = 0;
-            $totalLavado2 = 0;
-            $totalSecado2 = 0;
-            if (in_array(strtoupper($catalogo), $arrayNombres2)) {
-                foreach ($valores as $valor => $val) {
-                    $totalConteo2 += $val['CONTEO']['kilos'] ?? 0;
-                    $totalLavado2 += $val['LAVADO']['kilos'] ?? 0;
-                    $totalSecado2 += $val['SECADO']['kilos'] ?? 0;
-                    if (strtoupper($catalogo) === 'LAVANDERIA') {
-                        $html .= "<tr>";
-                        $html .= "<td> - " . $valor . "</td>";
-                        $html .= "<td> </td>";
-                        $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['kilos'] : 0) .  "</td>";
-                        $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['kilos'] : 0) .  "</td>";
-                        $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['kilos'] : 0) .  "</td>";
-                        $html .= "</tr>";
-                    }
-                }
+    
+            $html .= '</table>';
+    
+            $html .= '<br>';
+    
+            $html .= '<table>';
+    
+            $html .= "<tr>";
+            $html .= "<th>Secadoras</th>";
+            $html .= "<th>Kg Sec</th>";
+            $html .= "<th>Pzas Sec</th>";
+            $html .= "<th>Tiempo Act. Sec</th>";
+            $html .= "<th>Tiempo Act. Pza</th>";
+            $html .= "<th>Cadencia Kg/Min</th>";
+            $html .= "<th>Cadencia Piz/Min</th>";
+            $html .= "</tr>";
+    
+            foreach ($resOrdenadosSec as $secadora => $val) {
+                $kgEntreMin2 = $val['tiempoTrabajado'] !== 0 ? round($val['kilos'] / $val['tiempoTrabajado'], 2) : 0;
+                $pzEntreMin2 = $val['pzasTotal'] !== 0 ? round($val['kilos'] / $val['pzasTotal'], 2) : 0;
+                $tiempoTranajado2 = $this->convertirTiempo($val['tiempoTrabajado']) ? $this->convertirTiempo($val['tiempoTrabajado']) : '0 Minuto(s)';
+    
                 $html .= "<tr>";
-                $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
-                $html .= "<td> </td>";
-                $html .= "<td class='bordestd'>" . $totalConteo2 . "</td>";
-                $html .= "<td class='bordestd'>" . $totalLavado2 . "</td>";
-                $html .= "<td class='bordestd'>" . $totalSecado2 . "</td>";
+                $html .= "<td>" . $secadora . "</td>";
+                $html .= "<td>" . $val['kilos'] . " kg</td>";
+                $html .= "<td>" . $val['pzasTotal'] . " pz</td>";
+                $html .= "<td>" . $tiempoTranajado2 . "</td>";
+                $html .= "<td>" . $val['vecesUtilizado'] . "</td>";
+                $html .= "<td>" . $kgEntreMin2 . "</td>";
+                $html .= "<td>" . $pzEntreMin2 . "</td>";
                 $html .= "</tr>";
             }
+    
+            $html .= '</table>';
         }
-
-        $html .= '</table>';
-        $html .= '<div class="page-break"></div>';
-
-        // -*-*-*-*-*-*-*-* SECCION 3 Tablas Lavadoras y Secadoras -*-*-*-*-*-*-*-*
-
-        $html .= "<h5 class='negrita texto'>MATRICES DE PRODUCCIÓN POR EQUIPO</h5>";
-
-        $html .= '<table>';
-
-        $html .= "<tr>";
-        $html .= "<th>Lavadoras</th>";
-        $html .= "<th>Kg Lav</th>";
-        $html .= "<th>Pzas Lav</th>";
-        $html .= "<th>Tiempo Act. Lav</th>";
-        $html .= "<th>Tiempo Act. Pza</th>";
-        $html .= "<th>Cadencia Kg/Min</th>";
-        $html .= "<th>Cadencia Piz/Min</th>";
-        $html .= "</tr>";
-
-        foreach ($resOrdenadosLav as $lavadora => $val) {
-            $kgEntreMin1 = $val['tiempoTrabajado'] !== 0 ? round($val['kilos'] / $val['tiempoTrabajado'], 2) : 0;
-            $pzEntreMin1 = $val['pzasTotal'] !== 0 ? round($val['kilos'] / $val['pzasTotal'], 2) : 0;
-            $tiempoTranajado1 = $this->convertirTiempo($val['tiempoTrabajado']) ? $this->convertirTiempo($val['tiempoTrabajado']) : '0 Minuto(s)';
-
-            $html .= "<tr>";
-            $html .= "<td>" . $lavadora . "</td>";
-            $html .= "<td>" . $val['kilos'] . " kg</td>";
-            $html .= "<td>" . $val['pzasTotal'] . " pz</td>";
-            $html .= "<td>" . $tiempoTranajado1  . " Min </td>";
-            $html .= "<td>" . $val['vecesUtilizado'] . "</td>";
-            $html .= "<td>" . $kgEntreMin1 . "</td>";
-            $html .= "<td>" . $pzEntreMin1 . "</td>";
-            $html .= "</tr>";
-        }
-
-        $html .= '</table>';
-
-        $html .= '<br>';
-
-        $html .= '<table>';
-
-        $html .= "<tr>";
-        $html .= "<th>Secadoras</th>";
-        $html .= "<th>Kg Sec</th>";
-        $html .= "<th>Pzas Sec</th>";
-        $html .= "<th>Tiempo Act. Sec</th>";
-        $html .= "<th>Tiempo Act. Pza</th>";
-        $html .= "<th>Cadencia Kg/Min</th>";
-        $html .= "<th>Cadencia Piz/Min</th>";
-        $html .= "</tr>";
-
-        foreach ($resOrdenadosSec as $secadora => $val) {
-            $kgEntreMin2 = $val['tiempoTrabajado'] !== 0 ? round($val['kilos'] / $val['tiempoTrabajado'], 2) : 0;
-            $pzEntreMin2 = $val['pzasTotal'] !== 0 ? round($val['kilos'] / $val['pzasTotal'], 2) : 0;
-            $tiempoTranajado2 = $this->convertirTiempo($val['tiempoTrabajado']) ? $this->convertirTiempo($val['tiempoTrabajado']) : '0 Minuto(s)';
-
-            $html .= "<tr>";
-            $html .= "<td>" . $secadora . "</td>";
-            $html .= "<td>" . $val['kilos'] . " kg</td>";
-            $html .= "<td>" . $val['pzasTotal'] . " pz</td>";
-            $html .= "<td>" . $tiempoTranajado2 . "</td>";
-            $html .= "<td>" . $val['vecesUtilizado'] . "</td>";
-            $html .= "<td>" . $kgEntreMin2 . "</td>";
-            $html .= "<td>" . $pzEntreMin2 . "</td>";
-            $html .= "</tr>";
-        }
-
-        $html .= '</table>';
 
         $html .= '</body>';
 
