@@ -1,15 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-unused-vars */
-import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { HotToastService } from '@ngneat/hot-toast';
 import { ReporteStats, UsuariosReporteStats } from 'src/app/dtos/reporte-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
 import { PDFReporteStats } from 'src/app/dtos/reporte-stats';
-import { PDFPreviewComponent } from './pdfpreview/pdfpreview.component';
 import * as moment from 'moment';
-const html2pdf = require('html2pdf.js');
 
 function dateRangeValidator(): ValidatorFn
 {
@@ -61,8 +58,6 @@ export class ReportesComponent
   constructor(
     private statsService: StatsService,
     private fb: FormBuilder,
-    private toast: HotToastService,
-    private renderer: Renderer2,
   )
   {
     this.fetchStats();
@@ -107,27 +102,6 @@ export class ReportesComponent
     });
   }
 
-  descargarReporteVentasPDF()
-  {
-    const start = moment(this.startDate).format('YYYY-MM-DD HH:mm:ss');
-    const end = moment(this.endDate).format('YYYY-MM-DD HH:mm:ss');
-    const nombre = 'Reporte de Ventas General';
-
-    this.isLoading = true;
-    this.statsService.getReportPDF(start, end).subscribe({
-      next: (response) =>
-      {
-        this.isLoading = false;
-        this.descargarArchivo(response, nombre);
-      },
-      error: (err) =>
-      {
-        this.isLoading = false;
-        console.log(err);
-      },
-    });
-  }
-
   private descargarArchivo(response: string, nombre: string): void
   {
     const byteArray = new Uint8Array(atob(response).split('').map(char => char.charCodeAt(0)));
@@ -142,11 +116,6 @@ export class ReportesComponent
     link.click();
     window.URL.revokeObjectURL(url);
     link.remove();
-  }
-
-  showFutureFeatureMessage()
-  {
-    this.toast.info('Seguimos trabajando en esta caracteristica para mejorar tu experiencia');
   }
 
   setDateRangePickerText()
@@ -200,4 +169,87 @@ export class ReportesComponent
     event.preventDefault();
   }
 
+  descargarReporteVentasPDF()
+  {
+    const start = moment(this.startDate).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment(this.endDate).format('YYYY-MM-DD HH:mm:ss');
+    const nombre = 'Reporte de Ventas General';
+
+    this.isLoading = true;
+    this.statsService.getReportPDF(start, end).subscribe({
+      next: (response) =>
+      {
+        this.isLoading = false;
+        this.descargarArchivo(response, nombre);
+      },
+      error: (err) =>
+      {
+        this.isLoading = false;
+        console.log(err);
+      },
+    });
+  }
+
+  descargarReporteDetallado()
+  {
+    const start = moment(this.startDate).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment(this.endDate).format('YYYY-MM-DD HH:mm:ss');
+    const nombre = 'Reporte detallado';
+
+    this.isLoading = true;
+    this.statsService.getReporteDetalladoPDF(start, end).subscribe({
+      next: (response) =>
+      {
+        this.isLoading = false;
+        this.descargarArchivo(response, nombre);
+      },
+      error: (err) =>
+      {
+        this.isLoading = false;
+        console.log(err);
+      },
+    });
+  }
+
+  descargarReporteProduccionPorProcesos()
+  {
+    const start = moment(this.startDate).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment(this.endDate).format('YYYY-MM-DD HH:mm:ss');
+    const nombre = 'Reporte de producción por procesos';
+
+    this.isLoading = true;
+    this.statsService.getReporteProduccionProcesosPDF(start, end).subscribe({
+      next: (response) =>
+      {
+        this.isLoading = false;
+        this.descargarArchivo(response, nombre);
+      },
+      error: (err) =>
+      {
+        this.isLoading = false;
+        console.log(err);
+      },
+    });
+  }
+
+  descargarReporteProduccionPorUsuario()
+  {
+    const start = moment(this.startDate).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment(this.endDate).format('YYYY-MM-DD HH:mm:ss');
+    const nombre = 'Reporte de producción por usuario';
+
+    this.isLoading = true;
+    this.statsService.getReporteProduccionUsuarioPDF(start, end).subscribe({
+      next: (response) =>
+      {
+        this.isLoading = false;
+        this.descargarArchivo(response, nombre);
+      },
+      error: (err) =>
+      {
+        this.isLoading = false;
+        console.log(err);
+      },
+    });
+  }
 }

@@ -114,35 +114,21 @@ class ProdPersonalReportController extends BaseReportController
     {
         $request->validate([
             'fecha_inicio' => ['date_format:Y-m-d H:i:s', 'nullable'],
-            'fecha_fin' => ['date_format:Y-m-d H:i:s', 'nullable', 'after_or_equal:fecha_inicio'],
-            'usuario' => ['required', 'exists:users,id']
+            'fecha_fin' => ['date_format:Y-m-d H:i:s', 'nullable', 'after_or_equal:fecha_inicio']
         ]);
 
         $fecha = $this->verificacionFechas($request->fecha_inicio, $request->fecha_fin);
 
         try {
-            $usuario = User::find($request->usuario);
+            $usuarios = User::get();
         } catch (\Exception $e) {
             echo 'Error usuario no encontrado',  $e->getMessage(), "\n";
         }
 
-        try {
-            $personalResult = $this->produccionUsuarios($fecha['inicioFecha'], $fecha['finFecha'], $usuario->id);
-        } catch (\Exception $e) {
+        if(!$usuarios)
+        {
             return response()->json([
-                'mensaje' => $e->getMessage()
-            ], 404);
-        }
-
-        try {
-            $resulOrdenadosTrabajados = $this->resultadosOrdKgOrdenados($personalResult); // Tabla 1
-
-            $resulOrdenadosTrabajados2 = $this->resultadosOrdKgOrdenados($personalResult, true); // Tabla 2
-
-            $resulOrdenadosTrabajados3 = $this->resultadosOrdKgOrdenados($personalResult, false, true); // Tabla 3
-        } catch (\Exception $e) {
-            return response()->json([
-                'mensaje' => $e->getMessage()
+                'mensaje' => 'Sin usuarios'
             ], 404);
         }
 
@@ -155,178 +141,202 @@ class ProdPersonalReportController extends BaseReportController
         $html .= '<header>'; // Inicio de Encabezado
         $html .= "<h1 class='texto verdeBag'>REPORTE DE PRODUCCION(USUARIOS)</h1>";
         $html .= "<p class='alinear-derecha'>Periodo: " . $fecha['inicioFecha']->format('Y-m-d') . ' - ' . $fecha['finFecha']->format('Y-m-d') . '</p>';
-        $html .= "<h3 class='texto'>Usuario: " . '<span class="verdeBag">' . $usuario->name . '</span>' . '</h3>';
-        $html .= '</header>'; // Fin de Encabezado
-
-        $html .= '<body>';
-
-        // -*-*-*-*-*- SECCION DE TABLA 1 -*-*-*-*-*-
-
-        $html .= "<h5 class='negrita texto'>PRODUCCION DEL EMPLEADO</h5>";
-
-        $html .= '<table>';
-
-        $html .= "<tr>";
-        $html .= "<th>  </th>";
-        $html .= "<th colspan='5' class='verdeBag bordeR'>KG TRABAJADOS</th>";
-        $html .= "</tr>";
-
-        $html .= "<tr>";
-        $html .= "<th> </th>";
-        $html .= "<th> </th>";
-        $html .= "<th>CONTEO</th>";
-        $html .= "<th>LAVADO</th>";
-        $html .= "<th>SECADO</th>";
-        $html .= "</tr>";
-
-        $arrayNombres = ['LAVANDERIA', 'ROPA DE CAMA', 'TENIS', 'PLANCHADO'];
-
-        foreach ($resulOrdenadosTrabajados as $catalogo => $valores) :
-            $totalConteo = 0;
-            $totalLavado = 0;
-            $totalSecado = 0;
-            if (in_array(strtoupper($catalogo), $arrayNombres)) {
-                foreach ($valores as $valor => $val) :
-                    $totalConteo += $val['CONTEO']['kilos'] ?? 0;
-                    $totalLavado += $val['LAVADO']['kilos'] ?? 0;
-                    $totalSecado += $val['SECADO']['kilos'] ?? 0;
-                    if (strtoupper($catalogo) === 'LAVANDERIA') {
-                        $html .= "<tr>";
-                        $html .= "<td> - " . $valor . "</td>";
-                        $html .= "<td> </td>";
-                        $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['kilos'] : 0) .  "</td>";
-                        $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['kilos'] : 0) .  "</td>";
-                        $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['kilos'] : 0) .  "</td>";
-                        $html .= "</tr>";
-                    }
-                endforeach;
-                $html .= "<tr>";
-                $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
-                $html .= "<td> </td>";
-                $html .= "<td class='bordestd'>" . $totalConteo . "</td>";
-                $html .= "<td class='bordestd'>" . $totalLavado . "</td>";
-                $html .= "<td class='bordestd'>" . $totalSecado . "</td>";
-                $html .= "</tr>";
+        
+        foreach($usuarios as $usuario)
+        {
+            try {
+                $personalResult = $this->produccionUsuarios($fecha['inicioFecha'], $fecha['finFecha'], $usuario->id);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'mensaje' => $e->getMessage()
+                ], 404);
             }
-        endforeach;
+    
+            try {
+                $resulOrdenadosTrabajados = $this->resultadosOrdKgOrdenados($personalResult); // Tabla 1
+    
+                $resulOrdenadosTrabajados2 = $this->resultadosOrdKgOrdenados($personalResult, true); // Tabla 2
+    
+                $resulOrdenadosTrabajados3 = $this->resultadosOrdKgOrdenados($personalResult, false, true); // Tabla 3
+            } catch (\Exception $e) {
+                return response()->json([
+                    'mensaje' => $e->getMessage()
+                ], 404);
+            }
 
-        $html .= '</table>';
-
-        // -*-*-*-*-*- SECCION DE TABLA 2 -*-*-*-*-*-
-
-        $html .= "<h5 class='negrita texto'>MATRICES DE PRODUCCION POR CATEGORIA</h5>";
-
-        $html .= '<table>';
-
-        $html .= "<tr>";
-        $html .= "<th>  </th>";
-        $html .= "<th colspan='5' class='verdeBag bordeR'>CADENCIA (KG/MIN)</th>";
-        $html .= "</tr>";
-
-        $html .= "<tr>";
-        $html .= "<th> </th>";
-        $html .= "<th> </th>";
-        $html .= "<th>CONTEO</th>";
-        $html .= "<th>LAVADO</th>";
-        $html .= "<th>SECADO</th>";
-        $html .= "</tr>";
-
-        $arrayNombres2 = ['LAVANDERIA'];
-
-        foreach ($resulOrdenadosTrabajados2 as $catalogo => $valores) :
-            $totalConteo2 = 0;
-            $totalLavado2 = 0;
-            $totalSecado2 = 0;
-            if (in_array(strtoupper($catalogo), $arrayNombres2)) :
-                foreach ($valores as $valor => $val) :
-                    $totalConteo2 += $val['CONTEO']['kilos'] ?? 0;
-                    $totalLavado2 += $val['LAVADO']['kilos'] ?? 0;
-                    $totalSecado2 += $val['SECADO']['kilos'] ?? 0;
-                    if (strtoupper($catalogo) === 'LAVANDERIA') :
+            $html .= "<h3 class='texto'>Usuario: " . '<span class="verdeBag">' . $usuario->name . '</span>' . '</h3>';
+            $html .= '</header>'; // Fin de Encabezado
+    
+            $html .= '<body>';
+    
+            // -*-*-*-*-*- SECCION DE TABLA 1 -*-*-*-*-*-
+    
+            $html .= "<h5 class='negrita texto'>PRODUCCION DEL EMPLEADO</h5>";
+    
+            $html .= '<table>';
+    
+            $html .= "<tr>";
+            $html .= "<th>  </th>";
+            $html .= "<th colspan='5' class='verdeBag bordeR'>KG TRABAJADOS</th>";
+            $html .= "</tr>";
+    
+            $html .= "<tr>";
+            $html .= "<th> </th>";
+            $html .= "<th> </th>";
+            $html .= "<th>CONTEO</th>";
+            $html .= "<th>LAVADO</th>";
+            $html .= "<th>SECADO</th>";
+            $html .= "</tr>";
+    
+            $arrayNombres = ['LAVANDERIA', 'ROPA DE CAMA', 'TENIS', 'PLANCHADO'];
+    
+            foreach ($resulOrdenadosTrabajados as $catalogo => $valores) :
+                $totalConteo = 0;
+                $totalLavado = 0;
+                $totalSecado = 0;
+                if (in_array(strtoupper($catalogo), $arrayNombres)) {
+                    foreach ($valores as $valor => $val) :
+                        $totalConteo += $val['CONTEO']['kilos'] ?? 0;
+                        $totalLavado += $val['LAVADO']['kilos'] ?? 0;
+                        $totalSecado += $val['SECADO']['kilos'] ?? 0;
+                        if (strtoupper($catalogo) === 'LAVANDERIA') {
+                            $html .= "<tr>";
+                            $html .= "<td> - " . $valor . "</td>";
+                            $html .= "<td> </td>";
+                            $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['kilos'] : 0) .  "</td>";
+                            $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['kilos'] : 0) .  "</td>";
+                            $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['kilos'] : 0) .  "</td>";
+                            $html .= "</tr>";
+                        }
+                    endforeach;
+                    $html .= "<tr>";
+                    $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
+                    $html .= "<td> </td>";
+                    $html .= "<td class='bordestd'>" . $totalConteo . "</td>";
+                    $html .= "<td class='bordestd'>" . $totalLavado . "</td>";
+                    $html .= "<td class='bordestd'>" . $totalSecado . "</td>";
+                    $html .= "</tr>";
+                }
+            endforeach;
+    
+            $html .= '</table>';
+    
+            // -*-*-*-*-*- SECCION DE TABLA 2 -*-*-*-*-*-
+    
+            $html .= "<h5 class='negrita texto'>MATRICES DE PRODUCCION POR CATEGORIA</h5>";
+    
+            $html .= '<table>';
+    
+            $html .= "<tr>";
+            $html .= "<th>  </th>";
+            $html .= "<th colspan='5' class='verdeBag bordeR'>CADENCIA (KG/MIN)</th>";
+            $html .= "</tr>";
+    
+            $html .= "<tr>";
+            $html .= "<th> </th>";
+            $html .= "<th> </th>";
+            $html .= "<th>CONTEO</th>";
+            $html .= "<th>LAVADO</th>";
+            $html .= "<th>SECADO</th>";
+            $html .= "</tr>";
+    
+            $arrayNombres2 = ['LAVANDERIA'];
+    
+            foreach ($resulOrdenadosTrabajados2 as $catalogo => $valores) :
+                $totalConteo2 = 0;
+                $totalLavado2 = 0;
+                $totalSecado2 = 0;
+                if (in_array(strtoupper($catalogo), $arrayNombres2)) :
+                    foreach ($valores as $valor => $val) :
+                        $totalConteo2 += $val['CONTEO']['kilos'] ?? 0;
+                        $totalLavado2 += $val['LAVADO']['kilos'] ?? 0;
+                        $totalSecado2 += $val['SECADO']['kilos'] ?? 0;
+                        if (strtoupper($catalogo) === 'LAVANDERIA') :
+                            $html .= "<tr>";
+                            $html .= "<td> - " . $valor . "</td>";
+                            $html .= "<td> </td>";
+                            $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['kilos'] : 0) .  "</td>";
+                            $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['kilos'] : 0) .  "</td>";
+                            $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['kilos'] : 0) .  "</td>";
+                            $html .= "</tr>";
+                        endif;
+                    endforeach;
+                endif;
+                if (in_array(strtoupper($catalogo), $arrayNombres2)) :
+                    $html .= "<tr>";
+                    $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
+                    $html .= "<td> </td>";
+                    $html .= "<td class='bordestd'>" . $totalConteo2 . "</td>";
+                    $html .= "<td class='bordestd'>" . $totalLavado2 . "</td>";
+                    $html .= "<td class='bordestd'>" . $totalSecado2 . "</td>";
+                    $html .= "</tr>";
+                endif;
+            endforeach;
+    
+            $html .= '</table>';
+    
+            $html .= '<br>';
+            $html .= '<br>';
+    
+            // -*-*-*-*-*- SECCION DE TABLA 3 -*-*-*-*-*-
+    
+            $numRegistros = 0;
+            foreach ($resulOrdenadosTrabajados3 as $catalogo => $valores) :
+                if (strtoupper($catalogo) === 'ROPA DE CAMA') :
+                    foreach ($valores as $valor => $val) :
+                        $numRegistros += 1;
+                    endforeach;
+                endif;
+            endforeach;
+    
+            if ($numRegistros >= 6) :
+                $html .= '<div class="page-break"></div>';
+            endif;
+    
+            $html .= '<table>';
+    
+            $html .= "<tr>";
+            $html .= "<th>  </th>";
+            $html .= "<th colspan='5' class='verdeBag bordeR'>CADENCIA (PZAS/MIN)</th>";
+            $html .= "</tr>";
+    
+            $html .= "<tr>";
+            $html .= "<th> </th>";
+            $html .= "<th> </th>";
+            $html .= "<th>CONTEO</th>";
+            $html .= "<th>LAVADO</th>";
+            $html .= "<th>SECADO</th>";
+            $html .= "</tr>";
+    
+            foreach ($resulOrdenadosTrabajados3 as $catalogo => $valores) :
+                $totalConteo3 = 0;
+                $totalLavado3 = 0;
+                $totalSecado3 = 0;
+                if (strtoupper($catalogo) === 'ROPA DE CAMA') :
+                    foreach ($valores as $valor => $val) :
+                        $totalConteo3 += $val['CONTEO']['total_inicial'] ?? 0;
+                        $totalLavado3 += $val['LAVADO']['total_inicial'] ?? 0;
+                        $totalSecado3 += $val['SECADO']['total_inicial'] ?? 0;
                         $html .= "<tr>";
                         $html .= "<td> - " . $valor . "</td>";
                         $html .= "<td> </td>";
-                        $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['kilos'] : 0) .  "</td>";
-                        $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['kilos'] : 0) .  "</td>";
-                        $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['kilos'] : 0) .  "</td>";
+                        $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['total_inicial'] : 0) .  "</td>";
+                        $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['total_inicial'] : 0) .  "</td>";
+                        $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['total_inicial'] : 0) .  "</td>";
                         $html .= "</tr>";
-                    endif;
-                endforeach;
-            endif;
-            if (in_array(strtoupper($catalogo), $arrayNombres2)) :
-                $html .= "<tr>";
-                $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
-                $html .= "<td> </td>";
-                $html .= "<td class='bordestd'>" . $totalConteo2 . "</td>";
-                $html .= "<td class='bordestd'>" . $totalLavado2 . "</td>";
-                $html .= "<td class='bordestd'>" . $totalSecado2 . "</td>";
-                $html .= "</tr>";
-            endif;
-        endforeach;
-
-        $html .= '</table>';
-
-        $html .= '<br>';
-        $html .= '<br>';
-
-        // -*-*-*-*-*- SECCION DE TABLA 3 -*-*-*-*-*-
-
-        $numRegistros = 0;
-        foreach ($resulOrdenadosTrabajados3 as $catalogo => $valores) :
-            if (strtoupper($catalogo) === 'ROPA DE CAMA') :
-                foreach ($valores as $valor => $val) :
-                    $numRegistros += 1;
-                endforeach;
-            endif;
-        endforeach;
-
-        if ($numRegistros >= 6) :
-            $html .= '<div class="page-break"></div>';
-        endif;
-
-        $html .= '<table>';
-
-        $html .= "<tr>";
-        $html .= "<th>  </th>";
-        $html .= "<th colspan='5' class='verdeBag bordeR'>CADENCIA (PZAS/MIN)</th>";
-        $html .= "</tr>";
-
-        $html .= "<tr>";
-        $html .= "<th> </th>";
-        $html .= "<th> </th>";
-        $html .= "<th>CONTEO</th>";
-        $html .= "<th>LAVADO</th>";
-        $html .= "<th>SECADO</th>";
-        $html .= "</tr>";
-
-        foreach ($resulOrdenadosTrabajados3 as $catalogo => $valores) :
-            $totalConteo3 = 0;
-            $totalLavado3 = 0;
-            $totalSecado3 = 0;
-            if (strtoupper($catalogo) === 'ROPA DE CAMA') :
-                foreach ($valores as $valor => $val) :
-                    $totalConteo3 += $val['CONTEO']['total_inicial'] ?? 0;
-                    $totalLavado3 += $val['LAVADO']['total_inicial'] ?? 0;
-                    $totalSecado3 += $val['SECADO']['total_inicial'] ?? 0;
+                    endforeach;
                     $html .= "<tr>";
-                    $html .= "<td> - " . $valor . "</td>";
+                    $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
                     $html .= "<td> </td>";
-                    $html .= "<td>" . (array_key_exists('CONTEO', $val) ? $val['CONTEO']['total_inicial'] : 0) .  "</td>";
-                    $html .= "<td>" . (array_key_exists('LAVADO', $val) ? $val['LAVADO']['total_inicial'] : 0) .  "</td>";
-                    $html .= "<td>" . (array_key_exists('SECADO', $val) ? $val['SECADO']['total_inicial'] : 0) .  "</td>";
+                    $html .= "<td>" . $totalConteo3 . "</td>";
+                    $html .= "<td>" . $totalLavado3 .  "</td>";
+                    $html .= "<td>" . $totalSecado3 .  "</td>";
                     $html .= "</tr>";
-                endforeach;
-                $html .= "<tr>";
-                $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo . "</td>";
-                $html .= "<td> </td>";
-                $html .= "<td>" . $totalConteo3 . "</td>";
-                $html .= "<td>" . $totalLavado3 .  "</td>";
-                $html .= "<td>" . $totalSecado3 .  "</td>";
-                $html .= "</tr>";
-            endif;
-        endforeach;
+                endif;
+            endforeach;
 
-        $html .= '</table>';
+            $html .= '</table>';
+        }
 
         $html .= '</body>';
 

@@ -78,4 +78,46 @@ export class StatsService
     return this.httpClient.post<string>(url, {}, { headers: this.authService.getHeaders() });
   }
 
+  getReporteDetalladoPDF(start?: string, end?: string): Observable<string>
+  {
+    let url = `${API_URL}/${this.subpath}/reporte-detallado-ventas-pdf`;
+    const body = { fecha_inicio: start, fecha_fin: end};
+
+    if(start && end)
+    {
+      url = `${API_URL}/${this.subpath}/reporte-detallado-ventas-pdf`;
+      return this.httpClient.post<string>(url, body, { headers: this.authService.getHeaders() });
+    }
+
+    return this.httpClient.post<string>(url, {}, { headers: this.authService.getHeaders() });
+  }
+
+  getReporteProduccionProcesosPDF(start?: string, end?: string): Observable<string>
+  {
+    let url = `${API_URL}/${this.subpath}/reporte-produccion-pdf`;
+    const body = { fecha_inicio: start, fecha_fin: end};
+
+    if(start && end)
+    {
+      url = `${API_URL}/${this.subpath}/reporte-produccion-pdf`;
+      return this.httpClient.post<string>(url, body, { headers: this.authService.getHeaders() });
+    }
+
+    return this.httpClient.post<string>(url, {}, { headers: this.authService.getHeaders() });
+  }
+
+  getReporteProduccionUsuarioPDF(start?: string, end?: string): Observable<string>
+  {
+    let url = `${API_URL}/${this.subpath}/reporte-produccion-usuario-pdf`;
+    const body = { fecha_inicio: start, fecha_fin: end };
+
+    if(start && end)
+    {
+      url = `${API_URL}/${this.subpath}/reporte-produccion-usuario-pdf`;
+      return this.httpClient.post<string>(url, body, { headers: this.authService.getHeaders() });
+    }
+
+    return this.httpClient.post<string>(url, {}, { headers: this.authService.getHeaders() });
+  }
+
 }
