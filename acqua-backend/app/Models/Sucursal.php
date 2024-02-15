@@ -34,4 +34,9 @@ class Sucursal extends Model
     {
         return $this->hasMany(Cliente::class, 'id_sucursal');
     }
+
+    public function horarios()
+    {
+        return $this->hasMany(Horario::class, 'sucursal_id');
+    }
 }
