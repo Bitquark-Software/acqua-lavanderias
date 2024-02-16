@@ -23,7 +23,7 @@ class CreateHorariosTable extends Migration
 
             $table->timestamps();
 
-            $table->foreign('sucursal_id')->references('id')->on('sucursales');
+            $table->foreign('sucursal_id')->references('id')->on('sucursales')->onDelete('cascade');
         });
     }
 
