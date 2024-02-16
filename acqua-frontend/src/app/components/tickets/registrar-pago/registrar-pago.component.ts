@@ -186,27 +186,44 @@ export class RegistrarPagoComponent
     }
   }
 
-  agregarMonto()
+  private agregarMonto(monto = 0, metodoPago: MetodoPago)
   {
     if(!this.isLoading)
     {
       this.isLoading = true;
-      const anticipo = parseFloat(this.monto.value);
+
       this.ticketService.registrarAnticipo(
-        this.ticket.id, anticipo, this.referencia.value, this.metodoPago).subscribe({
+        this.ticket.id, monto, this.referencia.value, metodoPago).subscribe({
         next: () =>
         {
-          this.isLoading = false;
           this.toast.success('Anticipo registrado');
           this.componentParent.nativeElement.close();
+          this.isLoading = false;
           // Cerrar el modal
         },
         error: (err) =>
         {
           console.error(err);
           this.toast.error('No se pudo registrar el anticipo');
+          this.isLoading = false;
         },
       });
+    }
+  }
+
+  agregarMontoPorTipo()
+  {
+    if(this.metodoPago === MetodoPago.Efectivo)
+    {
+      this.agregarMonto(parseFloat(this.monto.value), this.metodoPago);
+    }
+    else if (this.metodoPago === MetodoPago.Tarjeta || this.metodoPago === MetodoPago.Transferencia)
+    {
+      this.agregarMonto(parseFloat(this.ticket.restante!.toString()), this.metodoPago);
+    }
+    else
+    {
+      this.toast.error('El metodo de pago no es correcto');
     }
   }
 

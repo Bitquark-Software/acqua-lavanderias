@@ -52,7 +52,7 @@
             <button *ngIf="isLoading" class="w-full btn btn-wide btn-success">
                 <span class="loading loading-spinner"></span>
             </button>
-            <button *ngIf="!isLoading" [disabled]="!formPagos.valid || isLoading" class="w-full btn btn-wide btn-success" (click)="agregarMonto()">
+            <button *ngIf="!isLoading" [disabled]="!formPagos.valid || isLoading" class="w-full btn btn-wide btn-success" (click)="agregarMontoPorTipo()">
                 Registrar pago
             </button>
         </div>
