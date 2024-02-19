@@ -36,12 +36,14 @@ class AnticiposTicketsController extends Controller
 
         $restante = $ticket->total - $total_anticipos;
 
-        if (!$ticket) {
+        if(!$ticket)
+        {
             return response()->json([
                 'message' => 'Ticket no existente',
             ], 422);
         }
-        if (floatval($request->anticipo) > $ticket->restante || floatval($request->anticipo) < 1) {
+        if(floatval($request->anticipo) > $ticket->restante || floatval($request->anticipo) < 1)
+        {
             return response()->json([
                 'message' => 'El anticipo no puede ser mayor o menor al restante',
             ], 422);
@@ -50,8 +52,7 @@ class AnticiposTicketsController extends Controller
         // Encyptacion de referencia
         Log::info($request->numero_referencia);
         $numeroTarjetaCifrado = isset($request->numero_referencia)
-            //? Crypt::encrypt($request->numero_referencia)
-            ? hash('sha256', $request->numero_referencia)
+            ? Crypt::encrypt($request->numero_referencia)
             : null;
 
         Log::info($request->metodopago);
@@ -64,7 +65,8 @@ class AnticiposTicketsController extends Controller
             'restante' => $restante
         ]);
 
-        if ($ticket->tipo_credito == 'CREDITO') {
+        if($ticket->tipo_credito == 'CREDITO')
+        {
             $nuevoRestante = floatval($ticket->restante) - floatval($request->anticipo);
             $nuevoAnticipo = floatval($ticket->anticipo) + floatval($request->anticipo);
             $ticket->update([
