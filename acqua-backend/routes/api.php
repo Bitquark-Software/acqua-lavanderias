@@ -11,6 +11,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\DireccionController;
+use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\LavadoraController;
 use App\Http\Controllers\PrendaController;
 use App\Http\Controllers\PrendasTicketController;
@@ -39,6 +40,7 @@ Route::middleware(['auth:api',AdminOnlyMiddleware::class])->group(function () {
     Route::apiResource('servicios', ServiciosController::class)->except('index', 'show'); // CRUD SERVICIOS
     Route::apiResource('prendas', PrendaController::class)->except('index', 'show'); // CRUD PRENDAS
     Route::apiResource('servicios-ticket', PrendaController::class);  // CRUD SERVICIOS TICKET
+    Route::apiResource('horarios', HorarioController::class); // CRUD SUCURSALES
 });
 
 Route::middleware('auth:api')->group(function () {

@@ -49,7 +49,7 @@ class SucursalController extends Controller
      */
     public function show($id)
     {
-        return Sucursal::find($id);
+        return Sucursal::with('horarios')->find($id);
     }
 
     /**
