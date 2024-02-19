@@ -376,6 +376,7 @@
           [ngClass]="{
             'bg-white': cursorEntrega == 1,
           }"
+          [routerLink]="['/editar-cliente', ticket.id_cliente]"
           (click)="switchMetodoEntrega(1)"
         >
           A domicilio
