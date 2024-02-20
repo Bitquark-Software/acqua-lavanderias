@@ -111,7 +111,16 @@
                     </svg>
                   </button>
                   <button
-                    class="btn btn-success btn-lg btn-circle tooltip p-3"
+                    [ngClass]="{
+                      'btn': true,
+                      'bg-indigo-600': +ticket.restante! > 0,
+                      'btn-outline': +ticket.restante! > 0,
+                      'btn-success': +ticket.restante! === 0,
+                      'btn-lg': true,
+                      'btn-circle': true,
+                      'tooltip': true,
+                      'p-3': true,
+                    }"
                     data-tip="ENTREGA"
                     *ngIf="ticket.status === 'ENTREGA'"
                   >
