@@ -85,6 +85,10 @@ export class CajaComponent
   idSucursal = 0;
   idDireccionEnvio = 0;
   fechaEstimadaEntrega: Date | string = '';
+  estimada_hora_entrega = '';
+  estimado_minutos_entrega = '';
+  formato_24_horas: string[] = [];
+  formato_15_minutos: string[] = [];
 
   stepFinalizarVenta = 0;
 
@@ -155,6 +159,18 @@ export class CajaComponent
     this.fetchSucursales();
 
     this.navigateToBottomOfChat();
+
+    // Inicializar opciones de horas (0 a 23)
+    for (let hour = 0; hour < 24; hour++)
+    {
+      this.formato_24_horas.push(hour.toString().padStart(2, '0'));
+    }
+
+    // Inicializar opciones de minutos (cada 15 minutos)
+    for (let minute = 0; minute < 60; minute += 15)
+    {
+      this.formato_15_minutos.push(minute.toString().padStart(2, '0'));
+    }
   }
 
   fetchSucursales()
@@ -841,8 +857,10 @@ export class CajaComponent
     this.cursorEntrega = 0;
     this.idSucursal = 0;
     this.idDireccionEnvio = 0;
-    this.fechaEstimadaEntrega = '';
     this.costoEnvio = 0;
+    this.fechaEstimadaEntrega = '';
+    this.estimada_hora_entrega = '';
+    this.estimado_minutos_entrega = '';
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -956,6 +974,8 @@ export class CajaComponent
         restante: this.saldoPendiente,
         comentarios: this.chatHistory,
         fecha_entrega: this.fechaEstimadaEntrega,
+        estimada_hora_entrega: this.estimada_hora_entrega,
+        estimado_minutos_entrega: this.estimado_minutos_entrega,
       } as Ticket;
 
       this.modalCerrarVenta.nativeElement.show();
@@ -1017,6 +1037,8 @@ export class CajaComponent
       restante: this.saldoPendiente,
       comentarios: this.chatHistory,
       fecha_entrega: this.fechaEstimadaEntrega,
+      estimada_hora_entrega: this.estimada_hora_entrega,
+      estimado_minutos_entrega: this.estimado_minutos_entrega,
     } as Ticket;
 
     this.modalCerrarVenta.nativeElement.show();
@@ -1075,6 +1097,8 @@ export class CajaComponent
       restante: this.saldoPendiente,
       comentarios: this.chatHistory,
       fecha_entrega: this.fechaEstimadaEntrega,
+      estimada_hora_entrega: this.estimada_hora_entrega,
+      estimado_minutos_entrega: this.estimado_minutos_entrega,
     } as Ticket;
 
     this.modalCerrarVenta.nativeElement.show();
@@ -1337,8 +1361,10 @@ export class CajaComponent
       total_iva: this.total_iva,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
-      fecha_entrega: moment(this.fechaEstimadaEntrega).format('YYYY-MM-DD HH:mm:ss'),
       numero_referencia: this.numero_referencia,
+      fecha_entrega: moment(this.fechaEstimadaEntrega).format('YYYY-MM-DD HH:mm:ss'),
+      estimada_hora_entrega: this.estimada_hora_entrega,
+      estimado_minutos_entrega: this.estimado_minutos_entrega,
     } as Ticket;
 
     const loadingToast = this.toastService.loading('Creando ticket');
