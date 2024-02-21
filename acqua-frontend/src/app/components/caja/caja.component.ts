@@ -775,7 +775,10 @@ export class CajaComponent
           this.serviciosTicket.length >= 1 &&
           this.anticipo >= 0 &&
           this.idSucursal != 0 &&
-          (this.recibido >= 0 && this.recibido >= this.anticipo)
+          (this.recibido >= 0 && this.recibido >= this.anticipo) &&
+          (this.fechaEstimadaEntrega != '' && this.fechaEstimadaEntrega != null) &&
+          (this.selected_hour != '' && this.selected_hour != null) &&
+          (this.selected_minute != '' && this.selected_minute != null)
         );
       }
       else if(this.cursorEntrega == 1)
@@ -787,7 +790,10 @@ export class CajaComponent
           this.serviciosTicket.length >= 1 &&
           this.idDireccionEnvio != 0 &&
           this.anticipo >= 0 &&
-          (this.recibido >= 0 && this.recibido >= this.anticipo)
+          (this.recibido >= 0 && this.recibido >= this.anticipo) &&
+          (this.fechaEstimadaEntrega != '' && this.fechaEstimadaEntrega != null) &&
+          (this.selected_hour != '' && this.selected_hour != null) &&
+          (this.selected_minute != '' && this.selected_minute != null)
         );
       }
       else
@@ -804,7 +810,10 @@ export class CajaComponent
           this.clienteSeleccionado != null &&
           this.serviciosTicket.length >= 1 &&
           this.idSucursal != 0 &&
-          this.recibido >= this.total
+          this.recibido >= this.total &&
+          (this.fechaEstimadaEntrega != '' && this.fechaEstimadaEntrega != null) &&
+          (this.selected_hour != '' && this.selected_hour != null) &&
+          (this.selected_minute != '' && this.selected_minute != null)
         );
       }
       else if(this.cursorEntrega == 1)
@@ -815,7 +824,10 @@ export class CajaComponent
           this.clienteSeleccionado != null &&
           this.idDireccionEnvio != 0 &&
           this.serviciosTicket.length >= 1 &&
-          this.recibido >= this.total
+          this.recibido >= this.total &&
+          (this.fechaEstimadaEntrega != '' && this.fechaEstimadaEntrega != null) &&
+          (this.selected_hour != '' && this.selected_hour != null) &&
+          (this.selected_minute != '' && this.selected_minute != null)
         );
       }
       else
