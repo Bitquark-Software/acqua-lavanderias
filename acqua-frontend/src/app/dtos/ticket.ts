@@ -43,8 +43,6 @@ export class Ticket
   procesos_ticket!: ProcesoTicket[];
   numero_referencia?: string;
   fecha_entrega?: string | Date;
-  estimada_hora_entrega?: string;
-  estimado_minutos_entrega?: string;
 }
 
 export class ServiciosTicketServicio extends ServicioTicket

@@ -85,10 +85,10 @@ export class CajaComponent
   idSucursal = 0;
   idDireccionEnvio = 0;
   fechaEstimadaEntrega: Date | string = '';
-  estimada_hora_entrega = '';
-  estimado_minutos_entrega = '';
-  formato_24_horas: string[] = [];
-  formato_15_minutos: string[] = [];
+  selected_hour = '';
+  selected_minute = '';
+  format_24_hrs: string[] = [];
+  format_15_min: string[] = [];
 
   stepFinalizarVenta = 0;
 
@@ -163,13 +163,13 @@ export class CajaComponent
     // Inicializar opciones de horas (0 a 23)
     for (let hour = 0; hour < 24; hour++)
     {
-      this.formato_24_horas.push(hour.toString().padStart(2, '0'));
+      this.format_24_hrs.push(hour.toString().padStart(2, '0'));
     }
 
     // Inicializar opciones de minutos (cada 15 minutos)
     for (let minute = 0; minute < 60; minute += 15)
     {
-      this.formato_15_minutos.push(minute.toString().padStart(2, '0'));
+      this.format_15_min.push(minute.toString().padStart(2, '0'));
     }
   }
 
@@ -859,8 +859,8 @@ export class CajaComponent
     this.idDireccionEnvio = 0;
     this.costoEnvio = 0;
     this.fechaEstimadaEntrega = '';
-    this.estimada_hora_entrega = '';
-    this.estimado_minutos_entrega = '';
+    this.selected_hour = '';
+    this.selected_minute = '';
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -973,11 +973,8 @@ export class CajaComponent
         anticipo: this.anticipo,
         restante: this.saldoPendiente,
         comentarios: this.chatHistory,
-        fecha_entrega: this.fechaEstimadaEntrega,
-        estimada_hora_entrega: this.estimada_hora_entrega,
-        estimado_minutos_entrega: this.estimado_minutos_entrega,
+        fecha_entrega: moment(this.getFechaFullEntrega()).format('YYYY-MM-DD HH:mm:ss'),
       } as Ticket;
-
       this.modalCerrarVenta.nativeElement.show();
 
       setTimeout(() =>
@@ -1036,9 +1033,7 @@ export class CajaComponent
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
       comentarios: this.chatHistory,
-      fecha_entrega: this.fechaEstimadaEntrega,
-      estimada_hora_entrega: this.estimada_hora_entrega,
-      estimado_minutos_entrega: this.estimado_minutos_entrega,
+      fecha_entrega: moment(this.getFechaFullEntrega()).format('YYYY-MM-DD HH:mm:ss'),
     } as Ticket;
 
     this.modalCerrarVenta.nativeElement.show();
@@ -1096,9 +1091,7 @@ export class CajaComponent
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
       comentarios: this.chatHistory,
-      fecha_entrega: this.fechaEstimadaEntrega,
-      estimada_hora_entrega: this.estimada_hora_entrega,
-      estimado_minutos_entrega: this.estimado_minutos_entrega,
+      fecha_entrega: moment(this.getFechaFullEntrega()).format('YYYY-MM-DD HH:mm:ss'),
     } as Ticket;
 
     this.modalCerrarVenta.nativeElement.show();
@@ -1362,9 +1355,7 @@ export class CajaComponent
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
       numero_referencia: this.numero_referencia,
-      fecha_entrega: moment(this.fechaEstimadaEntrega).format('YYYY-MM-DD HH:mm:ss'),
-      estimada_hora_entrega: this.estimada_hora_entrega,
-      estimado_minutos_entrega: this.estimado_minutos_entrega,
+      fecha_entrega: moment(this.getFechaFullEntrega()).format('YYYY-MM-DD HH:mm:ss'),
     } as Ticket;
 
     const loadingToast = this.toastService.loading('Creando ticket');
@@ -1454,5 +1445,10 @@ export class CajaComponent
   {
     this.setCliente();
     this.cursorEntrega = 0;
+  }
+
+  getFechaFullEntrega(): Date
+  {
+    return new Date(`${this.fechaEstimadaEntrega} ${this.selected_hour}:${this.selected_minute}:00`);
   }
 }

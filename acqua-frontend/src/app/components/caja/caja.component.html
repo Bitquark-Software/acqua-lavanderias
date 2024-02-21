@@ -273,12 +273,12 @@
                 <span class="label-text">Hora estimada de entrega</span>
               </label>
               <div class="flex items-center">
-                <select class="select select-bordered select-success w-1/2" [(ngModel)]="estimada_hora_entrega">
-                  <option *ngFor="let hora of formato_24_horas" [value]="hora">{{ hora }}</option>
+                <select class="select select-bordered select-success w-1/2" [(ngModel)]="selected_hour">
+                  <option *ngFor="let hora of format_24_hrs" [value]="hora">{{ hora }}</option>
                 </select>
                 <span class="ml-2">:</span>
-                <select class="select select-bordered select-success w-1/2" [(ngModel)]="estimado_minutos_entrega">
-                  <option *ngFor="let minuto of formato_15_minutos" [value]="minuto">{{ minuto }}</option>
+                <select class="select select-bordered select-success w-1/2" [(ngModel)]="selected_minute">
+                  <option *ngFor="let minuto of format_15_min" [value]="minuto">{{ minuto }}</option>
                 </select>
               </div>
             </div>
