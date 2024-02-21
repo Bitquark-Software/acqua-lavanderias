@@ -65,12 +65,15 @@
 
   <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="tipoEntrega == 'ENVIO' && ubicacionEnvio">
     <p style="font-weight: bold;">* * ENVÍO A DOMICILIO * *</p>
-    <p>FECHA: {{ticket.fecha_entrega}}</p>
+    <p>FECHA: {{ticket.fecha_entrega | date: 'longDate' }}</p>
+    <p>HORA: {{ticket.fecha_entrega | date: 'h:mm a zzzz' }}</p>
     <p class="centered">LUGAR: {{ubicacionEnvio.calle}}, no. {{ubicacionEnvio.numero}}, Col. {{ubicacionEnvio.colonia}}, C.P: {{ubicacionEnvio.codigo_postal}}</p>
   </div>
 
   <div style="width: 100%; border-top: dotted 2px; padding-top: 2px; padding-bottom: 2px; text-align: center;" *ngIf="tipoEntrega == 'SUCURSAL' && sucursal">
     <p style="font-weight: bold;">* * CENTRO DE RECOLECCIÓN * *</p>
+    <p>FECHA: {{ticket.fecha_entrega | date: 'longDate' }}</p>
+    <p>HORA: {{ticket.fecha_entrega | date: 'h:mm a zzzz' }}</p>
     <p class="centered">ENTREGAR EN: {{sucursal.nombre}}</p>
   </div>
 
