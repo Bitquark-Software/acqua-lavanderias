@@ -1405,6 +1405,7 @@ export class CajaComponent
   {
     this.stepFinalizarVenta = 0;
     this.modalCerrarVenta.nativeElement.close();
+    this.verificarSiGuardarIva(this.total, this.incluir_iva);
   }
 
   setIvaCheckbox(event: any)
