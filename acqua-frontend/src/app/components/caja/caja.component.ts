@@ -557,7 +557,11 @@ export class CajaComponent
   {
     if(incluir_iva)
     {
-      this.setCalculoIva(parseFloat((monto*0.16).toFixed(2)));
+      this.setCalculoIva(this.obtenerCalculoIva(monto));
+    }
+    else
+    {
+      this.setCalculoIva(0);
     }
   }
 
