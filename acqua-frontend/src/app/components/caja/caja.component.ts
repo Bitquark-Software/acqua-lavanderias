@@ -877,6 +877,9 @@ export class CajaComponent
     this.fechaEstimadaEntrega = '';
     this.selected_hour = '';
     this.selected_minute = '';
+    this.numero_referencia = '';
+    this.incluir_iva = false;
+    this.total_iva = 0;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
