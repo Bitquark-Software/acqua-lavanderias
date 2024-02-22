@@ -1107,6 +1107,7 @@ export class CajaComponent
       tipo_credito: this.tipoDeCredito,
       metodo_pago: this.metodoPago,
       total: this.total,
+      total_iva: this.total_iva,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
       comentarios: this.chatHistory,
