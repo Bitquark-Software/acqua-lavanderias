@@ -810,7 +810,7 @@
         <div class="form-control">
           <label class="cursor-pointer label">
             <span class="label-text">Incluir IVA</span>
-            <input type="checkbox" class="checkbox checkbox-success" (change)="setIvaCheckbox($event)"/>
+            <input type="checkbox" class="checkbox checkbox-success" [(ngModel)]="incluir_iva" (change)="setIvaCheckbox($event)"/>
           </label>
         </div>
       </div>
