@@ -67,7 +67,6 @@ class RepotDetalladoVetasController extends BaseReportController
         $request->validate([
             'fecha_inicio' => ['date_format:Y-m-d H:i:s', 'nullable'],
             'fecha_fin' => ['date_format:Y-m-d H:i:s', 'nullable', 'after_or_equal:fecha_inicio'],
-            'sucursal' => ['required', 'exists:sucursales,id']
         ]);
 
         $fecha = $this->verificacionFechas($request->fecha_inicio, $request->fecha_fin);
@@ -77,7 +76,7 @@ class RepotDetalladoVetasController extends BaseReportController
 
         try {
             // Sucursal
-            $sucursal = Sucursal::find($request->sucursal);
+            $sucursales = Sucursal::get();
         } catch (\Exception $e) {
             echo 'Error sucursal no encontrada',  $e->getMessage(), "\n";
         }
@@ -109,13 +108,6 @@ class RepotDetalladoVetasController extends BaseReportController
             echo 'Error al Mostrar los Catalogos y Servicios',  $e->getMessage(), "\n";
         }
 
-        try {
-            // Totales de Cada Catalogo y Servicios
-            $Importes = $this->InformVentCategorias($fechaInicio, $fechaFin, $request->sucursal);
-        } catch (\Exception $e) {
-            echo 'Error al mostrar totales y kilogramos de servicios';
-        }
-
         $pdf = app('dompdf.wrapper');
 
         $html = $this->estilos; // * Llamado de estilos estan en BaseReportController
@@ -126,48 +118,60 @@ class RepotDetalladoVetasController extends BaseReportController
         $html .= "<h1 class='texto verdeBag'>Reporte Detallado de Ventas</h1>";
         $html .= "<p class='alinear-derecha negrita'>Dias Festivos:" . $dias_festibos . '</p>';
         $html .= "<p class='alinear-derecha'>Periodo: " . $fechaInicio . ' - ' . $fechaFin . '</p>';
-        $html .= "<h3 class='texto'>Sucursal: " . '<span class="verdeBag">' . $sucursal->nombre . '</span>' . '</h3>';
-        $html .= '</header>'; // Fin de Encabezado
 
-        $html .= "<body>"; // Inicio de Body
-        $html .= "<table>";
+        foreach($sucursales as $sucursal)
+        {
+            try {
+                // Totales de Cada Catalogo y Servicios
+                $Importes = $this->InformVentCategorias($fechaInicio, $fechaFin, $sucursal->id);
+            } catch (\Exception $e) {
+                echo 'Error al mostrar totales y kilogramos de servicios';
+            }
 
-        $html .= "<tr>";
-        $html .= "<th>  </th>";
-        $html .= "<th>Unicada</th>";
-        $html .= "<th>Cantidad</th>";
-        $html .= "<th>Importe Total</th>";
-        $html .= "</tr>";
+            $html .= "<h3 class='texto'>Sucursal: " . '<span class="verdeBag">' . $sucursal->nombre . '</span>' . '</h3>';
+            $html .= '</header>'; // Fin de Encabezado
 
-        foreach ($catalogos as $catalogo) :
-            $totalKilos = 0;
-            $totalImporte = 0;
-            foreach ($Importes as $importe) :
-                if ($importe->catalogo_name == $catalogo['name']) {
-                    foreach ($catalogo['servicios'] as $servicio) :
-                        if ($importe->nombre_servicio == $servicio['nombre_servicio']) {
-                            $totalKilos += $importe->kilos;
-                            $totalImporte += $importe->total;
-                            $html .= "<tr>";
-                            $html .= "<td> - " . $servicio['nombre_servicio'] . "</td>";
-                            $html .= "<td>kg</td>";
-                            $html .= "<td>$importe->kilos</td>";
-                            $html .= "<td>$importe->total</td>";
-                            $html .= "</tr>";
-                        }
-                    endforeach;
-                }
-            endforeach;
+            $html .= "<body>"; // Inicio de Body
+            $html .= "<table>";
 
             $html .= "<tr>";
-            $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo['name'] . "</td>";
-            $html .= "<td></td>";
-            $html .= "<td class='bordestd'>" . ($totalKilos ?  $totalKilos : 'SinDatos') . "</td>";
-            $html .= "<td class='bordestd'>" . ($totalImporte ? $totalImporte : 'SinDatos') . "</td>";
+            $html .= "<th>  </th>";
+            $html .= "<th>Unicada</th>";
+            $html .= "<th>Cantidad</th>";
+            $html .= "<th>Importe Total</th>";
             $html .= "</tr>";
-        endforeach;
 
-        $html .= "</table>";
+            foreach ($catalogos as $catalogo) :
+                $totalKilos = 0;
+                $totalImporte = 0;
+                foreach ($Importes as $importe) :
+                    if ($importe->catalogo_name == $catalogo['name']) {
+                        foreach ($catalogo['servicios'] as $servicio) :
+                            if ($importe->nombre_servicio == $servicio['nombre_servicio']) {
+                                $totalKilos += $importe->kilos;
+                                $totalImporte += $importe->total;
+                                $html .= "<tr>";
+                                $html .= "<td> - " . $servicio['nombre_servicio'] . "</td>";
+                                $html .= "<td>kg</td>";
+                                $html .= "<td>$importe->kilos</td>";
+                                $html .= "<td>$importe->total</td>";
+                                $html .= "</tr>";
+                            }
+                        endforeach;
+                    }
+                endforeach;
+
+                $html .= "<tr>";
+                $html .= "<td class='alinear-izquierdda verdeBag'>" . $catalogo['name'] . "</td>";
+                $html .= "<td></td>";
+                $html .= "<td class='bordestd'>" . ($totalKilos ?  $totalKilos : 'Sin Datos') . "</td>";
+                $html .= "<td class='bordestd'>" . ($totalImporte ? $totalImporte : 'Sin Datos') . "</td>";
+                $html .= "</tr>";
+            endforeach;
+
+            $html .= "</table>";
+        }
+
         $html .= "</body>"; // Fin de Body
 
         $pdf->loadHTML($html);
