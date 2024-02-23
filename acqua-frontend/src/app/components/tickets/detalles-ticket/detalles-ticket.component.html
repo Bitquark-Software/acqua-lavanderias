@@ -376,8 +376,18 @@
           [ngClass]="{
             'bg-white': cursorEntrega == 1,
           }"
-          [routerLink]="['/editar-cliente', ticket.id_cliente]"
           (click)="switchMetodoEntrega(1)"
+          *ngIf="ticket.cliente.direccion?.length != 0"
+        >
+          A domicilio
+        </a>
+        <a
+          class="tab text-center text-primary"
+          [ngClass]="{
+            'bg-white': cursorEntrega == 1,
+          }"
+          [routerLink]="['/editar-cliente', ticket.id_cliente]"
+          *ngIf="ticket.cliente.direccion?.length == 0"
         >
           A domicilio
         </a> 
