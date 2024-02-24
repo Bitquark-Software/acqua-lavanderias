@@ -30,7 +30,7 @@ class UserController extends Controller
             'name' => ['required', 'max:30'],
             'email' => ['required', 'unique:users', 'email', 'max:60'],
             'password' => ['required'],
-            'role' => ['required', 'in:administrador,empleado,cliente']
+            'role' => ['required', 'in:administrador,encargado,cajero,operativo']
         ]);
 
         $user = User::create([
@@ -70,7 +70,7 @@ class UserController extends Controller
             'name' => ['required', 'max:30'],
             'email' => ['required', 'email', 'max:60'],
             'password' => ['nullable'],
-            'role' => ['required', 'in:administrador,empleado,cliente']
+            'role' => ['required', 'in:administrador,encargado,cajero,operativo']
         ]);
 
         $user = User::findOrFail($id);
