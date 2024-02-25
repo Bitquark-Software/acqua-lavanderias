@@ -1413,6 +1413,7 @@ export class CajaComponent
   {
     const value = event.target.checked as boolean;
     this.incluir_iva = value;
+    this.verificarSiGuardarIva(this.total, this.incluir_iva);
   }
 
   checkFechaEntrega(event: any)
