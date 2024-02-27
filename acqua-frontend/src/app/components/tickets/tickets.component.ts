@@ -1,22 +1,28 @@
 /* eslint-disable no-unused-vars */
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Cliente } from 'src/app/dtos/cliente';
 import { Ticket, TicketResponse } from 'src/app/dtos/ticket';
 import { TicketService } from 'src/app/services/ticket.service';
+import { Proceso, ProcesosAcqua } from 'src/app/dtos/proceso';
+import { HotToastService } from '@ngneat/hot-toast';
 
 @Component({
   selector: 'app-tickets',
   templateUrl: './tickets.component.html',
   styleUrls: ['./tickets.component.scss'],
 })
+
 export class TicketsComponent
 {
   busquedaCliente = '';
   tickets: Ticket[] = [];
   ticketsCopy: Ticket[] = [];
+  PROCESOS_EXISTENTES: Proceso[] | undefined = [];
 
   constructor(
+    private router: Router,
+    private toast: HotToastService,
     private route: ActivatedRoute,
     private ticketsService: TicketService,
   )
@@ -39,6 +45,7 @@ export class TicketsComponent
         }
       },
     });
+    this.fetchProcesos();
   }
 
   handleInputChange()
@@ -91,5 +98,43 @@ export class TicketsComponent
   atob(base64: string)
   {
     return JSON.parse(atob(base64));
+  }
+
+  pedidoCerrado(ticket: Ticket): boolean
+  {
+    if(Number(ticket.restante) === 0)
+    {
+      const proceso_entrega: Proceso | undefined = this.PROCESOS_EXISTENTES!.find(
+        proceso => proceso.nombre === String(ProcesosAcqua.ENTREGA),
+      );
+
+      if(proceso_entrega != null || proceso_entrega != undefined)
+      {
+        const proceso_actual = ticket.procesos_ticket.find(
+          proceso_ticket => proceso_ticket.id_proceso === proceso_entrega?.id,
+        );
+        if(proceso_actual != null || proceso_actual != undefined)
+        {
+          return proceso_actual!.timestamp_start !=null && proceso_actual!.timestamp_end != null;
+        }
+      }
+    }
+    return false;
+  }
+
+  fetchProcesos()
+  {
+    this.ticketsService.getTodosLosProcesos().subscribe({
+      next: (procesos) =>
+      {
+        this.PROCESOS_EXISTENTES = procesos;
+      },
+      error: (err) =>
+      {
+        this.toast.error('Error CRÍTICO: No hay procesos dados de alta, contacte a los desarrolladores');
+        this.router.navigate(['/']);
+        console.log(err);
+      },
+    });
   }
 }
