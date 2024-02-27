@@ -85,6 +85,10 @@ export class CajaComponent
   idSucursal = 0;
   idDireccionEnvio = 0;
   fechaEstimadaEntrega: Date | string = '';
+  selected_hour = '';
+  selected_minute = '';
+  format_24_hrs: string[] = [];
+  format_15_min: string[] = [];
 
   stepFinalizarVenta = 0;
 
@@ -155,6 +159,18 @@ export class CajaComponent
     this.fetchSucursales();
 
     this.navigateToBottomOfChat();
+
+    // Inicializar opciones de horas (0 a 23)
+    for (let hour = 0; hour < 24; hour++)
+    {
+      this.format_24_hrs.push(hour.toString().padStart(2, '0'));
+    }
+
+    // Inicializar opciones de minutos (cada 15 minutos)
+    for (let minute = 0; minute < 60; minute += 15)
+    {
+      this.format_15_min.push(minute.toString().padStart(2, '0'));
+    }
   }
 
   fetchSucursales()
@@ -494,20 +510,19 @@ export class CajaComponent
     const index = this.existeServicio(claveServicio);
     if(index >= 0)
     {
-      const newValue = event.target.value ?? 1;
-
-      if(newValue >= this.serviciosTicket[index].cantidad_minima)
+      const newValue:string = event.target.value ?? 1;
+      if(Number(newValue) >= Number(this.serviciosTicket[index].cantidad_minima))
       {
-        const importe = parseFloat(newValue) * this.serviciosTicket[index].importe;
+        const importe = parseFloat(newValue) * Number(this.serviciosTicket[index].importe);
         this.serviciosTicket[index].subtotal = parseFloat(importe.toFixed(2));
 
         this.recalcularTotal();
       }
       else
       {
-        const cantMinima = this.serviciosTicket[index].cantidad_minima;
+        const cantMinima = Number(this.serviciosTicket[index].cantidad_minima);
         this.serviciosTicket[index].cantidad = cantMinima;
-        this.serviciosTicket[index].subtotal = cantMinima * this.serviciosTicket[index].importe;
+        this.serviciosTicket[index].subtotal = cantMinima * Number(this.serviciosTicket[index].importe);
 
         this.toastService.warning(
           `La cantidad mínima para este servicio es de ${this.serviciosTicket[index].cantidad_minima}
@@ -542,7 +557,11 @@ export class CajaComponent
   {
     if(incluir_iva)
     {
-      this.setCalculoIva(parseFloat((monto*0.16).toFixed(2)));
+      this.setCalculoIva(this.obtenerCalculoIva(monto));
+    }
+    else
+    {
+      this.setCalculoIva(0);
     }
   }
 
@@ -760,7 +779,10 @@ export class CajaComponent
           this.serviciosTicket.length >= 1 &&
           this.anticipo >= 0 &&
           this.idSucursal != 0 &&
-          (this.recibido >= 0 && this.recibido >= this.anticipo)
+          (this.recibido >= 0 && this.recibido >= this.anticipo) &&
+          (this.fechaEstimadaEntrega != '' && this.fechaEstimadaEntrega != null) &&
+          (this.selected_hour != '' && this.selected_hour != null) &&
+          (this.selected_minute != '' && this.selected_minute != null)
         );
       }
       else if(this.cursorEntrega == 1)
@@ -772,7 +794,10 @@ export class CajaComponent
           this.serviciosTicket.length >= 1 &&
           this.idDireccionEnvio != 0 &&
           this.anticipo >= 0 &&
-          (this.recibido >= 0 && this.recibido >= this.anticipo)
+          (this.recibido >= 0 && this.recibido >= this.anticipo) &&
+          (this.fechaEstimadaEntrega != '' && this.fechaEstimadaEntrega != null) &&
+          (this.selected_hour != '' && this.selected_hour != null) &&
+          (this.selected_minute != '' && this.selected_minute != null)
         );
       }
       else
@@ -789,7 +814,10 @@ export class CajaComponent
           this.clienteSeleccionado != null &&
           this.serviciosTicket.length >= 1 &&
           this.idSucursal != 0 &&
-          this.recibido >= this.total
+          this.recibido >= this.total &&
+          (this.fechaEstimadaEntrega != '' && this.fechaEstimadaEntrega != null) &&
+          (this.selected_hour != '' && this.selected_hour != null) &&
+          (this.selected_minute != '' && this.selected_minute != null)
         );
       }
       else if(this.cursorEntrega == 1)
@@ -800,7 +828,10 @@ export class CajaComponent
           this.clienteSeleccionado != null &&
           this.idDireccionEnvio != 0 &&
           this.serviciosTicket.length >= 1 &&
-          this.recibido >= this.total
+          this.recibido >= this.total &&
+          (this.fechaEstimadaEntrega != '' && this.fechaEstimadaEntrega != null) &&
+          (this.selected_hour != '' && this.selected_hour != null) &&
+          (this.selected_minute != '' && this.selected_minute != null)
         );
       }
       else
@@ -842,8 +873,13 @@ export class CajaComponent
     this.cursorEntrega = 0;
     this.idSucursal = 0;
     this.idDireccionEnvio = 0;
-    this.fechaEstimadaEntrega = '';
     this.costoEnvio = 0;
+    this.fechaEstimadaEntrega = '';
+    this.selected_hour = '';
+    this.selected_minute = '';
+    this.numero_referencia = '';
+    this.incluir_iva = false;
+    this.total_iva = 0;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -956,9 +992,8 @@ export class CajaComponent
         anticipo: this.anticipo,
         restante: this.saldoPendiente,
         comentarios: this.chatHistory,
-        fecha_entrega: this.fechaEstimadaEntrega,
+        fecha_entrega: moment(this.getFechaFullEntrega()).format('YYYY-MM-DD HH:mm:ss'),
       } as Ticket;
-
       this.modalCerrarVenta.nativeElement.show();
 
       setTimeout(() =>
@@ -1017,7 +1052,7 @@ export class CajaComponent
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
       comentarios: this.chatHistory,
-      fecha_entrega: this.fechaEstimadaEntrega,
+      fecha_entrega: moment(this.getFechaFullEntrega()).format('YYYY-MM-DD HH:mm:ss'),
     } as Ticket;
 
     this.modalCerrarVenta.nativeElement.show();
@@ -1072,10 +1107,11 @@ export class CajaComponent
       tipo_credito: this.tipoDeCredito,
       metodo_pago: this.metodoPago,
       total: this.total,
+      total_iva: this.total_iva,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
       comentarios: this.chatHistory,
-      fecha_entrega: this.fechaEstimadaEntrega,
+      fecha_entrega: moment(this.getFechaFullEntrega()).format('YYYY-MM-DD HH:mm:ss'),
     } as Ticket;
 
     this.modalCerrarVenta.nativeElement.show();
@@ -1338,8 +1374,8 @@ export class CajaComponent
       total_iva: this.total_iva,
       anticipo: this.anticipo,
       restante: this.saldoPendiente,
-      fecha_entrega: moment(this.fechaEstimadaEntrega).format('YYYY-MM-DD HH:mm:ss'),
       numero_referencia: this.numero_referencia,
+      fecha_entrega: moment(this.getFechaFullEntrega()).format('YYYY-MM-DD HH:mm:ss'),
     } as Ticket;
 
     const loadingToast = this.toastService.loading('Creando ticket');
@@ -1370,12 +1406,14 @@ export class CajaComponent
   {
     this.stepFinalizarVenta = 0;
     this.modalCerrarVenta.nativeElement.close();
+    this.verificarSiGuardarIva(this.total, this.incluir_iva);
   }
 
   setIvaCheckbox(event: any)
   {
     const value = event.target.checked as boolean;
     this.incluir_iva = value;
+    this.verificarSiGuardarIva(this.total, this.incluir_iva);
   }
 
   checkFechaEntrega(event: any)
@@ -1429,5 +1467,10 @@ export class CajaComponent
   {
     this.setCliente();
     this.cursorEntrega = 0;
+  }
+
+  getFechaFullEntrega(): Date
+  {
+    return new Date(`${this.fechaEstimadaEntrega} ${this.selected_hour}:${this.selected_minute}:00`);
   }
 }

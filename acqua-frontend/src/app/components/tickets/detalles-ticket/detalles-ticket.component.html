@@ -17,6 +17,7 @@
           <div class="col-span-2">
             <p class="font-medium text-xl text-secondary">Cliente: {{ticket.cliente.nombre}}</p>
             <p class="font-thin text-xs">Ticket creado: {{ticket.created_at}}</p>
+            <p class="font-thin text-xs">No. Ticket: {{ticket.id}}</p>
           </div>
           <button class="btn btn-outline btn-secondary" (click)="openReimprimirModal()">
             Ver servicios
@@ -376,6 +377,17 @@
             'bg-white': cursorEntrega == 1,
           }"
           (click)="switchMetodoEntrega(1)"
+          *ngIf="ticket.cliente.direccion?.length != 0"
+        >
+          A domicilio
+        </a>
+        <a
+          class="tab text-center text-primary"
+          [ngClass]="{
+            'bg-white': cursorEntrega == 1,
+          }"
+          [routerLink]="['/editar-cliente', ticket.id_cliente]"
+          *ngIf="ticket.cliente.direccion?.length == 0"
         >
           A domicilio
         </a> 
@@ -743,7 +755,7 @@
         <thead>
           <tr>
             <th>Servicio</th>
-            <th>Kilos</th>
+            <th>Cantidad</th>
           </tr>
         </thead>
         <tbody>

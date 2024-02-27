@@ -22,7 +22,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        return Ticket::with('cliente')->orderBy('created_at', 'desc')->paginate(1500);
+        return Ticket::with('cliente', 'procesosTicket')->orderBy('created_at', 'desc')->paginate(1500);
     }
 
     /**
@@ -54,7 +54,7 @@ class TicketController extends Controller
         $totIva = $request->total_iva !== null ? round($request->total_iva, 2) : 0;
         $total = $request->total;
 
-        if($request->incluye_iva) { // este me dice si quiere que la compra tenga IVA
+        if ($request->incluye_iva) { // este me dice si quiere que la compra tenga IVA
             $total += $totIva; // Suma del iva más el total
         }
 
@@ -80,7 +80,7 @@ class TicketController extends Controller
             'restante' => $restante,
             'fecha_entrega' => $request->fecha_entrega,
             'numero_referencia' => $numeroTarjetaCifrado,
-            'total_iva' =>  $request->incluye_iva ? round($request->total_iva,2) : 0
+            'total_iva' =>  $request->incluye_iva ? round($request->total_iva, 2) : 0
         ]);
 
         // Anticipos_Tickets
@@ -125,7 +125,7 @@ class TicketController extends Controller
     public function show($id)
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
-        $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios','serviciosTicket', 'serviciosTicket.servicio', 'prendasTicket', 'procesosTicket')->find($id);
+        $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'serviciosTicket.servicio', 'prendasTicket', 'procesosTicket')->find($id);
 
         // Verifica si el número de referencia está presente y desencripta si es necesario
         if (!is_null($ticket->numero_referencia)) {
