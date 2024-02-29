@@ -511,7 +511,7 @@ export class DetallesTicketComponent
     {
       if(this.ticket.cliente.direccion?.length == 0)
       {
-        this.toast.warning('El cliente no tiene direcciones guardadas');
+        this.toast.warning('El cliente no tiene direcciones guardadas. Vamos a registarle una');
       }
       else
       {
