@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Prenda;
 use App\Models\ServicioTicket;
 use App\Models\AnticipoTicket;
+use App\Models\CancelacionCodigo;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFound;
 use Illuminate\Validation\ValidationException;
 
 class TicketController extends Controller
@@ -209,15 +212,51 @@ class TicketController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id): JsonResponse
+    public function destroy(Request $request, $id): JsonResponse
     {
-        $ticket = Ticket::findOrFail($id);
-        $ticket->comentarios()->delete();
+        $request->validate([
+            'codigo' => ['required']
+        ]);
 
-        $ticket->delete();
+        $fecha_actual = date("Y-m-d H:i:s");
 
-        return response()->json([
-            'mensaje' => 'Ticket eliminado correctamente'
-        ], 204);
+        try {
+            $ticket = Ticket::find($id);
+        } catch (ModelNotFound $e) {
+            return response()->json([
+                'mensaje' => 'Ticket no encontrado'
+            ], 404);
+        }
+
+        try {
+            $codigo = CancelacionCodigo::where('codigo',$request->codigo)->firstOrFail();
+
+            if ($codigo->usado) {
+                return response()->json([
+                    'mensaje' => 'Codigo usado'
+                ]);
+            }
+
+            $codigo->update([
+                'usado' => true,
+                'id_ticket' => $id,
+                'used_at' => $fecha_actual
+            ]);
+
+            Log::info('Se Cancelo el ticket - ' . $id);
+            Log::info('Usuario: ' . $request->user()->name . ' - Codigo Usado: ' . $codigo->codigo);
+
+            $ticket->comentarios()->delete();
+            $ticket->delete();
+    
+            return response()->json([
+                'mensaje' => 'Ticket eliminado correctamente'
+            ], 204);
+
+        } catch (ModelNotFound $e) {
+            return response()->json([
+                'mensaje' => 'Codigo de cancelacion no valido o no Existe'
+            ], 404);
+        }
     }
 }
