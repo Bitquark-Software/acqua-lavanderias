@@ -25,6 +25,7 @@ use App\Http\Controllers\ProdPersonalReportController;
 use App\Http\Controllers\ProdSucursalReportController;
 use App\Http\Controllers\AnticiposTicketsController;
 use App\Http\Controllers\ServicioTicketController;
+use App\Http\Controllers\CancelacionCodigoController;
 use App\Http\Controllers\WhatsAppController;
 
 // * Bloque de Encargado
@@ -114,6 +115,9 @@ Route::middleware(['auth:api', 'role:administrador'])->group(function () {
 
     // Horarios por Sucursal
     Route::apiResource('horarios', HorarioController::class);
+
+    // Generacion de Codigos de Cancelacion Tickets
+    Route::apiResource('cancelacion_codigo', CancelacionCodigoController::class);
 });
 
 Route::middleware(['auth:api', 'role:administrador'])->group(function () {
