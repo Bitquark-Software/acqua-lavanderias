@@ -47,4 +47,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(ProcesoTicket::class, 'user_id');
     }
+
+    public function cancelacionCodigos()
+    {
+        return $this->hasMany(CancelacionCodigo::class, 'id_user');
+    }
 }

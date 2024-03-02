@@ -11,13 +11,21 @@ class CancelacionCodigo extends Model
 
     protected $fillable = [
         'codigo',
+        'motivo',
         'usado',
         'id_ticket',
+        'id_user',
         'used_at'
     ];
 
     public function ticket()
     {
-        return $this->belongsTo(Ticket::class, 'id_ticket');
-    }    
+        return $this->hasOne(Ticket::class, 'id_ticket');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
 }

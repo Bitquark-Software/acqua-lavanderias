@@ -70,4 +70,9 @@ class Ticket extends Model
     {
         return $this->hasMany(AnticipoTicket::class, 'id_ticket');
     }
+
+    public function cancelacionCodigo()
+    {
+        return $this->belongsTo(CancelacionCodigo::class, 'id_ticket');
+    }
 }

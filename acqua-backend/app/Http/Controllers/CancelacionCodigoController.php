@@ -11,6 +11,41 @@ use Illuminate\Http\JsonResponse;
 
 class CancelacionCodigoController extends Controller
 {
+
+    private function generacionCodigoUnico(): string
+    {
+        do {
+            $codigoGenerado = Str::random(8);
+        } while (CancelacionCodigo::where('codigo', $codigoGenerado)->exists());
+
+        return $codigoGenerado;
+    }
+
+    public function buscarCodigo(Request $request)
+    {
+        $request->validate([
+            'codigo' => 'required',
+        ]);
+
+        $usuarioActual = $request->user()->id;
+
+        $codigo = CancelacionCodigo::where('codigo', $request->codigo)
+            ->where('id_user', $usuarioActual)
+            ->where('usado', false)
+            ->first();
+
+        if ($codigo) {
+            return response()->json([
+                'mensaje' => 'Código encontrado',
+                'codigo' => $codigo,
+            ], 201);
+        } else {
+            return response()->json([
+                'mensaje' => 'Código no encontrado o ya ha sido usado',
+            ], 404);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -27,32 +62,43 @@ class CancelacionCodigoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) : JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'usado' => ['nullable', 'bool'],
-            'id_ticket' => ['nullable', 'exists:tickets,id']
+            'id_ticket' => ['nullable', 'exists:tickets,id'],
+            'motivo' => ['required', 'string']
         ]);
 
-        do { // Verifica que el codigo no se halla generado anteriormente
+        $verificacionUsadoCodigo = CancelacionCodigo::where('usado', '=', 0)->first();
 
-            $codigoGenerado = Str::random(6);
-            $buscarCodigoSiExiste = CancelacionCodigo::where('codigo', $codigoGenerado)->first();
-        } while ($buscarCodigoSiExiste === true);
+        if ($verificacionUsadoCodigo) {
+            return response()->json([
+                'mensaje' => 'Ya existe un codigo, no es posible generar otro'
+            ], 422);
+        }
 
-        // Si se le pasa el ticket, poner el ticket como usado
+        $codigoGenerado = $this->generacionCodigoUnico();
+
+        if ($request->id_ticket !== null) {
+            $fecha_actual = date("Y-m-d H:i:s");
+        }
+
+        // En caso de que el codigo sea para un ticket el admin puede pasarle directamente el ticket
         $ticketUsado = isset($request->id_ticket) ? true : false;
 
         $codigo = CancelacionCodigo::create([
             'codigo' => $codigoGenerado,
+            'motivo' => $request->motivo,
             'usado' => $ticketUsado,
             'id_ticket' => $request->input('id_ticket'),
+            'id_user' => $request->user()->id,
+            'used_at' => $fecha_actual ?? null
         ]);
 
         return response()->json([
             'mensaje' => 'Codigo cancelacion ticket generado',
             'data' => $codigo
-        ]);
+        ], 201);
     }
 
     /**
@@ -76,7 +122,7 @@ class CancelacionCodigoController extends Controller
     public function update(Request $request, CancelacionCodigo $cancelacionCodigo)
     {
         $request->validate([
-            'id_ticket' => ['required', 'exists:tickets,id']
+            'id_ticket' => ['nullable', 'exists:tickets,id']
         ]);
 
         $fecha_actual = date("d-m-Y H:i:s");
@@ -89,7 +135,7 @@ class CancelacionCodigoController extends Controller
                 'id_ticket' => $request->id_ticket,
                 'used_at' => $fecha_actual
             ]);
-    
+
             return response()->json([
                 'mensaje' => 'Codigo utilizado correctamente',
                 'data' => $codigoCancelacion
@@ -107,7 +153,7 @@ class CancelacionCodigoController extends Controller
      * @param  \App\Models\CancelacionCodigo  $cancelacionCodigo
      * @return \Illuminate\Http\Response
      */
-    public function destroy(CancelacionCodigo $cancelacionCodigo) : JsonResponse
+    public function destroy(CancelacionCodigo $cancelacionCodigo): JsonResponse
     {
         try {
             $codigoCancelacion = CancelacionCodigo::findOrFail($cancelacionCodigo);

@@ -240,7 +240,8 @@ class TicketController extends Controller
             $codigo->update([
                 'usado' => true,
                 'id_ticket' => $id,
-                'used_at' => $fecha_actual
+                'used_at' => $fecha_actual,
+                'id_user' => $request->user()->id
             ]);
 
             Log::info('Se Cancelo el ticket - ' . $id);

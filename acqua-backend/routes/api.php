@@ -118,6 +118,9 @@ Route::middleware(['auth:api', 'role:administrador'])->group(function () {
 
     // Generacion de Codigos de Cancelacion Tickets
     Route::apiResource('cancelacion_codigo', CancelacionCodigoController::class);
+
+    // Buscador de Codigos
+    Route::post('busqueda_codigo', [CancelacionCodigoController::class, 'buscarCodigo'])->name('codigos.buscar');
 });
 
 Route::middleware(['auth:api', 'role:administrador'])->group(function () {
