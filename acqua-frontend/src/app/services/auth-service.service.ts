@@ -6,7 +6,7 @@ import { Observable, map } from 'rxjs';
 import { HotToastService } from '@ngneat/hot-toast';
 import { API_URL } from '../environments/develop';
 import { Usuario, UsuarioResponse } from '../dtos/usuario';
-import { Rol } from '../enums/Rol.enum';
+import { Role } from '../enums/Role.enum';
 
 @Injectable ({
   providedIn: 'root',
@@ -102,12 +102,12 @@ export class AuthService
       `${API_URL}/admin/dashboard`, {
         name: usuario.nombre,
         email: usuario.email,
-        role: usuario.rol,
+        role: usuario.role,
         password,
       }, { headers: this.getHeaders() });
   }
 
-  actualizarEmpleado(id: number, name: string, email: string, role: Rol)
+  actualizarEmpleado(id: number, name: string, email: string, role: Role)
   {
     return this.httpClient.put(
       `${API_URL}/admin/dashboard/${id}`, {

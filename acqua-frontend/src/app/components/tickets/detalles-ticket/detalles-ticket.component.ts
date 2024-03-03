@@ -20,7 +20,7 @@ import { ReimpimirTicket, StatusTicket, Ticket } from 'src/app/dtos/ticket';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { TicketService } from 'src/app/services/ticket.service';
 import { RegistrarPagoComponent } from '../registrar-pago/registrar-pago.component';
-import { Rol } from 'src/app/enums/Rol.enum';
+import { Role } from 'src/app/enums/Role.enum';
 import { TicketStats } from 'src/app/dtos/ticket-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
 import { Secadora } from 'src/app/dtos/secadora';
@@ -129,7 +129,7 @@ export class DetallesTicketComponent
     this.fetchPrendas();
     this.fetchSucursales();
 
-    this.isAdmin = this.auth.session?.datos.role == Rol.Administrador;
+    this.isAdmin = this.auth.session?.datos.role == Role.Administrador;
   }
 
   fetchSucursales()

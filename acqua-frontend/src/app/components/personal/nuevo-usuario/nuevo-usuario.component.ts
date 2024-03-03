@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HotToastService } from '@ngneat/hot-toast';
 import { Usuario } from 'src/app/dtos/usuario';
-import { Rol } from 'src/app/enums/Rol.enum';
+import { Role } from 'src/app/enums/Role.enum';
 import { AuthService } from 'src/app/services/auth-service.service';
 
 @Component({
@@ -17,7 +17,7 @@ export class NuevoUsuarioComponent
   nuevoUsuarioForm = this.fb.group({
     nombre: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    rol: [Rol.Empleado, Validators.required],
+    role: [Role.Cajero, Validators.required],
     password: ['', Validators.required],
   });
   isLoading = false;
@@ -40,9 +40,9 @@ export class NuevoUsuarioComponent
   {
     return this.nuevoUsuarioForm.controls['email'];
   }
-  get rol()
+  get role()
   {
-    return this.nuevoUsuarioForm.controls['rol'];
+    return this.nuevoUsuarioForm.controls['role'];
   }
   get password()
   {
@@ -60,7 +60,7 @@ export class NuevoUsuarioComponent
     const usuarioNuevo: Partial<Usuario> = {
       email: this.email.value ?? '',
       nombre: this.nombre.value ?? '',
-      rol: this.rol.value ?? Rol.Empleado,
+      role: this.role.value ?? Role.Cajero,
     };
     const pass = this.password.value ?? '';
     this.empleadosService.registrarEmpleado(usuarioNuevo as Usuario, pass).subscribe({
