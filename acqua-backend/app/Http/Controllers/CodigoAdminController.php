@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CancelacionCodigo;
+use App\Models\CodigoAdmin;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFound;
 use Illuminate\Http\JsonResponse;
 
-class CancelacionCodigoController extends Controller
+class CodigoAdminController extends Controller
 {
 
     private function generacionCodigoUnico(): string
     {
         do {
             $codigoGenerado = Str::random(8);
-        } while (CancelacionCodigo::where('codigo', $codigoGenerado)->exists());
+        } while (CodigoAdmin::where('codigo', $codigoGenerado)->exists());
 
         return $codigoGenerado;
     }
@@ -29,7 +29,7 @@ class CancelacionCodigoController extends Controller
 
         $usuarioActual = $request->user()->id;
 
-        $codigo = CancelacionCodigo::where('codigo', $request->codigo)
+        $codigo = CodigoAdmin::where('codigo', $request->codigo)
             ->where('id_user', $usuarioActual)
             ->where('usado', false)
             ->first();
@@ -53,7 +53,7 @@ class CancelacionCodigoController extends Controller
      */
     public function index()
     {
-        return CancelacionCodigo::paginate(15);
+        return CodigoAdmin::paginate(15);
     }
 
     /**
@@ -69,7 +69,7 @@ class CancelacionCodigoController extends Controller
             'motivo' => ['required', 'string']
         ]);
 
-        $verificacionUsadoCodigo = CancelacionCodigo::where('usado', '=', 0)->first();
+        $verificacionUsadoCodigo = CodigoAdmin::where('usado', '=', 0)->exists();
 
         if ($verificacionUsadoCodigo) {
             return response()->json([
@@ -86,7 +86,7 @@ class CancelacionCodigoController extends Controller
         // En caso de que el codigo sea para un ticket el admin puede pasarle directamente el ticket
         $ticketUsado = isset($request->id_ticket) ? true : false;
 
-        $codigo = CancelacionCodigo::create([
+        $codigo = CodigoAdmin::create([
             'codigo' => $codigoGenerado,
             'motivo' => $request->motivo,
             'usado' => $ticketUsado,
@@ -107,9 +107,9 @@ class CancelacionCodigoController extends Controller
      * @param  \App\Models\CancelacionCodigo  $cancelacionCodigo
      * @return \Illuminate\Http\Response
      */
-    public function show(CancelacionCodigo $cancelacionCodigo)
+    public function show(CodigoAdmin $cancelacionCodigo)
     {
-        return CancelacionCodigo::with('ticket')->findOrFail($cancelacionCodigo);
+        return CodigoAdmin::with('ticket')->findOrFail($cancelacionCodigo);
     }
 
     /**
@@ -119,7 +119,7 @@ class CancelacionCodigoController extends Controller
      * @param  \App\Models\CancelacionCodigo  $cancelacionCodigo
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, CancelacionCodigo $cancelacionCodigo)
+    public function update(Request $request, CodigoAdmin $cancelacionCodigo)
     {
         $request->validate([
             'id_ticket' => ['nullable', 'exists:tickets,id']
@@ -129,7 +129,7 @@ class CancelacionCodigoController extends Controller
 
         try {
 
-            $codigoCancelacion = CancelacionCodigo::findOrFail($cancelacionCodigo);
+            $codigoCancelacion = CodigoAdmin::findOrFail($cancelacionCodigo);
             $codigoCancelacion->update([
                 'usado' => true,
                 'id_ticket' => $request->id_ticket,
@@ -153,10 +153,10 @@ class CancelacionCodigoController extends Controller
      * @param  \App\Models\CancelacionCodigo  $cancelacionCodigo
      * @return \Illuminate\Http\Response
      */
-    public function destroy(CancelacionCodigo $cancelacionCodigo): JsonResponse
+    public function destroy(CodigoAdmin $cancelacionCodigo): JsonResponse
     {
         try {
-            $codigoCancelacion = CancelacionCodigo::findOrFail($cancelacionCodigo);
+            $codigoCancelacion = CodigoAdmin::findOrFail($cancelacionCodigo);
 
             if ($codigoCancelacion->usado === true || isset($codigoCancelacion->id_ticket)) {
                 return response()->json([

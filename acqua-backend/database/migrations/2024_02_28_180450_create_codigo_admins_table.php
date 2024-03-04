@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCancelacionCodigosTable extends Migration
+class CreateCodigoAdminsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateCancelacionCodigosTable extends Migration
      */
     public function up()
     {
-        Schema::create('cancelacion_codigos', function (Blueprint $table) {
+        Schema::create('codigo_admins', function (Blueprint $table) {
             $table->id();
             $table->string('codigo', 8);
             $table->string('motivo');
@@ -35,6 +35,6 @@ class CreateCancelacionCodigosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cancelacion_codigos');
+        Schema::dropIfExists('codigo_admins');
     }
 }

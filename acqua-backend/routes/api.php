@@ -25,7 +25,7 @@ use App\Http\Controllers\ProdPersonalReportController;
 use App\Http\Controllers\ProdSucursalReportController;
 use App\Http\Controllers\AnticiposTicketsController;
 use App\Http\Controllers\ServicioTicketController;
-use App\Http\Controllers\CancelacionCodigoController;
+use App\Http\Controllers\CodigoAdminController;
 use App\Http\Controllers\WhatsAppController;
 
 // * Bloque de Encargado
@@ -117,10 +117,10 @@ Route::middleware(['auth:api', 'role:administrador'])->group(function () {
     Route::apiResource('horarios', HorarioController::class);
 
     // Generacion de Codigos de Cancelacion Tickets
-    Route::apiResource('cancelacion_codigo', CancelacionCodigoController::class);
+    Route::apiResource('codiogos-admin', CodigoAdminController::class);
 
     // Buscador de Codigos
-    Route::post('busqueda_codigo', [CancelacionCodigoController::class, 'buscarCodigo'])->name('codigos.buscar');
+    Route::post('busqueda_codigo', [CodigoAdminController::class, 'buscarCodigo'])->name('codigos.buscar');
 });
 
 Route::middleware(['auth:api', 'role:administrador'])->group(function () {

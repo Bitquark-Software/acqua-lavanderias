@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Prenda;
 use App\Models\ServicioTicket;
 use App\Models\AnticipoTicket;
-use App\Models\CancelacionCodigo;
+use App\Models\CodigoAdmin;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
@@ -229,7 +229,7 @@ class TicketController extends Controller
         }
 
         try {
-            $codigo = CancelacionCodigo::where('codigo',$request->codigo)->firstOrFail();
+            $codigo = CodigoAdmin::where('codigo',$request->codigo)->firstOrFail();
 
             if ($codigo->usado) {
                 return response()->json([
