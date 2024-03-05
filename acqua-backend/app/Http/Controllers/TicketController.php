@@ -247,7 +247,6 @@ class TicketController extends Controller
             Log::info('Se Cancelo el ticket - ' . $id);
             Log::info('Usuario: ' . $request->user()->name . ' - Codigo Usado: ' . $codigo->codigo);
 
-            $ticket->comentarios()->delete();
             $ticket->delete();
     
             return response()->json([
@@ -257,7 +256,7 @@ class TicketController extends Controller
         } catch (ModelNotFound $e) {
             return response()->json([
                 'mensaje' => 'Codigo de cancelacion no valido o no Existe'
-            ], 404);
+            ], 403);
         }
     }
 }

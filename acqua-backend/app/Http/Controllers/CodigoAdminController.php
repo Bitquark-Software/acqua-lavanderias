@@ -15,7 +15,11 @@ class CodigoAdminController extends Controller
     private function generacionCodigoUnico(): string
     {
         do {
-            $codigoGenerado = Str::random(8);
+        $letrasPermitidas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $letrasAleatorias = substr(str_shuffle($letrasPermitidas), 0, 4);
+
+        $numeros = rand(1000, 9999);
+        $codigoGenerado = $letrasAleatorias . $numeros;
         } while (CodigoAdmin::where('codigo', $codigoGenerado)->exists());
 
         return $codigoGenerado;
@@ -38,7 +42,7 @@ class CodigoAdminController extends Controller
             return response()->json([
                 'mensaje' => 'Código encontrado',
                 'codigo' => $codigo,
-            ], 201);
+            ], 200);
         } else {
             return response()->json([
                 'mensaje' => 'Código no encontrado o ya ha sido usado',
@@ -69,6 +73,7 @@ class CodigoAdminController extends Controller
             'motivo' => ['required', 'string']
         ]);
 
+        // Verifica que no exista un codigo que todavia no este usado
         $verificacionUsadoCodigo = CodigoAdmin::where('usado', '=', 0)->exists();
 
         if ($verificacionUsadoCodigo) {
@@ -87,8 +92,8 @@ class CodigoAdminController extends Controller
         $ticketUsado = isset($request->id_ticket) ? true : false;
 
         $codigo = CodigoAdmin::create([
-            'codigo' => $codigoGenerado,
-            'motivo' => $request->motivo,
+            'codigo' => Str::upper($codigoGenerado),
+            'motivo' => Str::upper($request->motivo),
             'usado' => $ticketUsado,
             'id_ticket' => $request->input('id_ticket'),
             'id_user' => $request->user()->id,
@@ -107,9 +112,9 @@ class CodigoAdminController extends Controller
      * @param  \App\Models\CancelacionCodigo  $cancelacionCodigo
      * @return \Illuminate\Http\Response
      */
-    public function show(CodigoAdmin $cancelacionCodigo)
+    public function show($id)
     {
-        return CodigoAdmin::with('ticket')->findOrFail($cancelacionCodigo);
+        return CodigoAdmin::find($id);
     }
 
     /**
@@ -119,20 +124,20 @@ class CodigoAdminController extends Controller
      * @param  \App\Models\CancelacionCodigo  $cancelacionCodigo
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, CodigoAdmin $cancelacionCodigo)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'id_ticket' => ['nullable', 'exists:tickets,id']
         ]);
 
-        $fecha_actual = date("d-m-Y H:i:s");
+        $fecha_actual = date("Y-m-d H:i:s");
 
         try {
 
-            $codigoCancelacion = CodigoAdmin::findOrFail($cancelacionCodigo);
+            $codigoCancelacion = CodigoAdmin::findOrFail($id);
             $codigoCancelacion->update([
                 'usado' => true,
-                'id_ticket' => $request->id_ticket,
+                'id_ticket' => $request->id_ticket ?? null,
                 'used_at' => $fecha_actual
             ]);
 
@@ -153,15 +158,16 @@ class CodigoAdminController extends Controller
      * @param  \App\Models\CancelacionCodigo  $cancelacionCodigo
      * @return \Illuminate\Http\Response
      */
-    public function destroy(CodigoAdmin $cancelacionCodigo): JsonResponse
+    public function destroy($id): JsonResponse
     {
+        // Solo se elimina cuando no se ha usado el Codigo
         try {
-            $codigoCancelacion = CodigoAdmin::findOrFail($cancelacionCodigo);
+            $codigoCancelacion = CodigoAdmin::findOrFail($id);
 
-            if ($codigoCancelacion->usado === true || isset($codigoCancelacion->id_ticket)) {
+            if ($codigoCancelacion->usado || !isset($codigoCancelacion->id_ticket)) {
                 return response()->json([
                     'mensaje' => 'Codigo de Cancelacion usado o Vinculado a un ticket'
-                ]);
+                ], 422);
             }
 
             $codigoCancelacion->delete();

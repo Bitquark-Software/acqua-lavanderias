@@ -117,7 +117,7 @@ Route::middleware(['auth:api', 'role:administrador'])->group(function () {
     Route::apiResource('horarios', HorarioController::class);
 
     // Generacion de Codigos de Cancelacion Tickets
-    Route::apiResource('codiogos-admin', CodigoAdminController::class);
+    Route::apiResource('codigos-admin', CodigoAdminController::class);
 
     // Buscador de Codigos
     Route::post('busqueda_codigo', [CodigoAdminController::class, 'buscarCodigo'])->name('codigos.buscar');
