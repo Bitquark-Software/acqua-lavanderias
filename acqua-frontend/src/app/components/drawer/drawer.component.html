@@ -62,7 +62,7 @@
     <ul
       class="menu p-4 w-40 space-y-5 h-full bg-base-100 text-base-content lg:pt-20"
     >
-      <li>
+      <li *ngIf="userRole  === 'administrador' || userRole  === 'encargado' || userRole  === 'cajero'">
         <a routerLink="/dashboard" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -83,7 +83,7 @@
           Inicio
         </a>
       </li>
-      <li>
+      <li *ngIf="userRole  === 'administrador' || userRole  === 'operativo'">
         <a routerLink="/tickets" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -104,7 +104,7 @@
           Tickets
         </a>
       </li>
-      <li>
+      <li  *ngIf="userRole  === 'administrador' || userRole  === 'cajero'">
         <a routerLink="/clientes" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -125,7 +125,7 @@
           Clientes
         </a>
       </li>
-      <li *ngIf="isAdmin">
+      <li *ngIf="userRole  === 'administrador' || userRole  === 'encargado' || userRole  === 'cajero'">
         <a routerLink="/categorias" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -146,7 +146,7 @@
           Categorías
         </a>
       </li>
-      <li *ngIf="isAdmin">
+      <li *ngIf="userRole  === 'administrador' || userRole  === 'encargado'">
         <a routerLink="/reportes" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -167,7 +167,7 @@
           Reportes
         </a>
       </li>
-      <li *ngIf="isAdmin">
+      <li *ngIf="userRole  === 'administrador'">
         <a routerLink="/personal" class="text-primary dark:text-white">
           <svg
             width="35"

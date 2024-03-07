@@ -16,7 +16,8 @@ import { ClientesService } from 'src/app/services/clientes.service';
 })
 export class DrawerComponent
 {
-  isAdmin = false;
+  // isAdmin = false;
+  userRole: Role | undefined = undefined;
   isLoadingClientes = false;
   isModalOpened = false;
 
@@ -37,7 +38,8 @@ export class DrawerComponent
     private location: Location,
   )
   {
-    this.isAdmin = this.authService.session?.datos.role === Role.Administrador ?? false;
+    // this.isAdmin = this.authService.session?.datos.role === Role.Administrador ?? false;
+    this.userRole = this.authService.session?.datos.role;
     this.currentUrl = this.location.path();
   }
 
