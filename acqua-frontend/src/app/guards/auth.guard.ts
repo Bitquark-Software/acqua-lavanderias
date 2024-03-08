@@ -18,14 +18,23 @@ export const authGuard: CanActivateFn = (
   {
     const rolesRoute = route.data['roles'] as Role[];
 
-    if(!rolesRoute.includes(session.getUserRole()!))
+    if(rolesRoute.includes(session.getUserRole()!))
     {
-      if(session.getUserRole() == Role.Operativo)
+      return true;
+    }
+    else
+      if(session.getUserRole() === Role.Operativo)
       {
         const router = inject(Router);
         router.navigate(['/tickets']);
+        return true;
       }
-    }
+      else
+      {
+        const router = inject(Router);
+        router.navigate(['/dashboard']);
+        return true;
+      }
   }
   return session.isLoggedIn;
 };

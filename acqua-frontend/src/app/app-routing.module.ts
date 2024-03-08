@@ -75,7 +75,7 @@ const routes: Routes = [
     path: 'personal',
     component: PersonalComponent,
     canActivate: [authGuard],
-    data: { roles: [Role.Administrador, Role.Cajero] },
+    data: { roles: [Role.Administrador] },
   },
   {
     path: 'nuevo-usuario',
