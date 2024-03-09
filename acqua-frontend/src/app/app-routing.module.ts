@@ -93,19 +93,19 @@ const routes: Routes = [
     path: 'clientes',
     component: ClientesComponent,
     canActivate: [authGuard],
-    data: { roles: [Role.Administrador, Role.Cajero] },
+    data: { roles: [Role.Administrador, Role.Cajero, Role.Encargado] },
   },
   {
     path: 'nuevo-cliente',
     component: NuevoClienteComponent,
     canActivate: [authGuard],
-    data: { roles: [Role.Administrador, Role.Cajero] },
+    data: { roles: [Role.Administrador, Role.Cajero, Role.Encargado] },
   },
   {
     path: 'editar-cliente/:clientId',
     component: EditarClienteComponent,
     canActivate: [authGuard],
-    data: { roles: [Role.Administrador, Role.Cajero, Role.Operativo, Role.Encargado] },
+    data: { roles: [Role.Administrador, Role.Cajero, Role.Encargado] },
   },
   {
     path: 'tickets',
