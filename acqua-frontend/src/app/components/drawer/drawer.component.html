@@ -62,7 +62,7 @@
     <ul
       class="menu p-4 w-40 space-y-5 h-full bg-base-100 text-base-content lg:pt-20"
     >
-      <li *ngIf="userRole  === 'administrador' || userRole  === 'encargado' || userRole  === 'cajero'">
+      <li *ngIf="userRole === Role.Administrador || userRole === Role.Encargado || userRole === Role.Cajero">
         <a routerLink="/dashboard" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -83,7 +83,7 @@
           Inicio
         </a>
       </li>
-      <li *ngIf="userRole  === 'administrador' || userRole  === 'operativo'">
+      <li *ngIf="userRole === Role.Administrador || userRole === Role.Operativo">
         <a routerLink="/tickets" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -104,7 +104,7 @@
           Tickets
         </a>
       </li>
-      <li  *ngIf="userRole  === 'administrador' || userRole  === 'cajero'">
+      <li *ngIf="userRole === Role.Administrador || userRole === Role.Cajero">
         <a routerLink="/clientes" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -125,7 +125,7 @@
           Clientes
         </a>
       </li>
-      <li *ngIf="userRole  === 'administrador' || userRole  === 'encargado' || userRole  === 'cajero'">
+      <li *ngIf="userRole === Role.Administrador || userRole === Role.Encargado || userRole === Role.Cajero">
         <a routerLink="/categorias" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -146,7 +146,7 @@
           Categorías
         </a>
       </li>
-      <li *ngIf="userRole  === 'administrador' || userRole  === 'encargado'">
+      <li *ngIf="userRole === Role.Administrador || userRole === Role.Encargado">
         <a routerLink="/reportes" class="text-primary dark:text-white">
           <svg
             width="35"
@@ -167,7 +167,7 @@
           Reportes
         </a>
       </li>
-      <li *ngIf="userRole  === 'administrador'">
+      <li *ngIf="userRole === Role.Administrador">
         <a routerLink="/personal" class="text-primary dark:text-white">
           <svg
             width="35"

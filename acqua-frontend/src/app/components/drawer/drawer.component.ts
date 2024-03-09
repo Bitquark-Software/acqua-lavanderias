@@ -18,6 +18,7 @@ export class DrawerComponent
 {
   // isAdmin = false;
   userRole: Role | undefined = undefined;
+  Role = Role;
   isLoadingClientes = false;
   isModalOpened = false;
 
