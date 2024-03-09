@@ -6,7 +6,7 @@ import { Observable, map } from 'rxjs';
 import { HotToastService } from '@ngneat/hot-toast';
 import { API_URL } from '../environments/develop';
 import { Usuario, UsuarioResponse } from '../dtos/usuario';
-import { Role, convertStringToRole } from '../enums/Role.enum';
+import { Role } from '../enums/Role.enum';
 
 @Injectable ({
   providedIn: 'root',
@@ -33,7 +33,7 @@ export class AuthService
     if(localSession)
     {
       this.session = JSON.parse(localSession) as AuthDto;
-      this.userRole = convertStringToRole(this.session.datos.role);
+      this.userRole = this.session.datos.role;
       this.isLoggedIn = true;
     }
     else
@@ -61,7 +61,7 @@ export class AuthService
       {
         this.session = response;
         localStorage.setItem('session', JSON.stringify(response));
-        this.userRole = convertStringToRole(this.session.datos.role);
+        this.userRole = this.session.datos.role;
         this.isLoggedIn = true;
         return response as AuthDto;
       }),
