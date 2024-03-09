@@ -454,7 +454,7 @@
         <h1 class="font-bold text-2xl">Cargando estadísticas</h1>
       </div>
 
-      <div class="collapse collapse-arrow bg-gray-50 mt-3" *ngIf="isAdmin && !isLoadingStats">
+      <div class="collapse collapse-arrow bg-gray-50 mt-3" *ngIf="userRole === Role.Administrador && !isLoadingStats">
         <input type="radio" name="my-accordion-2" checked="checked" /> 
         <div class="collapse-title text-xl font-medium">
           Conteo - Click para ver más detalles
@@ -505,7 +505,7 @@
 
       <ng-container *ngIf="ticketStats.Lavado">
         <ng-container *ngFor="let lavado of ticketStats.Lavado; let i=index">
-          <div class="collapse collapse-arrow bg-teal-50 mt-3"  *ngIf="isAdmin && !isLoadingStats">
+          <div class="collapse collapse-arrow bg-teal-50 mt-3" *ngIf="userRole === Role.Administrador && !isLoadingStats">
             <input type="radio" name="my-accordion-2" />
             <div class="collapse-title text-xl font-medium">
               Lavado {{i+1}} - Click para ver más detalles
@@ -559,7 +559,7 @@
       <ng-container *ngIf="ticketStats.Secado">
         <ng-container *ngFor="let secado of ticketStats.Secado; let i=index">
 
-          <div class="collapse collapse-arrow bg-amber-50 mt-3"  *ngIf="isAdmin && !isLoadingStats">
+          <div class="collapse collapse-arrow bg-amber-50 mt-3" *ngIf="userRole === Role.Administrador && !isLoadingStats">
             <input type="radio" name="my-accordion-2" />
             <div class="collapse-title text-xl font-medium">
               Secado {{i+1}} - Click para ver más detalles
@@ -610,7 +610,7 @@
         </ng-container>
       </ng-container>
 
-      <div class="collapse collapse-arrow bg-stone-200 mt-3"  *ngIf="isAdmin && !isLoadingStats">
+      <div class="collapse collapse-arrow bg-stone-200 mt-3" *ngIf="userRole === Role.Administrador && !isLoadingStats">
         <input type="radio" name="my-accordion-2" /> 
         <div class="collapse-title text-xl font-medium">
           Reconteo - Click para ver más detalles
@@ -658,7 +658,7 @@
           <p>Sin datos</p>
         </div>
       </div>
-      <div class="collapse collapse-arrow bg-lime-50 mt-3"  *ngIf="isAdmin && !isLoadingStats">
+      <div class="collapse collapse-arrow bg-lime-50 mt-3" *ngIf="userRole === Role.Administrador && !isLoadingStats">
         <input type="radio" name="my-accordion-2" /> 
         <div class="collapse-title text-xl font-medium">
           Entrega - Click para ver más detalles
