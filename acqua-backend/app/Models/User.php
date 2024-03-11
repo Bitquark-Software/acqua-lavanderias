@@ -47,4 +47,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(ProcesoTicket::class, 'user_id');
     }
+
+    public function envioFlexs()
+    {
+        return $this->hasMany(EnvioFlex::class, 'id_user');
+    }
 }

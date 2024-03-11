@@ -70,4 +70,9 @@ class Ticket extends Model
     {
         return $this->hasMany(AnticipoTicket::class, 'id_ticket');
     }
+
+    public function envioFlexs()
+    {
+        return $this->hasMany(EnvioFlex::class, 'id_ticket');
+    }
 }

@@ -39,4 +39,9 @@ class Sucursal extends Model
     {
         return $this->hasMany(Horario::class, 'sucursal_id');
     }
+
+    public function envioFlexs()
+    {
+        return $this->hasMany(EnvioFlex::class, 'id_sucursal');
+    }
 }

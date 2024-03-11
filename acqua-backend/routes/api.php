@@ -24,6 +24,7 @@ use App\Http\Controllers\RepotDetalladoVetasController;
 use App\Http\Controllers\ProdPersonalReportController;
 use App\Http\Controllers\ProdSucursalReportController;
 use App\Http\Controllers\AnticiposTicketsController;
+use App\Http\Controllers\EnvioFlexController;
 use App\Http\Controllers\ServicioTicketController;
 use App\Http\Controllers\WhatsAppController;
 
@@ -93,6 +94,9 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
 
     Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show');
     Route::apiResource('secadoras', SecadoraController::class)->only('index', 'show');
+
+    // Envios
+    Route::apiResource('envioflex', EnvioFlexController::class);
 });
 
 Route::middleware(['auth:api', 'role:administrador'])->group(function () {
