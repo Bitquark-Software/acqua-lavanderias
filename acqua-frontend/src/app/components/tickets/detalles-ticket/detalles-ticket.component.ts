@@ -13,7 +13,7 @@ import { HotToastService } from '@ngneat/hot-toast';
 import { Comentario } from 'src/app/dtos/comentario';
 import { Lavadora } from 'src/app/dtos/lavadora';
 import { Prenda, PrendaTicket } from 'src/app/dtos/prenda-ticket';
-import { Proceso, ProcesoTicket, ProcesosAcqua } from 'src/app/dtos/proceso';
+import { Proceso, ProcesoTicket, ProcesosAcqua, ResponseRegistrarProceso } from 'src/app/dtos/proceso';
 import { ResponseLavadoraSecadoraExtra } from 'src/app/dtos/proceso';
 import { Sucursal } from 'src/app/dtos/sucursal';
 import { ReimpimirTicket, StatusTicket, Ticket } from 'src/app/dtos/ticket';
@@ -193,7 +193,7 @@ export class DetallesTicketComponent
             );
           });
           this.isLoading = false;
-        }, 400);
+        }, 0);
       },
       error: (err) =>
       {
@@ -202,7 +202,7 @@ export class DetallesTicketComponent
         setTimeout(() =>
         {
           this.isLoading = false;
-        }, 400);
+        }, 0);
       },
     });
   }
@@ -828,17 +828,27 @@ export class DetallesTicketComponent
     switch(this.stepCursor)
     {
     case 0:
-      const proceso = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.CONTEO);
-      if(!proceso)
+      const procesoConteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.CONTEO);
+      if(!procesoConteo)
       {
         this.toast.error('Error: No encontramos el proceso interno para el conteo');
       }
       else
       {
         // call DB
-        this.ticketService.registrarProceso(this.ticket.id, proceso).subscribe(
+        this.ticketService.registrarProceso(this.ticket.id, procesoConteo).subscribe(
           {
-            next: (response) => console.log,
+            next: (response: ResponseRegistrarProceso) =>
+            {
+              if(this.ticket.procesos_ticket.length === 0)
+              {
+                if(response !== null && response !== undefined)
+                {
+                  this.ticket.procesos_ticket.push(response.data!);
+                }
+              }
+              this.setCurrentProcesoTicket();
+            },
             error: (err) =>
             {
               console.error(err);
