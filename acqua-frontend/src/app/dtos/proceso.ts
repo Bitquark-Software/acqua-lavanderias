@@ -46,3 +46,9 @@ export class ResponseLavadoraSecadoraExtra
   data?: ResponseDataLavadoraSecadoraExtra;
   mensaje?: string;
 }
+
+export class ResponseRegistrarProceso
+{
+  data?: ProcesoTicket;
+  mensaje?: string;
+}
