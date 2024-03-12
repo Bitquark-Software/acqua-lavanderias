@@ -828,23 +828,26 @@ export class DetallesTicketComponent
     switch(this.stepCursor)
     {
     case 0:
-      const proceso = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.CONTEO);
-      if(!proceso)
+      const procesoConteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.CONTEO);
+      if(!procesoConteo)
       {
         this.toast.error('Error: No encontramos el proceso interno para el conteo');
       }
       else
       {
         // call DB
-        this.ticketService.registrarProceso(this.ticket.id, proceso).subscribe(
+        this.ticketService.registrarProceso(this.ticket.id, procesoConteo).subscribe(
           {
             next: (response: ResponseRegistrarProceso) =>
             {
-              if(response !== null && response !== undefined)
+              if(this.ticket.procesos_ticket.length === 0)
               {
-                this.ticket.procesos_ticket.push(response.data!);
-                this.setCurrentProcesoTicket();
+                if(response !== null && response !== undefined)
+                {
+                  this.ticket.procesos_ticket.push(response.data!);
+                }
               }
+              this.setCurrentProcesoTicket();
             },
             error: (err) =>
             {
