@@ -83,7 +83,7 @@
           Inicio
         </a>
       </li>
-      <li *ngIf="userRole === Role.Administrador || userRole === Role.Operativo">
+      <li *ngIf="userRole === Role.Administrador || userRole === Role.Operativo || userRole === Role.Cajero">
         <a routerLink="/tickets" class="text-primary dark:text-white">
           <svg
             width="35"
