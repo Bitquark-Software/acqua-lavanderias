@@ -42,13 +42,9 @@ Route::middleware('auth:api', 'role:administrador,encargado')->group(function ()
 
 // * Bloque de cajero y algunos de Encargado
 Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
-    Route::get('/anticipoTickets', [AnticiposTicketsController::class, 'index'])->name('anticipo.index');
-    Route::post('/anticipoTickets', [AnticiposTicketsController::class, 'store'])->name('anticipo.store'); // * COBRAR ANTICIPOS
 
     Route::apiResource('tickets', TicketController::class);
 
-    Route::apiResource('clientes', ClienteController::class);
-    Route::apiResource('direcciones', DireccionController::class);
 
     // Rutas para buscar Clientes por Nombre y Telefono
     Route::post('/clientes/nombre', [ClienteController::class, 'buscarPorNombre'])
@@ -61,7 +57,6 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
     Route::apiResource('servicios', ServiciosController::class)->only('index', 'show');
 
     // Agrega las lavadoras extras para ropa de color
-    Route::post('lavadora-secadora-adicional', [ProcesoTicketController::class, 'addLavadorasSecadoras'])->name('procesotickets.addLavSec');
 
     Route::prefix('stats')->middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
         // Tracks Tickets
@@ -70,29 +65,42 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
 });
 
 // * Bloque de Operativo
-Route::middleware('auth:api', 'role:administrador,cajero,operativo')->group(function () {
-    // Show Tickets
-    Route::apiResource('tickets', TicketController::class)->only('index','show');
-    // Verificar si tambien nececita el metodo Index en Tickets
-    Route::apiResource('proceso-tickets', ProcesoTicketController::class)->except('destroy');
-});
+Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo')->group(function () {
+    Route::get('/anticipoTickets', [AnticiposTicketsController::class, 'index'])->name('anticipo.index');
+    Route::post('/anticipoTickets', [AnticiposTicketsController::class, 'store'])->name('anticipo.store'); // * COBRAR ANTICIPOS
 
-// Administradores, Encargados y Cajeros
-Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
+    // Agrega las lavadoras extras para ropa de color
+    Route::post('lavadora-secadora-adicional', [ProcesoTicketController::class, 'addLavadorasSecadoras'])->name('procesotickets.addLavSec');
+
+    Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show');
+    Route::apiResource('secadoras', SecadoraController::class)->only('index', 'show');
+
+    Route::apiResource('clientes', ClienteController::class);
+    Route::apiResource('direcciones', DireccionController::class);
+
     Route::apiResource('sucursales', SucursalController::class)->only('index', 'show');
 
     Route::apiResource('prendas', PrendaController::class)->only('index', 'show');
-
-    Route::apiResource('servicios-ticket', ServicioTicketController::class)->except('destroy');
+    // Show Tickets
+    Route::apiResource('tickets', TicketController::class)->only('index', 'show');
+    // Verificar si tambien nececita el metodo Index en Tickets
+    Route::apiResource('proceso-tickets', ProcesoTicketController::class)->except('destroy');
 
     Route::get('/proceso', [ProcesoController::class, 'index'])->name('proceso.index');
 
     Route::get('/prendas_tickets', [PrendasTicketController::class, 'index'])->name('prendasticket.index');
+    Route::post('/prendas_tickets', [PrendasTicketController::class, 'store'])->name('prendasticket.store');
+    Route::put('/prendas_tickets/{id}', [PrendasTicketController::class, 'update'])->name('prendasticket.update');
+    Route::delete('/prendas_tickets/{id}', [PrendasTicketController::class, 'destroy'])->name('prendasticket.destroy');
+});
+
+// Administradores, Encargados y Cajeros
+Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
+
+    Route::apiResource('servicios-ticket', ServicioTicketController::class)->except('destroy');
+
 
     Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
-
-    Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show');
-    Route::apiResource('secadoras', SecadoraController::class)->only('index', 'show');
 });
 
 Route::middleware(['auth:api', 'role:administrador'])->group(function () {
@@ -111,10 +119,6 @@ Route::middleware(['auth:api', 'role:administrador'])->group(function () {
 Route::middleware(['auth:api', 'role:administrador'])->group(function () {
     Route::apiResource('lavadoras', LavadoraController::class)->except('index', 'show');
     Route::apiResource('secadoras', SecadoraController::class)->except('index', 'show');
-
-    Route::post('/prendas_tickets', [PrendasTicketController::class, 'store'])->name('prendasticket.store');
-    Route::put('/prendas_tickets/{id}', [PrendasTicketController::class, 'update'])->name('prendasticket.update');
-    Route::delete('/prendas_tickets/{id}', [PrendasTicketController::class, 'destroy'])->name('prendasticket.destroy');
 });
 
 Route::prefix('stats')->middleware(['auth:api', 'role:administrador'])->group(function () {

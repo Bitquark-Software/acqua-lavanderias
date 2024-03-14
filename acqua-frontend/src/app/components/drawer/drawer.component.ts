@@ -5,7 +5,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
 import { Cliente } from 'src/app/dtos/cliente';
-import { Rol } from 'src/app/enums/Rol.enum';
+import { Role } from 'src/app/enums/Role.enum';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { ClientesService } from 'src/app/services/clientes.service';
 
@@ -16,7 +16,9 @@ import { ClientesService } from 'src/app/services/clientes.service';
 })
 export class DrawerComponent
 {
-  isAdmin = false;
+  // isAdmin = false;
+  userRole: Role | undefined = undefined;
+  Role = Role;
   isLoadingClientes = false;
   isModalOpened = false;
 
@@ -37,7 +39,8 @@ export class DrawerComponent
     private location: Location,
   )
   {
-    this.isAdmin = this.authService.session?.datos.role === Rol.Administrador ?? false;
+    // this.isAdmin = this.authService.session?.datos.role === Role.Administrador ?? false;
+    this.userRole = this.authService.session?.datos.role;
     this.currentUrl = this.location.path();
   }
 

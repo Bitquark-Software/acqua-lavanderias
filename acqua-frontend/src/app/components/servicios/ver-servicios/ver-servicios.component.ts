@@ -5,6 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Categoria } from 'src/app/dtos/catalogo';
 import { Servicio } from 'src/app/dtos/servicio';
 import { CategoriasService } from 'src/app/services/categorias.service';
+import { AuthService } from 'src/app/services/auth-service.service';
+import { Role } from 'src/app/enums/Role.enum';
 
 @Component({
   selector: 'app-ver-servicios',
@@ -17,8 +19,11 @@ export class VerServiciosComponent
   categoria!: Categoria;
   catalogoId!: number;
   servicioEliminar!: Servicio | null;
+  Role = Role;
+  userRole: Role | undefined = undefined;
 
   constructor(
+    private authService: AuthService,
     private route: ActivatedRoute,
     private location: Location,
     private categoriaService: CategoriasService,
@@ -26,6 +31,7 @@ export class VerServiciosComponent
   {
     this.catalogoId = this.route.snapshot.params['categoriaId'];
     this.fetchServicios(1);
+    this.userRole = this.authService.session?.datos.role;
   }
 
   fetchServicios(page: number)
