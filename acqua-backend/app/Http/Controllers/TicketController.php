@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnticipoEnvio;
 use App\Models\Prenda;
 use App\Models\ServicioTicket;
 use App\Models\AnticipoTicket;
+use App\Models\EnvioFlex;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
@@ -37,7 +39,7 @@ class TicketController extends Controller
         $request->validate([
             'id_cliente' => ['required', 'exists:clientes,id'],
             'envio_domicilio' => ['boolean'],
-            'id_direccion' => ['nullable', 'exists:direcciones,id'],
+            'id_direccion' => ['required_if:envio_domicilio,true', 'exists:direcciones,id'],
             'id_sucursal' => ['nullable', 'exists:sucursales,id'],
             'incluye_iva' => ['boolean'],
             'tipo_credito' => ['required', 'in:CREDITO,CONTADO'],
@@ -47,7 +49,11 @@ class TicketController extends Controller
             'servicios' => ['required', 'array'],
             'fecha_entrega' => ['nullable', 'date_format:Y-m-d H:i:s'],
             'numero_referencia' => ['nullable', 'string', 'max:19'],
-            'total_iva' => ['nullable', 'numeric']
+            'total_iva' => ['nullable', 'numeric'],
+            'costo_envio' => ['required_if:envio_domicilio,true', 'numeric'], // - INICIO DE VALIDACIONES DE ENVIO -
+            'anticipo_envio' => ['numeric', 'min:0'],
+            'metodopago_envio' => ['required_if:envio_domicilio,true', 'in:EFECTIVO,TARJETA,TRANSFERENCIA'],
+            'numero_referencia_envio' => ['nullable', 'string', 'max:19'],
         ]);
 
         $valor = $request->metodo_pago;
@@ -59,12 +65,22 @@ class TicketController extends Controller
         }
 
         $anticipo = $request->tipo_credito === 'CREDITO' ? ($request->anticipo ?? 0.00) : 0.00;
-        $restante = $request->tipo_credito === 'CREDITO' ? $total - $request->anticipo : 0.00;
+        $restante = ($request->tipo_credito === 'CREDITO' ? $total - $request->anticipo : 0.00) - $request->costo_envio ?? 0.00;
+        $restante = $restante < 0.00 ? 0.00 : $restante;
 
-        // Encyptacion de refencia
-        $numeroTarjetaCifrado = !is_null($request->numero_referencia)
-            ? Crypt::encrypt($request->numero_referencia)
-            : null;
+        if ($request->envio_domicilio) { // Verifica que no incluya en el anticipo tambien el envio
+            $totalCostoServicio= $request->total - $request->costo_envio;
+
+            if ($anticipo > $totalCostoServicio) {
+                return response()->json([
+                    'mensaje' => 'El anticipo o pago de envio va en otra seccion'
+                ]);
+            }
+        }
+
+        // Envio a Domicilio
+        $costoEnvio = $request->costo_envio ?? 0.00;
+        $restanteEnvio = $request->tipo_credito === 'CREDITO' ? $costoEnvio - $request->anticipo_envio : 0.00;
 
         // Ticket
         $ticket = Ticket::create([
@@ -79,21 +95,41 @@ class TicketController extends Controller
             'anticipo' => $anticipo,
             'restante' => $restante,
             'fecha_entrega' => $request->fecha_entrega,
-            'numero_referencia' => $numeroTarjetaCifrado,
-            'total_iva' =>  $request->incluye_iva ? round($request->total_iva, 2) : 0
+            'numero_referencia' =>  Crypt::encrypt($request->numero_referencia) ?? null,
+            'total_iva' =>  $request->incluye_iva ? round($request->total_iva, 2) : 0,
+            'costo_envio' => $request->costo_envio ?? 0.00,
+            'restante_envio' => $restanteEnvio
         ]);
 
-        // Anticipos_Tickets
         if ($valor == 'TARJETA' || $valor == 'TRANSFERENCIA' || $valor == 'EFECTIVO') {
+            // * Anticipo_tickets
             $anticipo = AnticipoTicket::create([
                 'anticipo' => $request->tipo_credito == 'CREDITO' ? $ticket->anticipo : $total,
                 'metodopago' => $ticket->metodo_pago,
                 'id_ticket' => $ticket->id,
                 'cobrado_por' => $request->user()->id,
-                'numero_referencia' => $numeroTarjetaCifrado,
+                'numero_referencia' => Crypt::encrypt($request->numero_referencia) ?? null,
                 'restante' => $restante
             ]);
+
+            // * Anticipo_envios
+            if ($request->envio_domicilio) {
+                AnticipoEnvio::create([
+                    'anticipo' => $request->tipo_credito == 'CREDITO' ? $request->anticipo_envio ?? 0.00 : $costoEnvio, // * LISTO
+                    'metodopago' => $request->metodopago_envio, // * LISTO
+                    'id_ticket' => $ticket->id, // * LISTO
+                    'cobrado_por' => $request->user()->id, // * LISTO
+                    'numero_referencia' => Crypt::encrypt($request->numero_referencia_envio) ?? null, // * LISTO
+                    'restante' => $restanteEnvio // * LISTO
+                ]);
+            }
         }
+
+        EnvioFlex::create([
+            'id_proceso_envios' => 1,
+            'id_sucursal' => null,
+            'id_ticket' => $ticket->id,
+        ]);
 
         foreach ($request->servicios as $servicio) {
             ServicioTicket::create([
@@ -111,7 +147,9 @@ class TicketController extends Controller
                 'sucursal',
                 'comentarios',
                 'serviciosTicket',
-                'anticipos'
+                'anticipos',
+                'anticipoEnvio',
+                'envioFlexs'
             )->find($ticket->id),
         ], 201);
     }
@@ -125,7 +163,19 @@ class TicketController extends Controller
     public function show($id)
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
-        $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'serviciosTicket.servicio', 'prendasTicket', 'procesosTicket')->find($id);
+        // Retorna todas las relaciones Cliente, Direccion y Sucursal
+        $ticket = Ticket::with(
+            'cliente.direccion',
+            'direccion',
+            'sucursal',
+            'comentarios',
+            'serviciosTicket',
+            'serviciosTicket.servicio',
+            'prendasTicket',
+            'procesosTicket',
+            'envioFlexs',
+            'anticipoEnvio'
+        )->find($id);
 
         // Verifica si el número de referencia está presente y desencripta si es necesario
         if (!is_null($ticket->numero_referencia)) {

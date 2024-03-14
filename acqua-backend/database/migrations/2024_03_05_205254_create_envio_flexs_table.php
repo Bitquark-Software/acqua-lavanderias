@@ -17,7 +17,7 @@ class CreateEnvioFlexsTable extends Migration
             $table->id();
 
             $table->unsignedBigInteger('id_proceso_envios');
-            $table->unsignedBigInteger('id_sucursal');
+            $table->unsignedBigInteger('id_sucursal')->nullable();
             $table->unsignedBigInteger('id_ticket');
             $table->boolean('resivido')->default(0);
             $table->timestamp('fecha_reubicacion')->nullable();
