@@ -1,0 +1,57 @@
+<app-drawer>
+    <div
+      class="card flex-shrink-0 bg-base-100 w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl"
+      nuevoCatalogo
+    >
+      <h1 class="font-medium text-2xl text-primary dark:text-white">
+        <button
+          class="btn btn-square btn-secondary text-white mr-2"
+          (click)="back()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+        </button>
+        Nuevo cliente
+      </h1>
+      <div class="card-body">
+        <form [formGroup]="nuevaSucursalForm" (ngSubmit)="registrar()">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text"
+                  >Nombre de la sucursal <span class="text-red-700">*</span></span
+                >
+              </label>
+              <input
+                type="text"
+                placeholder="Nombre completo del cliente"
+                class="input input-bordered"
+                formControlName="nombre"
+              />
+            </div>
+          </div>
+          <div class="form-control mt-6">
+            <button
+              type="submit"
+              class="btn btn-success"
+              [disabled]="!nuevaSucursalForm.valid"
+            >
+              Registrar sucursal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </app-drawer>
+  
