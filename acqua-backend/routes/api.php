@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnticipoEnvioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\ProdPersonalReportController;
 use App\Http\Controllers\ProdSucursalReportController;
 use App\Http\Controllers\AnticiposTicketsController;
 use App\Http\Controllers\EnvioFlexController;
+use App\Http\Controllers\ProcesoEnvioController;
 use App\Http\Controllers\ServicioTicketController;
 use App\Http\Controllers\WhatsAppController;
 
@@ -95,8 +97,14 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
     Route::apiResource('lavadoras', LavadoraController::class)->only('index', 'show');
     Route::apiResource('secadoras', SecadoraController::class)->only('index', 'show');
 
+    // Proceso Envios
+    Route::apiResource('proceo-envios', ProcesoEnvioController::class);
+
     // Envios
     Route::apiResource('envioflex', EnvioFlexController::class);
+
+    // Anticipo_envios
+    Route::apiResource('anticipo-envios', AnticipoEnvioController::class);
 });
 
 Route::middleware(['auth:api', 'role:administrador'])->group(function () {

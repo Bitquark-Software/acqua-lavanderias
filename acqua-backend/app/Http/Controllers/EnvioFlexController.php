@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnticipoEnvio;
+use App\Models\Direccion;
 use App\Models\EnvioFlex;
 use App\Models\ProcesoEnvio;
 use App\Models\Ticket;
+use App\Models\Sucursal;
 
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFound;
@@ -36,16 +39,25 @@ class EnvioFlexController extends Controller
             'envio_domicilio' => ['nullable', 'boolean']
         ]);
 
-        // Traemos el Ticket
-        $ticket = Ticket::where('id', $request->id_ticket)->firstOrFail();
-        $procesoEnvio = ProcesoEnvio::where('id', $request->id_proceso_envios)->firstOrFail();
+        try {
+            $ticket = Ticket::where('id', $request->id_ticket)->firstOrFail();
+        } catch (ModelNotFound $e) {
+            return response()->json(['mensaje' => 'Ticket no encontrado'], 404);
+        }
 
-        dd($procesoEnvio);
+        $estatusTicket = ['CREADO','LAVADO', 'SECADO', 'PLANCHADO', 'RECONTEO'];
 
-        if (!$ticket) {
+        if(in_array($ticket->status, $estatusTicket)) {
             return response()->json([
-                'mensaje' => 'Ticket no encontrado'
+                'mensaje' => 'No es posible generar otro proceso de envio para este ticket debido a su status'
             ], 422);
+        }
+
+        // Verificar proceso Actual
+        try {
+            $procesoEnvio = ProcesoEnvio::where('id', $request->id_proceso_envios)->firstOrFail();
+        } catch (ModelNotFound $e) {
+            return response()->json(['mensaje' => 'Proceso no encontrado'], 404);
         }
 
         // Verificamos si existe un proceso de Envio
@@ -58,29 +70,32 @@ class EnvioFlexController extends Controller
             ], 409);
         }
 
-        // ! ANTICIPO_ENVIOS
-        /*
-            - Agregar anticipos o pagar todo el envio de un putaso
-            - En el show mostrar los anticipos_envio y tickets relacionados
-        */
-
-        // ! VALIDACIONES ANTES DE INSERTAR DATOS CUANDO QUIERE ENVIO A DOMICILIO
-        /*
-            1 .- Verificar que id_proceso_envio es tiene que ser el 4
-            2 .- Verificar si quiere envio o recoger en sucursal
-            3 .- Antes de insertalo verificar si ya pago consultado anticipo_envios(Si no retornar respuesta)
-            4 .- si ya pago proceder a insertar el registro con id_proceso envios 3 pero sin para el true de entregado
-        */
-
-        // ? Verificacion 1
         if ($procesoEnvio->nombre === 'ENVIO/ENTREGA') {
 
             if ($ticket->envio_domicilio || $request->envio_domicilio) {
-                
-            } else {
-                // * RECOLECCION EN SUCURSAL
-            }
+                $registrosDeAnticipos = AnticipoEnvio::where('id_ticket', $request->id_ticket)
+                    ->latest('id')
+                    ->first();
 
+                $existeDireccion = Direccion::where('cliente_id', $ticket->id_cliente)
+                    ->where('activo', true)
+                    ->exists();
+
+                if (!$existeDireccion) {
+                    return response()->json([
+                        'mensaje' => 'El cliente no cuenta con una direccion de envio'
+                    ], 422);
+                }
+
+                // Verifica si el pago de envio ya se realiso
+                if ($registrosDeAnticipos->restante > 0) {
+                    return response()->json([
+                        'mensaje' => 'Falta pago de Envio',
+                        'data' => $registrosDeAnticipos->restante
+                    ], 422);
+                }
+            }
+            // Recoleccion en Sucursal
         }
         // No es el proceso de ENVIO/ENTREGA
 
@@ -103,7 +118,7 @@ class EnvioFlexController extends Controller
      */
     public function show($id)
     {
-        //
+        return EnvioFlex::findOrFail($id);
     }
 
     /**
@@ -114,26 +129,53 @@ class EnvioFlexController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validacion
-        // 'resivido' => ['nullable', 'boolean'], // ! NO NECESARIOS AQUI
-        // 'entregado' => ['nullable', 'boolean'], // ! NO NECESARIOS AQUI
+        $request->validate([
+            'sucursal' => ['nullable'],
+            'resivido' => ['nullable', 'boolean'],
+            'entregado' => ['nullable', 'boolean']
+        ]);
 
-        // Al meter los datos
-        // 'resivido' => $request->resivido ?? false, // ! NO NECESARIOS AQUI
-        // 'entregado' => $request->entregado ?? false, // ! NO NECESARIOS AQUI
+        $envioFlexible = EnvioFlex::findOrFail($id);
 
-        // fecha_reubicacion
-        // fecha_resivido
-        // id_user
-    }
+        if (!empty($request->sucursal)) {
+            $sucursal = Sucursal::where('id', $request->sucursal)->exists();
+            if (!$sucursal) {
+                return response()->json([
+                    'mensaje' => 'Id sucursal no encontrada'
+                ], 404);
+            }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\EnvioFlex  $envioFlex
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
+            $envioFlexible->update([
+                'id_sucursal' => $request->sucursal
+            ]);
+        }
+
+        if (!empty($request->resivido) && !empty($request->entregado)) {
+            return response()->json([
+                'mensaje' => 'Solo debe proporcionar al menos uno de los campos "resivido" o "entregado"'
+            ], 422);
+        }
+
+        $fechaYHoraActual = date('Y-m-d H-m-s');
+
+        if (!empty($request->resivido)) {
+            $envioFlexible->update([
+                'resivido' => $request->resivido,
+                'fecha_reubicacion' => $fechaYHoraActual,
+                'id_user' => $request->user()->id
+            ]);
+        }
+
+        if (!empty($request->entregado)) {
+            $envioFlexible->update([
+                'entregado' => $request->entregado,
+                'fecha_resivido' => $fechaYHoraActual,
+                'id_user' => $request->user()->id
+            ]);
+        }
+
+        return response()->json([
+            'mensaje' => 'Proceso envio actualizado'
+        ], 200);
     }
 }

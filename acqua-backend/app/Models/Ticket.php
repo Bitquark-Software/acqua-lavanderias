@@ -21,6 +21,8 @@ class Ticket extends Model
         'total',
         'anticipo',
         'restante',
+        'costo_envio',
+        'restante_envio',
         'status',
         'vencido',
         'fecha_entrega',
@@ -74,5 +76,9 @@ class Ticket extends Model
     public function envioFlexs()
     {
         return $this->hasMany(EnvioFlex::class, 'id_ticket');
+    }
+
+    public function anticipoEnvio() {
+        return $this->hasMany(AnticipoEnvio::class, 'id_ticket');
     }
 }
