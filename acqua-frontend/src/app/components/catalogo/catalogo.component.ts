@@ -2,6 +2,8 @@
 import { Component } from '@angular/core';
 import { Catalogo, Categoria } from 'src/app/dtos/catalogo';
 import { CategoriasService } from 'src/app/services/categorias.service';
+import { AuthService } from 'src/app/services/auth-service.service';
+import { Role } from 'src/app/enums/Role.enum';
 
 @Component({
   selector: 'app-catalogo',
@@ -13,12 +15,16 @@ export class CatalogoComponent
   catalogos: Categoria[] = [];
   categoriaStructure!: Catalogo;
   categoriaEliminar!: Categoria | null;
+  Role = Role;
+  userRole: Role | undefined = undefined;
 
   constructor(
+    private authService: AuthService,
     private categoriaService: CategoriasService,
   )
   {
     this.fetchCategorias(1);
+    this.userRole = this.authService.session?.datos.role;
   }
 
   fetchCategorias(page?: number)

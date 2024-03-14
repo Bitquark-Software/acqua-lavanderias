@@ -6,7 +6,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
 import { Usuario } from 'src/app/dtos/usuario';
-import { Rol } from 'src/app/enums/Rol.enum';
+import { Role } from 'src/app/enums/Role.enum';
 import { AuthService } from 'src/app/services/auth-service.service';
 
 @Component({
@@ -34,7 +34,7 @@ export class EditarUsuarioComponent
     this.updateUsuarioForm = this.fb.group({
       nombre: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      rol: ['', Validators.required],
+      role: ['', Validators.required],
     });
   }
 
@@ -48,7 +48,7 @@ export class EditarUsuarioComponent
         this.updateUsuarioForm = this.fb.group({
           nombre: [response.name, Validators.required],
           email: [response.email, [Validators.required, Validators.email]],
-          rol: [response.role, Validators.required],
+          role: [response.role, Validators.required],
         });
       },
       error: (err) =>
@@ -65,7 +65,7 @@ export class EditarUsuarioComponent
       this.usuario.id,
       this.nombre.value ?? '',
       this.email.value ?? '',
-      this.rol.value ?? Rol.Empleado,
+      this.role.value ?? Role.Cajero,
     ).subscribe({
       next: () =>
       {
@@ -93,8 +93,8 @@ export class EditarUsuarioComponent
   {
     return this.updateUsuarioForm.controls['email'];
   }
-  get rol()
+  get role()
   {
-    return this.updateUsuarioForm.controls['rol'];
+    return this.updateUsuarioForm.controls['role'];
   }
 }
