@@ -16,7 +16,7 @@ class SucursalController extends Controller
      */
     public function index()
     {
-        return Sucursal::all();
+        return Sucursal::with('horarios')->paginate(10);
     }
 
     /**
