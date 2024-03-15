@@ -70,4 +70,9 @@ class Ticket extends Model
     {
         return $this->hasMany(AnticipoTicket::class, 'id_ticket');
     }
+
+    public function codigosAdmin()
+    {
+        return $this->belongsTo(CodigoAdmin::class, 'id_ticket');
+    }
 }
