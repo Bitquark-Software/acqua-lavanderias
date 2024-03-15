@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'id_sucursal'
     ];
 
     /**
@@ -50,6 +51,6 @@ class User extends Authenticatable
 
     public function cancelacionCodigos()
     {
-        return $this->hasMany(CancelacionCodigo::class, 'id_user');
+        return $this->hasMany(CodigoAdmin::class, 'id_user');
     }
 }

@@ -30,14 +30,16 @@ class UserController extends Controller
             'name' => ['required', 'max:30'],
             'email' => ['required', 'unique:users', 'email', 'max:60'],
             'password' => ['required'],
-            'role' => ['required', 'in:administrador,encargado,cajero,operativo']
+            'role' => ['required', 'in:administrador,encargado,cajero,operativo'],
+            'id_sucursal' => ['required', 'exists:sucursales,id']
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            'role' => $request->role,
+            'id_sucursal' => $request->id_sucursal
         ]);
 
         return response()->json([
@@ -70,7 +72,8 @@ class UserController extends Controller
             'name' => ['required', 'max:30'],
             'email' => ['required', 'email', 'max:60'],
             'password' => ['nullable'],
-            'role' => ['required', 'in:administrador,encargado,cajero,operativo']
+            'role' => ['required', 'in:administrador,encargado,cajero,operativo'],
+            "id_sucursal" => ['required', 'exists:sucursales,id']
         ]);
 
         $user = User::findOrFail($id);
@@ -81,12 +84,14 @@ class UserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
+                'id_sucursal' => $request->id_sucursal
             ]);
         } else {
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
                 'role' => $request->role,
+                'id_sucursal' => $request->id_sucursal
             ]);
         }
 
