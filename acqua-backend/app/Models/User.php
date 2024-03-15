@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(CodigoAdmin::class, 'id_user');
     }
+
+    public function sucursal()
+    {
+        return $this->belongsTo(Sucursal::class, 'id_sucursal');
+    }
 }
