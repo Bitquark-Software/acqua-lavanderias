@@ -1,0 +1,160 @@
+<app-drawer>
+  <div
+    class="card flex-shrink-0 bg-base-100 w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl"
+    nuevoCatalogo
+  >
+    <h1
+      class="font-medium text-2xl text-primary dark:text-white"
+      *ngIf="sucursal"
+    >
+      <button
+        class="btn btn-square btn-secondary text-white mr-2"
+        (click)="back()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+      </button>
+      Editando: {{ sucursal.nombre }}
+    </h1>
+    <div class="card-body">
+      <form
+        [formGroup]="sucursalForm"
+        (ngSubmit)="updateSucursal()"
+        *ngIf="sucursal"
+      >
+        <div class="grid grid-cols-1 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text"
+                >Nombre<span class="text-red-700">*</span></span
+              >
+            </label>
+            <input
+              type="text"
+              placeholder="Nombre completo del cliente"
+              class="input input-bordered"
+              formControlName="nombre"
+            />
+          </div>
+        </div>
+        <div class="form-control mt-6">
+          <button
+            type="submit"
+            class="btn btn-success"
+            [disabled]="!sucursalForm.valid"
+          >
+            Actualizar nombre de sucursal
+          </button>
+        </div>
+      </form>
+      <hr />
+      <h1 class="font-bold text-2xl">Horarios</h1>
+      <!-- tabla de horarios -->
+      <div class="overflow-x-auto my-4" *ngIf="sucursal">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Diás de apertura</th>
+              <th>Horario de apertura</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="!sucursal.horarios" class="text-center font-normal">
+            Sin horarios guardados
+          </tbody>
+          <tbody *ngIf="sucursal.horarios.length > 0">
+            <tr *ngFor="let horario of sucursal.horarios">
+              <th>{{ horario.dias }}</th>
+              <th>{{ horario.horario }}</th>
+              <td>
+                <button
+                  class="btn btn-md btn-error btn-square btn-outline m-auto lg:tooltip"
+                  data-tip="Eliminar"
+                  (click)="eliminarHorario(horario.id)"
+                >
+                  <svg
+                    class="m-auto"
+                    aria-hidden="true"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></path>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <hr />
+      <h1 class="font-bold text-2xl">Nuevo horario</h1>
+      <form
+        class="mt-6"
+        [formGroup]="horarioSucursalForm"
+        (ngSubmit)="addHorario()"
+      >
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-control col-span-2">
+            <label class="label">
+              <span class="label-text dark:text-white">Días de apertura</span>
+            </label>
+            <select class="select select-bordered select-success w-full" formControlName="dias">
+              <option *ngFor="let dia of diasHorarioSucursal" [value]="dia">
+                {{ dia }}
+              </option>
+            </select>
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text dark:text-white"
+                >Horario de apertura</span
+              >
+            </label>
+            <select class="select select-bordered select-success w-full" formControlName="horarioApertura">
+              <option *ngFor="let hora of format_24_hrs" [selected]="hora === '09'" [value]="hora">{{ hora }}</option>
+            </select>
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text dark:text-white"
+                >Horario de cierre</span
+              >
+            </label>
+            <select class="select select-bordered select-success w-full" formControlName="horarioCierre">
+              <option *ngFor="let hora of format_24_hrs" [selected]="hora === '18'" [value]="hora">{{ hora }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-control mt-6">
+          <button
+            type="submit"
+            class="btn btn-success"
+            [disabled]="!horarioSucursalForm.valid"
+          >
+            Agregar horario
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</app-drawer>

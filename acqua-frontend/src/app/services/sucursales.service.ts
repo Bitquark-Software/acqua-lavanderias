@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth-service.service';
 import { HotToastService } from '@ngneat/hot-toast';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { API_URL } from '../environments/develop';
 import { Sucursal, SucursalResponse } from '../dtos/sucursal';
 
@@ -20,6 +20,20 @@ export class SucursalesService
   )
   {
     //
+  }
+
+  fetchSucursalById(id: number): Observable<Sucursal>
+  {
+    return this.httpClient.get<Sucursal>(`${API_URL}/sucursales/${id}`, {
+      headers: this.authService.getHeaders(),
+    }).pipe(
+      this.toast.observe({
+        loading: 'Obteniendo datos de la sucursañ...',
+        success: () => 'Sucursal encontrada',
+        error: (e) => `Error: ${e.error.error ?? 'Desconocido'}`,
+      }),
+      map( response => response as Sucursal),
+    );
   }
 
   fetchSucursales(page?: number): Observable<SucursalResponse>
@@ -49,5 +63,60 @@ export class SucursalesService
         error: (e) => `Error: ${e.error.error ?? 'Desconocido'}`,
       }),
     );
+  }
+
+  actualizarSucursal(id: number, sucursal: Partial<Sucursal>)
+  {
+    return this.httpClient.put(
+      `${API_URL}/sucursales/${id}`,
+      {
+        nombre: sucursal.nombre,
+      },
+      {
+        headers: this.authService.getHeaders(),
+      },
+    ).pipe(
+      this.toast.observe({
+        loading: 'Actualizando sucursal...',
+        success: () => 'Sucursal actualizada',
+        error: (e) => `Error: ${e.error.error ?? 'Desconocido'}`,
+      }),
+      map(response => response as Sucursal),
+    );
+  }
+
+  agregarHorario(sucursal_id: number, dias: string, horaApertura:string, horaCierre: string)
+  {
+    return this.httpClient.post(
+      `${API_URL}/horarios`,
+      {
+        sucursal_id,
+        dias,
+        horario: `${horaApertura}:00 a ${horaCierre}:00`,
+      },
+      {
+        headers: this.authService.getHeaders(),
+      },
+    ).pipe(
+      this.toast.observe({
+        loading: 'Agregando horario...',
+        success: () => 'Horario agregado',
+        error: (e) => `Error: ${e.mensaje ?? 'Desconocido'}`,
+      }));
+  }
+
+  eliminarHorario(horario_id: number)
+  {
+    return this.httpClient.delete(
+      `${API_URL}/horarios/${horario_id}`,
+      {
+        headers: this.authService.getHeaders(),
+      },
+    ).pipe(
+      this.toast.observe({
+        loading: 'Eliminando horario...',
+        success: () => 'Horario eliminado',
+        error: (e) => `Error: ${e.mensaje ?? 'Desconocido'}`,
+      }));
   }
 }

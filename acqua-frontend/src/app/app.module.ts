@@ -40,6 +40,7 @@ import localeEs from '@angular/common/locales/es';
 import { registerLocaleData } from '@angular/common';
 import { SucursalesComponent } from './components/sucursales/sucursales.component';
 import { NuevaSucursalComponent } from './components/sucursales/nueva-sucursal/nueva-sucursal.component';
+import { EditarSucursalComponent } from './components/sucursales/editar-sucursal/editar-sucursal.component';
 registerLocaleData(localeEs, 'es');
 
 @NgModule ( {
@@ -70,6 +71,7 @@ registerLocaleData(localeEs, 'es');
     PDFPreviewComponent,
     SucursalesComponent,
     NuevaSucursalComponent,
+    EditarSucursalComponent,
   ],
   imports: [
     BrowserModule,

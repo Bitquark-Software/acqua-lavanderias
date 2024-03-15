@@ -19,6 +19,7 @@
             <tr>
               <th>ID</th>
               <th>Nombre</th>
+              <th>Horario</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -26,12 +27,18 @@
             <tr *ngFor="let sucursal of sucursales">
               <th class="text-primary dark:text-white">{{ sucursal.id }}</th>
               <td class="text-primary dark:text-white">{{ sucursal.nombre }}</td>
+              <td class="text-primary dark:text-white" *ngIf="sucursal.horarios.length > 0">
+                <p *ngFor="let horario of sucursal.horarios">{{ horario.dias }} de {{ horario.horario }} horas</p>
+              </td>
+              <td class="text-primary dark:text-white" *ngIf="sucursal.horarios.length == 0">
+                N/A
+              </td>
               <td class="flex flex-col items-center justify-center">
                 <div class="btn-group btn-group-vertical lg:btn-group-horizontal">
                   <button
                     class="btn btn-md btn-secondary btn-square btn-outline m-auto lg:tooltip"
                     data-tip="Editar"
-                    [routerLink]="['/editar-cliente', sucursal.id]"
+                    [routerLink]="['/editar-sucursal', sucursal.id]"
                   >
                     <svg
                       class="m-auto"
