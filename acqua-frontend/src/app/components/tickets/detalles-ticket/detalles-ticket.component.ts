@@ -87,7 +87,6 @@ export class DetallesTicketComponent
 
   sucursales: Sucursal[] = [];
 
-  // isAdmin = false;
   userRole: Role | null = null;
   Role = Role;
   isLoadingStats = false;
@@ -131,7 +130,6 @@ export class DetallesTicketComponent
     this.fetchPrendas();
     this.fetchSucursales();
 
-    // this.isAdmin = this.auth.session?.datos.role == Role.Administrador;
     this.userRole = this.auth.session!.datos.role;
   }
 
