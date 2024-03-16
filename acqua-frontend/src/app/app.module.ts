@@ -38,6 +38,9 @@ import { PDFPreviewComponent } from './components/reportes/pdfpreview/pdfpreview
 import { ServiceWorkerModule } from '@angular/service-worker';
 import localeEs from '@angular/common/locales/es';
 import { registerLocaleData } from '@angular/common';
+import { SucursalesComponent } from './components/sucursales/sucursales.component';
+import { NuevaSucursalComponent } from './components/sucursales/nueva-sucursal/nueva-sucursal.component';
+import { EditarSucursalComponent } from './components/sucursales/editar-sucursal/editar-sucursal.component';
 registerLocaleData(localeEs, 'es');
 
 @NgModule ( {
@@ -66,6 +69,9 @@ registerLocaleData(localeEs, 'es');
     ReportesComponent,
     ModalAgregarDireccionComponent,
     PDFPreviewComponent,
+    SucursalesComponent,
+    NuevaSucursalComponent,
+    EditarSucursalComponent,
   ],
   imports: [
     BrowserModule,

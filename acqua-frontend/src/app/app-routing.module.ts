@@ -23,6 +23,9 @@ import { TicketsComponent } from './components/tickets/tickets.component';
 import { DetallesTicketComponent } from './components/tickets/detalles-ticket/detalles-ticket.component';
 import { ReportesComponent } from './components/reportes/reportes.component';
 import { Role } from './enums/Role.enum';
+import { SucursalesComponent } from './components/sucursales/sucursales.component';
+import { NuevaSucursalComponent } from './components/sucursales/nueva-sucursal/nueva-sucursal.component';
+import { EditarSucursalComponent } from './components/sucursales/editar-sucursal/editar-sucursal.component';
 
 const routes: Routes = [
   {
@@ -124,6 +127,24 @@ const routes: Routes = [
     component: ReportesComponent,
     canActivate: [authGuard],
     data: { roles: [Role.Administrador, Role.Encargado] },
+  },
+  {
+    path: 'sucursales',
+    component: SucursalesComponent,
+    canActivate: [authGuard],
+    data: { roles: [Role.Administrador] },
+  },
+  {
+    path: 'nueva-sucursal',
+    component: NuevaSucursalComponent,
+    canActivate: [authGuard],
+    data: { roles: [Role.Administrador] },
+  },
+  {
+    path: 'editar-sucursal/:sucursalId',
+    component: EditarSucursalComponent,
+    canActivate: [authGuard],
+    data: { roles: [Role.Administrador] },
   },
   {
     path: '',

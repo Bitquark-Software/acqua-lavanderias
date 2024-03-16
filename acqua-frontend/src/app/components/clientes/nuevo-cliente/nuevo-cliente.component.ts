@@ -78,8 +78,6 @@ export class NuevoClienteComponent
       };
     }
 
-    console.log(clientePayload);
-
     this.clientesService.registrarCliente(clientePayload);
   }
 

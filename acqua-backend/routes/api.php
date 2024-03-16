@@ -28,6 +28,7 @@ use App\Http\Controllers\AnticiposTicketsController;
 use App\Http\Controllers\EnvioFlexController;
 use App\Http\Controllers\ProcesoEnvioController;
 use App\Http\Controllers\ServicioTicketController;
+use App\Http\Controllers\CodigoAdminController;
 use App\Http\Controllers\WhatsAppController;
 
 // * Bloque de Encargado
@@ -125,6 +126,12 @@ Route::middleware(['auth:api', 'role:administrador'])->group(function () {
 
     // Horarios por Sucursal
     Route::apiResource('horarios', HorarioController::class);
+
+    // Generacion de Codigos de Cancelacion Tickets
+    Route::apiResource('codigos-admin', CodigoAdminController::class);
+
+    // Buscador de Codigos
+    Route::post('busqueda_codigo', [CodigoAdminController::class, 'buscarCodigo'])->name('codigos.buscar');
 });
 
 Route::middleware(['auth:api', 'role:administrador'])->group(function () {
