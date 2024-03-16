@@ -16,7 +16,7 @@ import { ClientesService } from 'src/app/services/clientes.service';
 })
 export class DrawerComponent
 {
-  userRole: Role | undefined = undefined;
+  userRole: Role | null = null;
   Role = Role;
   isLoadingClientes = false;
   isModalOpened = false;
@@ -38,7 +38,7 @@ export class DrawerComponent
     private location: Location,
   )
   {
-    this.userRole = this.authService.session?.datos.role;
+    this.userRole = this.authService.session!.datos.role;
     this.currentUrl = this.location.path();
   }
 
