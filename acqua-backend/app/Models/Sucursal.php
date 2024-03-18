@@ -44,4 +44,9 @@ class Sucursal extends Model
     {
         return $this->hasMany(CorteCaja::class, 'id_sucursal');
     }
+    
+    public function users()
+    {
+        return $this->hasMany(User::class, 'id_sucursal');
+    }
 }

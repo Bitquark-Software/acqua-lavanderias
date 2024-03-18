@@ -115,16 +115,18 @@ export class AuthService
         email: usuario.email,
         role: usuario.role,
         password,
+        id_sucursal: usuario.id_sucursal,
       }, { headers: this.getHeaders() });
   }
 
-  actualizarEmpleado(id: number, name: string, email: string, role: Role)
+  actualizarEmpleado(id: number, name: string, email: string, role: Role, id_sucursal: number)
   {
     return this.httpClient.put(
       `${API_URL}/admin/dashboard/${id}`, {
         name,
         email,
         role,
+        id_sucursal,
       }, { headers: this.getHeaders() });
   }
 

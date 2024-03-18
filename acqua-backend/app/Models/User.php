@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'id_sucursal'
     ];
 
     /**
@@ -56,5 +57,10 @@ class User extends Authenticatable
     public function cortecaja()
     {
         return $this->hasMany(CorteCaja::class, 'id_sucursal');
+    }
+    
+    public function sucursal()
+    {
+        return $this->belongsTo(Sucursal::class, 'id_sucursal');
     }
 }
