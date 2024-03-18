@@ -1,4 +1,5 @@
 import { Role } from '../enums/Role.enum';
+import { Sucursal } from './sucursal';
 
 export class Usuario
 {
@@ -7,13 +8,16 @@ export class Usuario
   nombre: string;
   name?: string;
   role?: Role;
+  id_sucursal?: number;
 
+  sucursal?: Sucursal;
   constructor(usuario:Required<Usuario>)
   {
     this.id = usuario.id;
     this.email = usuario.email;
     this.nombre = usuario.nombre;
     this.role = usuario.role;
+    this.id_sucursal = usuario.id_sucursal;
   }
 }
 
