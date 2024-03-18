@@ -50,6 +50,11 @@ class User extends Authenticatable
 
     public function cancelacionCodigos()
     {
-        return $this->hasMany(CancelacionCodigo::class, 'id_user');
+        return $this->hasMany(CodigoAdmin::class, 'id_user');
+    }
+
+    public function cortecaja()
+    {
+        return $this->hasMany(CorteCaja::class, 'id_sucursal');
     }
 }

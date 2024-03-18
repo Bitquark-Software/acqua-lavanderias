@@ -26,10 +26,14 @@ use App\Http\Controllers\ProdSucursalReportController;
 use App\Http\Controllers\AnticiposTicketsController;
 use App\Http\Controllers\ServicioTicketController;
 use App\Http\Controllers\CodigoAdminController;
+use App\Http\Controllers\CorteCajaController;
 use App\Http\Controllers\WhatsAppController;
 
 // * Bloque de Encargado
 Route::middleware('auth:api', 'role:administrador,encargado')->group(function () {
+    // Corte de caja
+    Route::apiResource('corte-caja', CorteCajaController::class);
+
     Route::apiResource('catalogos', CatalogoController::class)->only('index', 'store', 'show', 'update');
     Route::apiResource('servicios', ServiciosController::class)->only('index', 'store', 'show', 'update');
     // Bloque de Reportes
@@ -46,7 +50,6 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
 
     Route::apiResource('tickets', TicketController::class);
 
-
     // Rutas para buscar Clientes por Nombre y Telefono
     Route::post('/clientes/nombre', [ClienteController::class, 'buscarPorNombre'])
         ->name('clientes.buscarPorNombre');
@@ -61,7 +64,7 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
 
     Route::prefix('stats')->middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
         // Tracks Tickets
-        Route::get('/tracks/{ticket_id}', [StatsController::class, 'statsTracks'])->name('stats.tracks');
+        Route::get('/tracks/{ticket_id}', [StatsController::class, 'statsTracks'])->name('stats.tracks'); // ! VERIFICAR SI FUE REUBICADA
     });
 });
 
