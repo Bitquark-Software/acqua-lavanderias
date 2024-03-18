@@ -53,7 +53,7 @@ export class ReportesComponent
 
   isLoading = false;
   Role = Role;
-  userRole: Role | undefined = undefined;
+  userRole: Role | null = null;
 
   statsIngresos!: ReporteStats;
   statsUsuarios!: UsuariosReporteStats;
@@ -70,7 +70,7 @@ export class ReportesComponent
       start: ['', [Validators.required]],
       end: ['', [Validators.required]],
     }, { validator: dateRangeValidator() });
-    this.userRole = this.authService.session?.datos.role;
+    this.userRole = this.authService.session!.datos.role;
   }
 
   fetchStats(start?: string, end?:string)
