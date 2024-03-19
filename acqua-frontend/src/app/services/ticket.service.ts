@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { ReimpimirTicket, Ticket, TicketResponse } from '../dtos/ticket';
 import { Comentario } from '../dtos/comentario';
 import { API_URL } from '../environments/develop';
-import { Sucursal } from '../dtos/sucursal';
+import { Sucursal, SucursalResponse } from '../dtos/sucursal';
 import { Servicio } from '../dtos/servicio';
 import { Prenda, PrendaTicket, PrendaTicketReponse } from '../dtos/prenda-ticket';
 import { Proceso } from '../dtos/proceso';
@@ -77,7 +77,7 @@ export class TicketService
 
   getSucursales()
   {
-    return this.httpClient.get<Sucursal[]>(`${API_URL}/sucursales`, {
+    return this.httpClient.get<SucursalResponse>(`${API_URL}/sucursales`, {
       headers: this.authService.getHeaders(),
     });
   }

@@ -15,7 +15,7 @@ import { Lavadora } from 'src/app/dtos/lavadora';
 import { Prenda, PrendaTicket } from 'src/app/dtos/prenda-ticket';
 import { Proceso, ProcesoTicket, ProcesosAcqua, ResponseRegistrarProceso } from 'src/app/dtos/proceso';
 import { ResponseLavadoraSecadoraExtra } from 'src/app/dtos/proceso';
-import { Sucursal } from 'src/app/dtos/sucursal';
+import { Sucursal, SucursalResponse } from 'src/app/dtos/sucursal';
 import { ReimpimirTicket, StatusTicket, Ticket } from 'src/app/dtos/ticket';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { TicketService } from 'src/app/services/ticket.service';
@@ -136,7 +136,10 @@ export class DetallesTicketComponent
   fetchSucursales()
   {
     this.ticketService.getSucursales().subscribe({
-      next: (sucursales) => this.sucursales = sucursales,
+      next: (sucursales: SucursalResponse) =>
+      {
+        this.sucursales = sucursales.data;
+      },
       error: (err) =>
       {
         this.toast.error('Error al obtener las sucursales');
