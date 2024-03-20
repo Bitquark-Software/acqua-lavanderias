@@ -13,10 +13,12 @@ class CorteCaja extends Model
         'fecha_inicio',
         'fecha_fin',
         'abierto',
+        'monto_apertura',
         'efectivo',
         'transferencia',
         'tarjeta',
         'monto_total',
+        'monto_cierre',
         'id_sucursal',
         'id_user'
     ];

@@ -29,11 +29,31 @@ use App\Http\Controllers\CodigoAdminController;
 use App\Http\Controllers\CorteCajaController;
 use App\Http\Controllers\WhatsAppController;
 
-// * Bloque de Encargado
-Route::middleware('auth:api', 'role:administrador,encargado')->group(function () {
-    // Corte de caja
-    Route::apiResource('corte-caja', CorteCajaController::class);
+/*
+    Tareas en este archivo
 
+    ? agregar 'cajaestado' a todas las rutas
+        menos a:
+            Login
+            corta caja
+
+    ? Ajustar nombre de corte-caja
+        ya que en esta ruta se abren y cierran las cajas
+*/
+
+Route::middleware('auth:api', 'role:administrador,encargado')->group(function () {
+    // Generacion de Codigos de Cancelacion Tickets
+    Route::apiResource('codigos-admin', CodigoAdminController::class);
+
+    // Buscador de Codigos
+    Route::post('busqueda_codigo', [CodigoAdminController::class, 'buscarCodigo'])->name('codigos.buscar');
+
+    // Corte de caja // AJUSTAR LAS RUTAS
+    Route::apiResource('gestion-caja', CorteCajaController::class);
+});
+
+// * Bloque de Encargado
+Route::middleware('auth:api', 'role:administrador,encargado', 'cajaestado')->group(function () {
     Route::apiResource('catalogos', CatalogoController::class)->only('index', 'store', 'show', 'update');
     Route::apiResource('servicios', ServiciosController::class)->only('index', 'store', 'show', 'update');
     // Bloque de Reportes
@@ -46,7 +66,7 @@ Route::middleware('auth:api', 'role:administrador,encargado')->group(function ()
 });
 
 // * Bloque de cajero y algunos de Encargado
-Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
+Route::middleware('auth:api', 'role:administrador,encargado,cajero', 'cajaestado')->group(function () {
 
     Route::apiResource('tickets', TicketController::class);
 
@@ -64,12 +84,12 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
 
     Route::prefix('stats')->middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
         // Tracks Tickets
-        Route::get('/tracks/{ticket_id}', [StatsController::class, 'statsTracks'])->name('stats.tracks'); // ! VERIFICAR SI FUE REUBICADA
+        Route::get('/tracks/{ticket_id}', [StatsController::class, 'statsTracks'])->name('stats.tracks'); // ! a VERIFICAR SI FUE REUBICADA
     });
 });
 
 // * Bloque de Operativo
-Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo')->group(function () {
+Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo', 'cajaestado')->group(function () {
     Route::get('/anticipoTickets', [AnticiposTicketsController::class, 'index'])->name('anticipo.index');
     Route::post('/anticipoTickets', [AnticiposTicketsController::class, 'store'])->name('anticipo.store'); // * COBRAR ANTICIPOS
 
@@ -99,15 +119,14 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo')->
 });
 
 // Administradores, Encargados y Cajeros
-Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
+Route::middleware('auth:api', 'role:administrador,encargado,cajero', 'cajaestado')->group(function () {
 
     Route::apiResource('servicios-ticket', ServicioTicketController::class)->except('destroy');
-
 
     Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
 });
 
-Route::middleware(['auth:api', 'role:administrador'])->group(function () {
+Route::middleware(['auth:api', 'role:administrador', 'cajaestado'])->group(function () {
     Route::apiResource('catalogos', CatalogoController::class)->except('index', 'store', 'show', 'update');
     Route::apiResource('servicios', ServiciosController::class)->except('index', 'store', 'show', 'update');
 
@@ -118,20 +137,14 @@ Route::middleware(['auth:api', 'role:administrador'])->group(function () {
 
     // Horarios por Sucursal
     Route::apiResource('horarios', HorarioController::class);
-
-    // Generacion de Codigos de Cancelacion Tickets
-    Route::apiResource('codigos-admin', CodigoAdminController::class);
-
-    // Buscador de Codigos
-    Route::post('busqueda_codigo', [CodigoAdminController::class, 'buscarCodigo'])->name('codigos.buscar');
 });
 
-Route::middleware(['auth:api', 'role:administrador'])->group(function () {
+Route::middleware(['auth:api', 'role:administrador', 'cajaestado'])->group(function () {
     Route::apiResource('lavadoras', LavadoraController::class)->except('index', 'show');
     Route::apiResource('secadoras', SecadoraController::class)->except('index', 'show');
 });
 
-Route::prefix('stats')->middleware(['auth:api', 'role:administrador'])->group(function () {
+Route::prefix('stats')->middleware(['auth:api', 'role:administrador', 'cajaestado'])->group(function () {
     // Datos de Reportes
     Route::get('/ingresos', [StatsController::class, 'generateReport'])->name('stats.ingresos');
     // Clientes nuevos
@@ -155,11 +168,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 // Middleware para Administrador CRUD Admin,Empledos
-Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
+Route::middleware(['auth:api', 'role:administrador'])->group(function () {
     Route::resource('/admin/dashboard', UserController::class);
 });
+
 // Rutas para Iniciar Sesion
 Route::post('login', [AuthController::class, 'login'])->name('login');
 
-Route::post('logout', [AuthController::class, 'logout'])
-    ->name('logout');
+Route::post('logout', [AuthController::class, 'logout'])->name('logout');
