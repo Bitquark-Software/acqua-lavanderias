@@ -24,7 +24,7 @@ import { ClientesService } from 'src/app/services/clientes.service';
 import { TicketPreviewComponent } from '../tickets/ticket-preview/ticket-preview.component';
 import { Ticket } from 'src/app/dtos/ticket';
 import { TicketService } from 'src/app/services/ticket.service';
-import { Sucursal } from 'src/app/dtos/sucursal';
+import { Sucursal, SucursalResponse } from 'src/app/dtos/sucursal';
 import {
   ModalAgregarDireccionComponent,
 } from '../clientes/modal-agregar-direccion/modal-agregar-direccion.component';
@@ -175,10 +175,16 @@ export class CajaComponent
 
   fetchSucursales()
   {
-    this.ticketService.getSucursales().subscribe({ next: (sucursales) =>
-    {
-      this.sucursales = sucursales;
-    }});
+    this.ticketService.getSucursales().subscribe({
+      next: (sucursales: SucursalResponse) =>
+      {
+        this.sucursales = sucursales.data;
+      },
+      error: (err) =>
+      {
+        this.toastService.error(`${err.error.message ?? 'No se pudo obtener las sucursales' }`);
+      },
+    });
   }
 
   inputServicioChange(e: Event)

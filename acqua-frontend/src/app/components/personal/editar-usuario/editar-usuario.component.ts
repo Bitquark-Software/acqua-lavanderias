@@ -5,9 +5,11 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
+import { Sucursal, SucursalResponse } from 'src/app/dtos/sucursal';
 import { Usuario } from 'src/app/dtos/usuario';
 import { Role } from 'src/app/enums/Role.enum';
 import { AuthService } from 'src/app/services/auth-service.service';
+import { SucursalesService } from 'src/app/services/sucursales.service';
 
 @Component({
   selector: 'app-editar-usuario',
@@ -20,6 +22,7 @@ export class EditarUsuarioComponent
   usuario!: Usuario;
   updateUsuarioForm: FormGroup;
   isUpdating = false;
+  sucursales: Sucursal[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -27,14 +30,24 @@ export class EditarUsuarioComponent
     private fb: FormBuilder,
     private location: Location,
     private empleadosService: AuthService,
+    private sucursalesService: SucursalesService,
   )
   {
     const userId = this.route.snapshot.params['id'];
+    this.fetchSucursales();
     this.fetchUsuario(userId);
     this.updateUsuarioForm = this.fb.group({
       nombre: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       role: ['', Validators.required],
+      idSucursal: ['', Validators.required],
+    });
+  }
+
+  fetchSucursales()
+  {
+    this.sucursalesService.fetchSucursales().subscribe({
+      next: (sucursalResponse: SucursalResponse) => this.sucursales = sucursalResponse.data,
     });
   }
 
@@ -49,6 +62,7 @@ export class EditarUsuarioComponent
           nombre: [response.name, Validators.required],
           email: [response.email, [Validators.required, Validators.email]],
           role: [response.role, Validators.required],
+          idSucursal: [this.usuario.id_sucursal, Validators.required],
         });
       },
       error: (err) =>
@@ -66,6 +80,7 @@ export class EditarUsuarioComponent
       this.nombre.value ?? '',
       this.email.value ?? '',
       this.role.value ?? Role.Cajero,
+      this.idSucursal.value ?? 1,
     ).subscribe({
       next: () =>
       {
@@ -75,6 +90,7 @@ export class EditarUsuarioComponent
       },
       error: (err) =>
       {
+        console.error(err);
         this.isUpdating = false;
       },
     });
@@ -96,5 +112,9 @@ export class EditarUsuarioComponent
   get role()
   {
     return this.updateUsuarioForm.controls['role'];
+  }
+  get idSucursal()
+  {
+    return this.updateUsuarioForm.controls['idSucursal'];
   }
 }
