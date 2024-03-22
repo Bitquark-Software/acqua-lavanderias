@@ -4,7 +4,7 @@ export class AdminCode
   id?: number;
   codigo?: string;
   motivo?: string;
-  usado?: boolean;
+  usado?: number;
   id_ticket?: number;
   id_user?: number;
   used_at?: string;
