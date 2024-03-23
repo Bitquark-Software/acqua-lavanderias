@@ -209,6 +209,27 @@
           Sucursales
         </a>
       </li>
+      <li *ngIf="userRole === Role.Administrador">
+        <a routerLink="/admin-codes" class="text-primary dark:text-white">
+          <svg
+            width="35"
+            height="35"
+            aria-hidden="true"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+          <path
+            d="M9.776 2l11.396 11.395-7.78 7.777-11.392-11.391v-7.781h7.776zm.829-2h-10.605v10.609l13.391 13.391 10.609-10.604-13.395-13.396zm-3.191 7.414c-.781.782-2.046.782-2.829.001-.781-.783-.781-2.048 0-2.829.782-.782 2.048-.781 2.829-.001.782.783.781 2.047 0 2.829zm-.728 3.515l4.243-4.243.707.707-4.243 4.243-.707-.707zm1.414 1.414l4.243-4.243.354.354-4.243 4.243-.354-.354zm2.829 2.829l4.243-4.243.354.354-4.243 4.243-.354-.354zm-1.768-1.768l4.243-4.243 1.061 1.061-4.243 4.243-1.061-1.061zm2.828 2.828l4.243-4.243.707.707-4.243 4.243-.707-.707zm1.415 1.414l4.242-4.242.354.354-4.242 4.242-.354-.354z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+          </svg>
+          Codigos Admin
+        </a>
+      </li>
       <li>
         <a href="#" (click)="logout($event)" class="text-primary dark:text-white">
           <svg
