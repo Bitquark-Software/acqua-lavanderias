@@ -1,6 +1,8 @@
-<br />
-<button class="bg-blue-500 text-white px-4 py-2 rounded" (click)="requestGetCurrentAdminCode()">Obtener Codigo Actual</button>
-<br />
-<button class="bg-blue-500 text-white px-4 py-2 rounded" (click)="requestGenerateAdminCode()">Generar Nuevo codigo</button>
-<br />
-<button class="bg-blue-500 text-white px-4 py-2 rounded" (click)="requestUpdateAdminCode()">Actualizar Estado Del Codigo Actual</button>
+<app-drawer>
+    <br />
+    <div class="text-center">
+        <button class="bg-blue-500 text-white px-4 py-2 rounded m-4" (click)="requestGetCurrentAdminCode()">Obtener Codigo Actual</button>
+        <button class="bg-blue-500 text-white px-4 py-2 rounded m-4" (click)="requestGenerateAdminCode()">Generar Nuevo codigo</button>
+        <button class="bg-blue-500 text-white px-4 py-2 rounded m-4" (click)="requestUpdateAdminCode()">Actualizar Estado Del Codigo Actual</button>
+    </div>
+</app-drawer>
