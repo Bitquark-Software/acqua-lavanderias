@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnticipoEnvioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -24,6 +25,8 @@ use App\Http\Controllers\RepotDetalladoVetasController;
 use App\Http\Controllers\ProdPersonalReportController;
 use App\Http\Controllers\ProdSucursalReportController;
 use App\Http\Controllers\AnticiposTicketsController;
+use App\Http\Controllers\EnvioFlexController;
+use App\Http\Controllers\ProcesoEnvioController;
 use App\Http\Controllers\ServicioTicketController;
 use App\Http\Controllers\CodigoAdminController;
 use App\Http\Controllers\WhatsAppController;
@@ -100,8 +103,16 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
 
     Route::apiResource('servicios-ticket', ServicioTicketController::class)->except('destroy');
 
-
     Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
+
+    // Proceso Envios
+    Route::apiResource('proceso-envios', ProcesoEnvioController::class);
+
+    // Envios
+    Route::apiResource('envioflex', EnvioFlexController::class);
+
+    // Anticipo_envios
+    Route::apiResource('anticipo-envios', AnticipoEnvioController::class);
 });
 
 Route::middleware(['auth:api', 'role:administrador'])->group(function () {
@@ -158,5 +169,4 @@ Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
 // Rutas para Iniciar Sesion
 Route::post('login', [AuthController::class, 'login'])->name('login');
 
-Route::post('logout', [AuthController::class, 'logout'])
-    ->name('logout');
+Route::post('logout', [AuthController::class, 'logout'])->name('logout');
