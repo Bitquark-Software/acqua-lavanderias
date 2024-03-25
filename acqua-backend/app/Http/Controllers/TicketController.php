@@ -69,7 +69,7 @@ class TicketController extends Controller
         $restante = $restante < 0.00 ? 0.00 : $restante;
 
         if ($request->envio_domicilio) { // Verifica que no incluya en el anticipo tambien el envio
-            $totalCostoServicio= $request->total - $request->costo_envio;
+            $totalCostoServicio = $request->total - $request->costo_envio;
 
             if ($anticipo > $totalCostoServicio) {
                 return response()->json([
@@ -77,6 +77,14 @@ class TicketController extends Controller
                 ]);
             }
         }
+
+        $numeroTarjetaCifrado = !is_null($request->numero_referencia)
+            ? Crypt::encrypt($request->numero_referencia)
+            : null;
+
+        $numeroTarjetaCifradoEnvio = !is_null($request->numero_referencia_envio)
+            ? Crypt::encrypt($request->numero_referencia_envio)
+            : null;
 
         // Envio a Domicilio
         $costoEnvio = $request->costo_envio ?? 0.00;
@@ -95,7 +103,7 @@ class TicketController extends Controller
             'anticipo' => $anticipo,
             'restante' => $restante,
             'fecha_entrega' => $request->fecha_entrega,
-            'numero_referencia' =>  Crypt::encrypt($request->numero_referencia) ?? null,
+            'numero_referencia' =>  $numeroTarjetaCifrado,
             'total_iva' =>  $request->incluye_iva ? round($request->total_iva, 2) : 0,
             'costo_envio' => $request->costo_envio ?? 0.00,
             'restante_envio' => $restanteEnvio
@@ -108,19 +116,19 @@ class TicketController extends Controller
                 'metodopago' => $ticket->metodo_pago,
                 'id_ticket' => $ticket->id,
                 'cobrado_por' => $request->user()->id,
-                'numero_referencia' => Crypt::encrypt($request->numero_referencia) ?? null,
+                'numero_referencia' => $numeroTarjetaCifrado,
                 'restante' => $restante
             ]);
 
             // * Anticipo_envios
             if ($request->envio_domicilio) {
                 AnticipoEnvio::create([
-                    'anticipo' => $request->tipo_credito == 'CREDITO' ? $request->anticipo_envio ?? 0.00 : $costoEnvio, // * LISTO
-                    'metodopago' => $request->metodopago_envio, // * LISTO
-                    'id_ticket' => $ticket->id, // * LISTO
-                    'cobrado_por' => $request->user()->id, // * LISTO
-                    'numero_referencia' => Crypt::encrypt($request->numero_referencia_envio) ?? null, // * LISTO
-                    'restante' => $restanteEnvio // * LISTO
+                    'anticipo' => $request->tipo_credito == 'CREDITO' ? $request->anticipo_envio ?? 0.00 : $costoEnvio,
+                    'metodopago' => $request->metodopago_envio,
+                    'id_ticket' => $ticket->id,
+                    'cobrado_por' => $request->user()->id,
+                    'numero_referencia' => $numeroTarjetaCifradoEnvio,
+                    'restante' => $restanteEnvio
                 ]);
             }
         }

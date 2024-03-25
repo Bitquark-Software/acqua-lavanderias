@@ -98,7 +98,7 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
     Route::apiResource('secadoras', SecadoraController::class)->only('index', 'show');
 
     // Proceso Envios
-    Route::apiResource('proceo-envios', ProcesoEnvioController::class);
+    Route::apiResource('proceso-envios', ProcesoEnvioController::class);
 
     // Envios
     Route::apiResource('envioflex', EnvioFlexController::class);
@@ -159,5 +159,4 @@ Route::middleware(['auth:api', AdminOnlyMiddleware::class])->group(function () {
 // Rutas para Iniciar Sesion
 Route::post('login', [AuthController::class, 'login'])->name('login');
 
-Route::post('logout', [AuthController::class, 'logout'])
-    ->name('logout');
+Route::post('logout', [AuthController::class, 'logout'])->name('logout');

@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\AnticipoEnvio;
 use App\Models\Ticket;
+use App\Models\User;
 
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFound;
+use Carbon\Carbon;
 
 class AnticipoEnvioController extends Controller
 {
@@ -52,7 +54,7 @@ class AnticipoEnvioController extends Controller
         if (floatval($request->anticipo) > floatval($ticket->restante_envio) || floatval($request->anticipo) < 1) {
             return response()->json([
                 'mensaje' => 'El acticipo no puede ser mayor o menor al restante'
-            ],422);
+            ], 422);
         }
 
         // Encryptacion de numero de referencia
