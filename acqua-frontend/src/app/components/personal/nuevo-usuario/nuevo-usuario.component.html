@@ -1,55 +1,114 @@
 <app-drawer>
-    <div class="card flex-shrink-0 bg-base-100 w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl" nuevoCatalogo>
-        <h1 class="font-medium text-2xl text-primary dark:text-white">
-          <button class="btn btn-square btn-secondary text-white mr-2" (click)="back()">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-          </button>
-          Nuevo usuario
-        </h1>
-        <div class="card-body">
-            <form [formGroup]="nuevoUsuarioForm" (ngSubmit)="registrar()">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control">
-                      <label class="label">
-                        <span class="label-text">Nombre completo</span>
-                      </label>
-                      <input type="text" placeholder="Nombre completo del empleado" class="input input-bordered" formControlName="nombre"/>
-                    </div>
-                    <div class="form-control">
-                      <label class="label">
-                        <span class="label-text">Permisos</span>
-                      </label>
-                      <select class="select select-bordered w-full" formControlName="rol">
-                        <option disabled selected>Selecciona un perfil</option>
-                        <option value="administrador">Administrador</option>
-                        <option value="empleado">Empleado</option>
-                      </select>
-                    </div>
-
-                </div>
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text">Correo</span>
-                  </label>
-                  <input autocomplete="off" type="email" placeholder="Correo del empleado" class="input input-bordered" formControlName="email"/>
-                </div>
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text">Contraseña</span>
-                  </label>
-                  <input autocomplete="off" type="password" placeholder="Contraseña del empleado" class="input input-bordered" formControlName="password"/>
-                </div>
-                <div class="form-control mt-6">
-                  <button *ngIf="isLoading" type="submit" class="btn btn-success" disabled>
-                    <span class="loading loading-spinner"></span>
-                  </button>
-                  <button *ngIf="!isLoading" type="submit" class="btn btn-success" [disabled]="!nuevoUsuarioForm.valid">
-                    Registrar usuario
-                  </button>
-                </div>
-            </form>
+  <div
+    class="card flex-shrink-0 bg-base-100 w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl"
+    nuevoCatalogo
+  >
+    <h1 class="font-medium text-2xl text-primary dark:text-white">
+      <button
+        class="btn btn-square btn-secondary text-white mr-2"
+        (click)="back()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+      </button>
+      Nuevo usuario
+    </h1>
+    <div class="card-body">
+      <form [formGroup]="nuevoUsuarioForm" (ngSubmit)="registrar()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Nombre completo</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Nombre completo del empleado"
+              class="input input-bordered"
+              formControlName="nombre"
+            />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Permisos</span>
+            </label>
+            <select
+              class="select select-bordered w-full"
+              formControlName="role"
+            >
+              <option disabled selected>Selecciona un perfil</option>
+              <option value="administrador">Administrador</option>
+              <option value="encargado">Encargado</option>
+              <option value="operativo">Operativo</option>
+              <option value="cajero">Cajero</option>
+            </select>
+          </div>
         </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Sucursal</span>
+          </label>
+          <select
+            class="select select-bordered w-full"
+            formControlName="idSucursal"
+          >
+            <option value="" disabled selected>Selecciona una sucursal</option>
+            <option *ngFor="let sucursal of sucursales" [value]="sucursal.id">{{sucursal.nombre}}</option>
+          </select>
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Correo</span>
+          </label>
+          <input
+            autocomplete="off"
+            type="email"
+            placeholder="Correo del empleado"
+            class="input input-bordered"
+            formControlName="email"
+          />
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Contraseña</span>
+          </label>
+          <input
+            autocomplete="off"
+            type="password"
+            placeholder="Contraseña del empleado"
+            class="input input-bordered"
+            formControlName="password"
+          />
+        </div>
+        <div class="form-control mt-6">
+          <button
+            *ngIf="isLoading"
+            type="submit"
+            class="btn btn-success"
+            disabled
+          >
+            <span class="loading loading-spinner"></span>
+          </button>
+          <button
+            *ngIf="!isLoading"
+            type="submit"
+            class="btn btn-success"
+            [disabled]="!nuevoUsuarioForm.valid"
+          >
+            Registrar usuario
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 </app-drawer>

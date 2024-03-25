@@ -6,14 +6,17 @@ import { Observable, map } from 'rxjs';
 import { HotToastService } from '@ngneat/hot-toast';
 import { API_URL } from '../environments/develop';
 import { Usuario, UsuarioResponse } from '../dtos/usuario';
-import { Rol } from '../enums/Rol.enum';
+import { Role } from '../enums/Role.enum';
 
 @Injectable ({
   providedIn: 'root',
 })
+
 export class AuthService
 {
   session!: AuthDto | null;
+  userRole: Role | null = null;
+  isLoggedIn = false;
 
   constructor(
     private httpClient: HttpClient,
@@ -27,11 +30,17 @@ export class AuthService
   {
     const localSession = localStorage.getItem('session');
 
-    if(!localSession) this.session = null;
-
     if(localSession)
     {
       this.session = JSON.parse(localSession) as AuthDto;
+      this.userRole = this.session.datos.role;
+      this.isLoggedIn = true;
+    }
+    else
+    {
+      this.session = null;
+      this.userRole = null;
+      this.isLoggedIn = false;
     }
   }
 
@@ -52,6 +61,8 @@ export class AuthService
       {
         this.session = response;
         localStorage.setItem('session', JSON.stringify(response));
+        this.userRole = this.session.datos.role;
+        this.isLoggedIn = true;
         return response as AuthDto;
       }),
     );
@@ -102,18 +113,20 @@ export class AuthService
       `${API_URL}/admin/dashboard`, {
         name: usuario.nombre,
         email: usuario.email,
-        role: usuario.rol,
+        role: usuario.role,
         password,
+        id_sucursal: usuario.id_sucursal,
       }, { headers: this.getHeaders() });
   }
 
-  actualizarEmpleado(id: number, name: string, email: string, role: Rol)
+  actualizarEmpleado(id: number, name: string, email: string, role: Role, id_sucursal: number)
   {
     return this.httpClient.put(
       `${API_URL}/admin/dashboard/${id}`, {
         name,
         email,
         role,
+        id_sucursal,
       }, { headers: this.getHeaders() });
   }
 
@@ -133,8 +146,21 @@ export class AuthService
       {
         localStorage.clear();
         this.session = null;
+        this.userRole = null;
+        this.isLoggedIn = false;
       },
       error: (err) => this.toast.error(`${err.error.message ?? 'Desconocido'}`),
     });
   }
+
+  getUserRole(): Role | null
+  {
+    return this.userRole;
+  }
+
+  hasRole(role: Role): boolean
+  {
+    return this.isLoggedIn && this.userRole === role;
+  }
+
 }

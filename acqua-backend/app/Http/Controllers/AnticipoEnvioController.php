@@ -4,13 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\AnticipoEnvio;
 use App\Models\Ticket;
-use App\Models\User;
-
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFound;
-use Carbon\Carbon;
 
 class AnticipoEnvioController extends Controller
 {

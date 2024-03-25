@@ -50,7 +50,7 @@ jobs:
         if: steps.version_check.outputs.new_version != ''
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
 
       - name: Change to app directory
         if: steps.version_check.outputs.new_version != ''

@@ -24,6 +24,7 @@
               <th>ID</th>
               <th>Nombre</th>
               <th>Email</th>
+              <th>Sucursal</th>
               <th>Permisos</th>
               <th>Acciones</th>
             </tr>
@@ -33,6 +34,7 @@
               <th class="text-primary dark:text-white uppercase">{{ usuario.id }}</th>
               <td class="text-primary dark:text-white uppercase">{{ usuario.name }}</td>
               <td class="text-primary dark:text-white uppercase">{{ usuario.email }}</td>
+              <td class="text-primary dark:text-white uppercase">{{ usuario.sucursal?.nombre ?? 'N/A'}}</td>
               <td class="text-primary dark:text-white uppercase">{{ usuario.role }}</td>
               <td class="flex flex-col items-center justify-center">
                 <div class="btn-group btn-group-vertical lg:btn-group-horizontal">

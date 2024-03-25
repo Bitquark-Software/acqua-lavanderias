@@ -1,0 +1,77 @@
+<app-drawer>
+    <div
+      class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl"
+      catalogo
+    >
+      <div class="flex justify-between px-5">
+        <h1 class="font-medium text-2xl text-primary dark:text-white">
+          Sucursales
+        </h1>
+        <button class="btn btn-success" routerLink="/nueva-sucursal">
+          Nueva sucursal
+        </button>
+      </div>
+  
+      <div class="overflow-x-auto mt-4">
+        <p class="text-sm text-slate-600 text-center" *ngIf="sucursales.length == 0">Sin sucursales registradas</p>
+        <table class="table table-zebra w-full" *ngIf="sucursales.length > 0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Horario</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sucursal of sucursales">
+              <th class="text-primary dark:text-white">{{ sucursal.id }}</th>
+              <td class="text-primary dark:text-white">{{ sucursal.nombre }}</td>
+              <td class="text-primary dark:text-white" *ngIf="sucursal.horarios.length > 0">
+                <p *ngFor="let horario of sucursal.horarios">{{ horario.dias }} de {{ horario.horario }} horas</p>
+              </td>
+              <td class="text-primary dark:text-white" *ngIf="sucursal.horarios.length == 0">
+                N/A
+              </td>
+              <td class="flex flex-col items-center justify-center">
+                <div class="btn-group btn-group-vertical lg:btn-group-horizontal">
+                  <button
+                    class="btn btn-md btn-secondary btn-square btn-outline m-auto lg:tooltip"
+                    data-tip="Editar"
+                    [routerLink]="['/editar-sucursal', sucursal.id]"
+                  >
+                    <svg
+                      class="m-auto"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="w-full flex mt-4 justify-center" *ngIf="sucursales.length > 0 && sucursalesResponse">
+          <div class="join">
+            <button class="join-item btn" [disabled]="!sucursalesResponse.prev_page_url" (click)="fetchPreviousPage()">«</button>
+            <button class="join-item btn">Pág. {{sucursalesResponse.current_page}}</button>
+            <button class="join-item btn" [disabled]="!sucursalesResponse.next_page_url" (click)="fetchNextPage()">»</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-drawer>
+  

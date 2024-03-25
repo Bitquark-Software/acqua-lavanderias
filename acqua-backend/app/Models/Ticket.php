@@ -78,7 +78,13 @@ class Ticket extends Model
         return $this->hasMany(EnvioFlex::class, 'id_ticket');
     }
 
-    public function anticipoEnvio() {
+    public function anticipoEnvio() 
+    {
         return $this->hasMany(AnticipoEnvio::class, 'id_ticket');
+    }
+
+    public function codigosAdmin()
+    {
+        return $this->belongsTo(CodigoAdmin::class, 'id_ticket');
     }
 }

@@ -13,14 +13,14 @@ import { HotToastService } from '@ngneat/hot-toast';
 import { Comentario } from 'src/app/dtos/comentario';
 import { Lavadora } from 'src/app/dtos/lavadora';
 import { Prenda, PrendaTicket } from 'src/app/dtos/prenda-ticket';
-import { Proceso, ProcesoTicket, ProcesosAcqua } from 'src/app/dtos/proceso';
+import { Proceso, ProcesoTicket, ProcesosAcqua, ResponseRegistrarProceso } from 'src/app/dtos/proceso';
 import { ResponseLavadoraSecadoraExtra } from 'src/app/dtos/proceso';
-import { Sucursal } from 'src/app/dtos/sucursal';
+import { Sucursal, SucursalResponse } from 'src/app/dtos/sucursal';
 import { ReimpimirTicket, StatusTicket, Ticket } from 'src/app/dtos/ticket';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { TicketService } from 'src/app/services/ticket.service';
 import { RegistrarPagoComponent } from '../registrar-pago/registrar-pago.component';
-import { Rol } from 'src/app/enums/Rol.enum';
+import { Role } from 'src/app/enums/Role.enum';
 import { TicketStats } from 'src/app/dtos/ticket-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
 import { Secadora } from 'src/app/dtos/secadora';
@@ -87,7 +87,8 @@ export class DetallesTicketComponent
 
   sucursales: Sucursal[] = [];
 
-  isAdmin = false;
+  userRole: Role | null = null;
+  Role = Role;
   isLoadingStats = false;
 
   ticketStats!: TicketStats;
@@ -129,13 +130,16 @@ export class DetallesTicketComponent
     this.fetchPrendas();
     this.fetchSucursales();
 
-    this.isAdmin = this.auth.session?.datos.role == Rol.Administrador;
+    this.userRole = this.auth.session!.datos.role;
   }
 
   fetchSucursales()
   {
     this.ticketService.getSucursales().subscribe({
-      next: (sucursales) => this.sucursales = sucursales,
+      next: (sucursales: SucursalResponse) =>
+      {
+        this.sucursales = sucursales.data;
+      },
       error: (err) =>
       {
         this.toast.error('Error al obtener las sucursales');
@@ -193,7 +197,7 @@ export class DetallesTicketComponent
             );
           });
           this.isLoading = false;
-        }, 400);
+        }, 0);
       },
       error: (err) =>
       {
@@ -202,7 +206,7 @@ export class DetallesTicketComponent
         setTimeout(() =>
         {
           this.isLoading = false;
-        }, 400);
+        }, 0);
       },
     });
   }
@@ -828,17 +832,27 @@ export class DetallesTicketComponent
     switch(this.stepCursor)
     {
     case 0:
-      const proceso = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.CONTEO);
-      if(!proceso)
+      const procesoConteo = this.PROCESOS_EXISTENTES.find((p) => p.nombre === ProcesosAcqua.CONTEO);
+      if(!procesoConteo)
       {
         this.toast.error('Error: No encontramos el proceso interno para el conteo');
       }
       else
       {
         // call DB
-        this.ticketService.registrarProceso(this.ticket.id, proceso).subscribe(
+        this.ticketService.registrarProceso(this.ticket.id, procesoConteo).subscribe(
           {
-            next: (response) => console.log,
+            next: (response: ResponseRegistrarProceso) =>
+            {
+              if(this.ticket.procesos_ticket.length === 0)
+              {
+                if(response !== null && response !== undefined)
+                {
+                  this.ticket.procesos_ticket.push(response.data!);
+                }
+              }
+              this.setCurrentProcesoTicket();
+            },
             error: (err) =>
             {
               console.error(err);

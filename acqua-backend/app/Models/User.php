@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'id_sucursal'
     ];
 
     /**
@@ -51,5 +52,15 @@ class User extends Authenticatable
     public function envioFlexs()
     {
         return $this->hasMany(EnvioFlex::class, 'id_user');
+    }
+
+    public function cancelacionCodigos()
+    {
+        return $this->hasMany(CodigoAdmin::class, 'id_user');
+    }
+
+    public function sucursal()
+    {
+        return $this->belongsTo(Sucursal::class, 'id_sucursal');
     }
 }

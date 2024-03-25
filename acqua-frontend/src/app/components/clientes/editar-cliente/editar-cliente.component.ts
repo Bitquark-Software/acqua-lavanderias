@@ -76,8 +76,6 @@ export class EditarClienteComponent
     this.cliente.telefono = this.telefono.value;
     this.cliente.email = this.email.value;
 
-    console.log(this.cliente);
-
     if(this.cliente.id)
     {
       this.clienteService.actualizarCliente(this.cliente.id, this.cliente).subscribe({

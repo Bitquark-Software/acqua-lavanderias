@@ -80,6 +80,7 @@
                   </svg>
                 </button>
                 <button
+                  [disabled]="userRole === Role.Cajero"
                   class="btn btn-md btn-error btn-square btn-outline m-auto lg:tooltip"
                   data-tip="Eliminar"
                   (click)="showDeletePopup(cat.id)"

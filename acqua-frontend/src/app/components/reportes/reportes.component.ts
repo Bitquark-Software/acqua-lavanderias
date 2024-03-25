@@ -7,6 +7,8 @@ import { ReporteStats, UsuariosReporteStats } from 'src/app/dtos/reporte-stats';
 import { StatsService } from 'src/app/services/stats-service.service';
 import { PDFReporteStats } from 'src/app/dtos/reporte-stats';
 import * as moment from 'moment';
+import { AuthService } from 'src/app/services/auth-service.service';
+import { Role } from 'src/app/enums/Role.enum';
 
 function dateRangeValidator(): ValidatorFn
 {
@@ -50,12 +52,15 @@ export class ReportesComponent
   datesForm!: FormGroup;
 
   isLoading = false;
+  Role = Role;
+  userRole: Role | null = null;
 
   statsIngresos!: ReporteStats;
   statsUsuarios!: UsuariosReporteStats;
   statsPDFReporte!: PDFReporteStats;
 
   constructor(
+    private authService: AuthService,
     private statsService: StatsService,
     private fb: FormBuilder,
   )
@@ -65,6 +70,7 @@ export class ReportesComponent
       start: ['', [Validators.required]],
       end: ['', [Validators.required]],
     }, { validator: dateRangeValidator() });
+    this.userRole = this.authService.session!.datos.role;
   }
 
   fetchStats(start?: string, end?:string)

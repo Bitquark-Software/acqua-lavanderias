@@ -1,11 +1,11 @@
-import { Rol } from '../enums/Rol.enum';
+import { Role } from '../enums/Role.enum';
 
 class DatosSesion
 {
   id!: number;
   name!: string;
   email!: string;
-  role!: Rol;
+  role!: Role;
 }
 
 export class AuthDto

@@ -22,6 +22,10 @@ import { NuevoServicioComponent } from './components/servicios/nuevo-servicio/nu
 import { TicketsComponent } from './components/tickets/tickets.component';
 import { DetallesTicketComponent } from './components/tickets/detalles-ticket/detalles-ticket.component';
 import { ReportesComponent } from './components/reportes/reportes.component';
+import { Role } from './enums/Role.enum';
+import { SucursalesComponent } from './components/sucursales/sucursales.component';
+import { NuevaSucursalComponent } from './components/sucursales/nueva-sucursal/nueva-sucursal.component';
+import { EditarSucursalComponent } from './components/sucursales/editar-sucursal/editar-sucursal.component';
 
 const routes: Routes = [
   {
@@ -32,86 +36,127 @@ const routes: Routes = [
     path: 'categorias',
     component: CatalogoComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado, Role.Cajero] },
   },
   {
     path: 'nueva-categoria',
     component: NuevoCatalogoComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado] },
   },
   {
     path: 'editar-categoria/:id',
     component: EditarCatalogoComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado] },
   },
   {
     path: 'ver-servicios/:categoriaId',
     component: VerServiciosComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado, Role.Cajero] },
   },
   {
     path: 'nuevo-servicio/:categoriaId',
     component: NuevoServicioComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado] },
   },
   {
     path: 'editar-servicio/:servicioId',
     component: EditarServicioComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado] },
   },
   {
     path: 'dashboard',
     component: DashboardComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado, Role.Cajero] },
   },
   {
     path: 'personal',
     component: PersonalComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador] },
   },
   {
     path: 'nuevo-usuario',
     component: NuevoUsuarioComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador] },
   },
   {
     path: 'editar-usuario/:id',
     component: EditarUsuarioComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador] },
   },
   {
     path: 'clientes',
     component: ClientesComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Cajero, Role.Encargado] },
   },
   {
     path: 'nuevo-cliente',
     component: NuevoClienteComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Cajero, Role.Encargado] },
   },
   {
     path: 'editar-cliente/:clientId',
     component: EditarClienteComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Cajero, Role.Encargado] },
   },
   {
     path: 'tickets',
     component: TicketsComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Operativo, Role.Cajero, Role.Encargado] },
   },
   {
     path: 'ticket/:id',
     component: DetallesTicketComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Operativo, Role.Cajero, Role.Encargado] },
   },
   {
     path: 'reportes',
     component: ReportesComponent,
     canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado] },
+  },
+  {
+    path: 'sucursales',
+    component: SucursalesComponent,
+    canActivate: [authGuard],
+    data: { roles: [Role.Administrador] },
+  },
+  {
+    path: 'nueva-sucursal',
+    component: NuevaSucursalComponent,
+    canActivate: [authGuard],
+    data: { roles: [Role.Administrador] },
+  },
+  {
+    path: 'editar-sucursal/:sucursalId',
+    component: EditarSucursalComponent,
+    canActivate: [authGuard],
+    data: { roles: [Role.Administrador] },
   },
   {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full',
+    data: { roles: [Role.Administrador, Role.Encargado, Role.Cajero] },
+  },
+  {
+    path: '**',
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
+    data: { roles: [Role.Administrador, Role.Encargado, Role.Cajero] },
   },
 ];
 
