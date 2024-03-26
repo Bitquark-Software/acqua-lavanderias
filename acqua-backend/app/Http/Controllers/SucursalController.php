@@ -49,7 +49,9 @@ class SucursalController extends Controller
      */
     public function show($id)
     {
-        return Sucursal::with('horarios')->find($id);
+        return Sucursal::with(['horarios', 'cortecaja' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }])->find($id);
     }
 
     /**

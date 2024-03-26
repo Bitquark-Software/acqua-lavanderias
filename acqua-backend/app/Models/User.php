@@ -49,11 +49,16 @@ class User extends Authenticatable
         return $this->hasOne(ProcesoTicket::class, 'user_id');
     }
 
-    public function cancelacionCodigos()
+    public function codigosAdmin()
     {
         return $this->hasMany(CodigoAdmin::class, 'id_user');
     }
 
+    public function cortecaja()
+    {
+        return $this->hasMany(CorteCaja::class, 'id_sucursal');
+    }
+    
     public function sucursal()
     {
         return $this->belongsTo(Sucursal::class, 'id_sucursal');

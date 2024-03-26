@@ -31,6 +31,13 @@ class AnticiposTicketsController extends Controller
         // Actualizar el ticket
         $ticket = Ticket::where('id', $request->id_ticket)->first();
 
+        // Verificar si el ticket actual es igual al de el usuario logueado
+        if ($ticket->id_sucursal !== $request->user()->id_sucursal) {
+            return response()->json([
+                'mensaje' => "No puedes generar anticipos por que no es tu sucursal"
+            ]);
+        }
+
         $total_anticipos = AnticipoTicket::where('id_ticket', $ticket->id)->sum('anticipo');
         $total_anticipos += $request->anticipo;
 
