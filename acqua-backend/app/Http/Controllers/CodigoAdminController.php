@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CodigoAdmin;
+use App\Models\Ticket;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -15,11 +16,11 @@ class CodigoAdminController extends Controller
     private function generacionCodigoUnico(): string
     {
         do {
-        $letrasPermitidas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $letrasAleatorias = substr(str_shuffle($letrasPermitidas), 0, 4);
+            $letrasPermitidas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $letrasAleatorias = substr(str_shuffle($letrasPermitidas), 0, 4);
 
-        $numeros = rand(1000, 9999);
-        $codigoGenerado = $letrasAleatorias . $numeros;
+            $numeros = rand(1000, 9999);
+            $codigoGenerado = $letrasAleatorias . $numeros;
         } while (CodigoAdmin::where('codigo', $codigoGenerado)->exists());
 
         return $codigoGenerado;
@@ -84,12 +85,26 @@ class CodigoAdminController extends Controller
 
         $codigoGenerado = $this->generacionCodigoUnico();
 
-        if ($request->id_ticket !== null) {
-            $fecha_actual = date("Y-m-d H:i:s");
-        }
-
         // En caso de que el codigo sea para un ticket el admin puede pasarle directamente el ticket
         $ticketUsado = isset($request->id_ticket) ? true : false;
+        $fecha_actual = null;
+
+        if ($ticketUsado) {
+            // traigo el ticket si en dado caso el codigo es para eso
+            try {
+                $ticket = Ticket::find($request->id_ticket);
+            } catch (ModelNotFound $e) {
+                return response()->json([
+                    'mensaje' => 'ticket para cancelacion no encontrado'
+                ]);
+            }
+
+            if ($ticketUsado) {
+                $ticket->delete();
+
+                $fecha_actual = date("Y-m-d H:i:s");
+            }
+        }
 
         $codigo = CodigoAdmin::create([
             'codigo' => Str::upper($codigoGenerado),
@@ -100,8 +115,11 @@ class CodigoAdminController extends Controller
             'used_at' => $fecha_actual ?? null
         ]);
 
+        $mensajePersonalizadoAdmin = $fecha_actual ? 'Ticket eliminado correctamente, codigoadmin usado correctamente' :
+                'Codigo administrador generado exitosamente';
+
         return response()->json([
-            'mensaje' => 'Codigo cancelacion ticket generado',
+            'mensaje' => $mensajePersonalizadoAdmin,
             'data' => $codigo
         ], 201);
     }
@@ -147,7 +165,7 @@ class CodigoAdminController extends Controller
             ]);
         } catch (ModelNotFound $e) {
             return response()->json([
-                'mensaje' => 'El código de cancelación no existe'
+                'mensaje' => 'El código de administrador no existe'
             ], 404);
         }
     }
@@ -166,18 +184,18 @@ class CodigoAdminController extends Controller
 
             if ($codigoCancelacion->usado || !isset($codigoCancelacion->id_ticket)) {
                 return response()->json([
-                    'mensaje' => 'Codigo de Cancelacion usado o Vinculado a un ticket'
+                    'mensaje' => 'Codigo de administrador usado o Vinculado a un ticket'
                 ], 422);
             }
 
             $codigoCancelacion->delete();
 
             return response()->json([
-                'mensaje' => 'Codigo de Cancelacion Eliminado'
+                'mensaje' => 'Codigo de administrador Eliminado'
             ], 204);
         } catch (ModelNotFound $e) {
             return response()->json([
-                'mensaje' => 'El código de cancelación no existe'
+                'mensaje' => 'El código de administrador no existe'
             ], 404);
         }
     }

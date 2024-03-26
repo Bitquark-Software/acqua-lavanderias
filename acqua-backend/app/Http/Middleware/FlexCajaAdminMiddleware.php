@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use App\Models\CorteCaja;
 
-class VerificarCajaAbiertaMiddleware
+class FlexCajaAdminMiddleware
 {
     /**
      * Handle an incoming request.
@@ -17,19 +17,22 @@ class VerificarCajaAbiertaMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $idSucursal = $request->user()->id_sucursal;
+        $usuario = $request->user();
 
-        // Si el usuario es un administrador, permitir el acceso
-        if ($request->user()->role == 'administrador') {
+        $cajaAbierta = CorteCaja::where('id_sucursal', $usuario->id_sucursal)
+            ->where('abierto', true)
+            ->first();
+
+        $roles = ['encargado', 'cajero', 'operativo'];
+
+        if (in_array($usuario->role, $roles)) {
             return $next($request);
         }
 
-        $cajaAbierta = CorteCaja::where('id_sucursal', $idSucursal)
-            ->where('abierto', true)
-            ->exists();
-
-        if (!$cajaAbierta) {
-            return response()->json(['mensaje' => 'Caja todavia no esta abierta para tu sucursal actual'], 200);
+        if ($usuario->role === 'administrador' && $cajaAbierta) {
+            return $next($request);
+        } else {
+            return response()->json(['mensaje' => 'Para procesar tickets necesitas una caja para tu sucursal'], 200);
         }
 
         return $next($request);

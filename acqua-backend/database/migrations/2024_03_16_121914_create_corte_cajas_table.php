@@ -19,11 +19,11 @@ class CreateCorteCajasTable extends Migration
             $table->dateTime('fecha_fin')->nullable();
             $table->boolean('abierto')->default(true);
             $table->decimal('monto_apertura', 8, 2)->default(0.00);
-            $table->decimal('efectivo', 5, 2)->default(0.00);
-            $table->decimal('transferencia', 5, 2)->default(0.00);
-            $table->decimal('tarjeta', 5, 2)->default(0.00);
-            $table->decimal('monto_total', 5, 2)->default(0.00);
-            $table->decimal('monto_cierre', 8, 2)->nullable();
+            $table->decimal('efectivo', 8, 2)->default(0.00);
+            $table->decimal('transferencia', 8, 2)->default(0.00);
+            $table->decimal('tarjeta', 8, 2)->default(0.00);
+            $table->decimal('monto_total', 10, 2)->default(0.00);
+            $table->decimal('monto_cierre', 10, 2)->nullable();
 
             $table->unsignedBigInteger('id_sucursal');
             $table->unsignedBigInteger('id_user');
