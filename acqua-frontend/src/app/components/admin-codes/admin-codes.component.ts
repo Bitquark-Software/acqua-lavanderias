@@ -22,81 +22,94 @@ export class AdminCodesComponent
   {
     this.current_admin_code = null;
     this.current_page = 1;
-    this.requestGetCurrentAdminCode();
   }
 
-  requestGetCurrentAdminCode()
+  showCurrentAdminCode()
   {
-    const getLastPageCallback = (response: AdminCodeResponseGet) =>
+    const messageAlert = () =>
     {
-      const setCurrentCodeCallback = (response: AdminCodeResponseGet) =>
+      if(this.current_admin_code !== null && this.current_admin_code!.usado === 0)
       {
-        this.current_admin_code = response.data[response.data.length-1];
-        if(this.current_admin_code.usado === 0)
-        {
-          alert(`Tu codigo actual es: ${this.current_admin_code.codigo}`);
-        }
-        else
-        {
-          alert('Usted necesita generar un nuevo código!');
-        }
-      };
-
-      if(this.current_page === response.last_page)
-      {
-        setCurrentCodeCallback(response);
+        alert(`Tu codigo actual es: ${this.current_admin_code!.codigo}`);
       }
       else
       {
-        this.current_page = response.last_page!;
-        this.getAdminCodes(response.last_page!, setCurrentCodeCallback);
+        alert('Usted necesita generar un nuevo código!');
       }
     };
-    this.getAdminCodes(this.current_page, getLastPageCallback);
+    this.requestGetCurrentAdminCode(messageAlert);
+  }
+
+  requestGetCurrentAdminCode(showMessage: () => void)
+  {
+    const gotoLastPageCallback = (response: AdminCodeResponseGet) =>
+    {
+      if(this.current_page !== response.last_page)
+      {
+        this.current_page = response.last_page!;
+        this.getAdminCodes(response.last_page!, showMessage);
+      }
+      else
+      {
+        showMessage();
+      }
+    };
+    this.getAdminCodes(this.current_page, gotoLastPageCallback);
   }
 
   requestGenerateAdminCode()
   {
-    const generateCodeCallback = (setCurrentCodeCallback: CallbackResponsePostPut) =>
+    const showMessageSuccess = (response: AdminCodeResponsePostPut) =>
     {
-      const mensaje: string = this.getMessageFromPrompt();
-      this.generateAdminCode(mensaje, setCurrentCodeCallback);
-    };
-
-    const setGeneratedCodeCallback = (response: AdminCodeResponsePostPut) =>
-    {
-      this.current_admin_code = response.data;
       alert(`El código creado fue: ${response.data.codigo}, recuerda guardarlo bien...`);
     };
 
-    if(this.current_admin_code !== null && this.current_admin_code.usado === 0)
+    const showMessageDenied = () =>
     {
       alert('Necesita actualizar el estado del ultimo código');
-    }
-    else
+    };
+
+    const continueGenerateCode = () =>
     {
-      generateCodeCallback(setGeneratedCodeCallback);
-    }
+      if(this.current_admin_code === null || this.current_admin_code.usado !== 0)
+      {
+        const motive: string = this.getMessageFromPrompt();
+        this.generateAdminCode(motive, showMessageSuccess);
+      }
+      else
+      {
+        showMessageDenied();
+      }
+    };
+
+    this.requestGetCurrentAdminCode(continueGenerateCode);
   }
 
   requestUpdateAdminCode()
   {
-    if(this.current_admin_code !== null && this.current_admin_code.usado === 0)
+    const showMessageSuccess = () =>
     {
-      const getUpdatedCodeCallback = (response: AdminCodeResponsePostPut) =>
-      {
-        this.requestGetCurrentAdminCode();
-        this.current_admin_code = response.data;
-        alert('Tu código fue utilizado y no puede volver a ser utilizado');
-      };
+      alert('Tu código fue utilizado y no puede volver a ser utilizado');
+    };
 
-      const id_ticket: number = this.getIdTicketFromPrompt() as number;
-      this.updateAdminCode(this.current_admin_code.id!, id_ticket, getUpdatedCodeCallback);
-    }
-    else
+    const showMessageDenied = () =>
     {
       alert('Necesita generar un nuevo código');
-    }
+    };
+
+    const continueUpdateCode = () =>
+    {
+      if(this.current_admin_code !== null && this.current_admin_code.usado === 0)
+      {
+        const id_ticket: number = this.getIdTicketFromPrompt() as number;
+        this.updateAdminCode(this.current_admin_code.id!, id_ticket, showMessageSuccess);
+      }
+      else
+      {
+        showMessageDenied();
+      }
+    };
+    this.requestGetCurrentAdminCode(continueUpdateCode);
   }
 
   getIdTicketFromPrompt(): number
@@ -130,6 +143,7 @@ export class AdminCodesComponent
     this.codigoAdminService.fetchAdminCodes(page).subscribe({
       next: (response: AdminCodeResponseGet) =>
       {
+        this.current_admin_code = response.data[response.data.length-1];
         callback(response);
       },
       error: (err) =>
@@ -144,6 +158,7 @@ export class AdminCodesComponent
     this.codigoAdminService.createAdminCode(message).subscribe({
       next: (response: AdminCodeResponsePostPut) =>
       {
+        this.current_admin_code = response.data;
         callback(response);
       },
       error: (err) =>
@@ -158,6 +173,7 @@ export class AdminCodesComponent
     this.codigoAdminService.updateAdminCodeById(id_code, id_ticket).subscribe({
       next: (response: AdminCodeResponsePostPut) =>
       {
+        this.current_admin_code = response.data;
         callback(response);
       },
       error: (err) =>
