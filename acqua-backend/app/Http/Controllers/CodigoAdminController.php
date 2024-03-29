@@ -96,7 +96,7 @@ class CodigoAdminController extends Controller
             } catch (ModelNotFound $e) {
                 return response()->json([
                     'mensaje' => 'ticket para cancelacion no encontrado'
-                ]);
+                ], 404);
             }
 
             if ($ticketUsado) {

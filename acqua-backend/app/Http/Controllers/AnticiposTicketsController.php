@@ -35,7 +35,7 @@ class AnticiposTicketsController extends Controller
         if ($ticket->id_sucursal !== $request->user()->id_sucursal) {
             return response()->json([
                 'mensaje' => "No puedes generar anticipos por que no es tu sucursal"
-            ]);
+            ], 400);
         }
 
         $total_anticipos = AnticipoTicket::where('id_ticket', $ticket->id)->sum('anticipo');

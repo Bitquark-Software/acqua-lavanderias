@@ -90,7 +90,7 @@ class CorteCajaController extends Controller
             if ($codigo->usado) {
                 return response()->json([
                     'mensaje' => 'Codigo usado'
-                ]);
+                ],400);
             }
 
             $fechaActual = date('Y-m-d H:m-s');
@@ -118,7 +118,7 @@ class CorteCajaController extends Controller
         } catch (ModelNotFound $e) {
             return response()->json([
                 'mensaje' => 'Codigo de cancelacion no valido o no Existe'
-            ], 403);
+            ], 404);
         }
     }
 
