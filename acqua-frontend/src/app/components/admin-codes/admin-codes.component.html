@@ -1,7 +1,10 @@
 <app-drawer>
     <div class="w-full md:w-10/12 my-3 mx-auto">
         <div class="card w-full bg-base-100 shadow-md p-0 my-2 mx-auto">
-          <button class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4" (click)="showCurrentAdminCode()">
+          <button
+            class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
+            (click)="requestCurrentAdminCode('modal_show_current_admin_code', 'modal_current_admin_code_used')"
+          >
             <svg
                 width="24"
                 height="24"
@@ -15,7 +18,10 @@
             </svg>
             Obtener Código Actual
           </button>
-          <button class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4" (click)="requestGenerateAdminCode()">
+          <button
+            class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
+            (click)="requestGenerateAdminCode('modal_generate_admin_code', 'modal_generate_admin_code_fail')"
+          >
             <svg
                 width="24"
                 height="24"
@@ -29,7 +35,10 @@
             </svg>
             Generar Nuevo Código
           </button>
-          <button class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4" (click)="requestUpdateAdminCode()">
+          <button
+            class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
+            (click)="requestUpdateAdminCode('modal_update_admin_code', 'modal_current_admin_code_used')"
+          >
             <svg
                 width="24"
                 height="24"
@@ -43,6 +52,62 @@
             </svg>
             Actualizar Estado del Código Actual
           </button>
+          <!-- MODALES PARA MOSTRAR MENSAJES -->
+          <dialog id="modal_show_current_admin_code" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">Código Admininistrador</h3>
+              <p class="py-4">{{current_admin_code!.codigo}}</p>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn" (click)="closeModal('modal_show_current_admin_code')">Close</button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="modal_current_admin_code_used" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">Código Administrador</h3>
+              <p class="py-4">Usted necesita generar un nuevo código</p>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn" (click)="closeModal('modal_current_admin_code_used')">Close</button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="modal_generate_admin_code" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">Código Administrador</h3>
+              <p class="py-4">El código creado fue: {{this.current_admin_code!.codigo}}, recuerda guardarlo bien...</p>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn" (click)="closeModal('modal_generate_admin_code')">Close</button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="modal_generate_admin_code_fail" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">Código Administrador</h3>
+              <p class="py-4">Necesita actualizar el estado del último código</p>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn" (click)="closeModal('modal_generate_admin_code_fail')">Close</button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="modal_update_admin_code" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">Código Administrador</h3>
+              <p class="py-4">Tu código fue utilizado y no puede volver a ser utilizado...</p>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn" (click)="closeModal('modal_update_admin_code')">Close</button>
+                </form>
+              </div>
+            </div>
+          </dialog>
         </div>
     </div>
 </app-drawer>

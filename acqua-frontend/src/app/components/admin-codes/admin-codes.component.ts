@@ -22,25 +22,45 @@ export class AdminCodesComponent
   {
     this.current_admin_code = null;
     this.current_page = 1;
+    // Esta instrucción es necesaria para que cargen correctamente los modales con valor
+    this.getCurrentAdminCode(() => {});
   }
 
-  showCurrentAdminCode()
+  showModal(name_modal = '')
   {
-    const messageAlert = () =>
+    const modal = document.getElementById(name_modal);
+    if (modal instanceof HTMLDialogElement)
+    {
+      modal.showModal();
+    }
+  }
+
+  closeModal(name_modal = '')
+  {
+    const modal = document.getElementById(name_modal);
+    if (modal instanceof HTMLDialogElement)
+    {
+      modal.close();
+    }
+  }
+
+  requestCurrentAdminCode(modal_success = '', modal_fail = '')
+  {
+    const modalMessages = () =>
     {
       if(this.current_admin_code !== null && this.current_admin_code!.usado === 0)
       {
-        alert(`Tu codigo actual es: ${this.current_admin_code!.codigo}`);
+        this.showModal(modal_success);
       }
       else
       {
-        alert('Usted necesita generar un nuevo código!');
+        this.showModal(modal_fail);
       }
     };
-    this.requestGetCurrentAdminCode(messageAlert);
+    this.getCurrentAdminCode(modalMessages);
   }
 
-  requestGetCurrentAdminCode(showMessage: () => void)
+  getCurrentAdminCode(showMessage: () => void)
   {
     const gotoLastPageCallback = (response: AdminCodeResponseGet) =>
     {
@@ -57,16 +77,16 @@ export class AdminCodesComponent
     this.getAdminCodes(this.current_page, gotoLastPageCallback);
   }
 
-  requestGenerateAdminCode()
+  requestGenerateAdminCode(modal_success = '', modal_fail = '')
   {
-    const showMessageSuccess = (response: AdminCodeResponsePostPut) =>
+    const showMessageSuccess = () =>
     {
-      alert(`El código creado fue: ${response.data.codigo}, recuerda guardarlo bien...`);
+      this.showModal(modal_success);
     };
 
     const showMessageDenied = () =>
     {
-      alert('Necesita actualizar el estado del ultimo código');
+      this.showModal(modal_fail);
     };
 
     const continueGenerateCode = () =>
@@ -82,19 +102,19 @@ export class AdminCodesComponent
       }
     };
 
-    this.requestGetCurrentAdminCode(continueGenerateCode);
+    this.getCurrentAdminCode(continueGenerateCode);
   }
 
-  requestUpdateAdminCode()
+  requestUpdateAdminCode(modal_success = '', modal_fail = '')
   {
     const showMessageSuccess = () =>
     {
-      alert('Tu código fue utilizado y no puede volver a ser utilizado');
+      this.showModal(modal_success);
     };
 
     const showMessageDenied = () =>
     {
-      alert('Necesita generar un nuevo código');
+      this.showModal(modal_fail);
     };
 
     const continueUpdateCode = () =>
@@ -109,7 +129,7 @@ export class AdminCodesComponent
         showMessageDenied();
       }
     };
-    this.requestGetCurrentAdminCode(continueUpdateCode);
+    this.getCurrentAdminCode(continueUpdateCode);
   }
 
   getIdTicketFromPrompt(): number
