@@ -114,34 +114,6 @@ export class AdminCodesComponent
     this.getCurrentAdminCode(continueUpdateCode);
   }
 
-  /*
-  getIdTicketFromPrompt(): number
-  {
-    let id_ticket: string | null = null;
-
-    while (id_ticket === null)
-    {
-      id_ticket = prompt('Ingrese el id del ticket: ');
-      console.log('* Id: ', id_ticket);
-    }
-
-    return Number(id_ticket);
-  }
-
-  getMessageFromPrompt(): string
-  {
-    let message: string | null = null;
-
-    while (message === null)
-    {
-      message = prompt('Ingrese el motivo del código: ');
-      console.log('* Motivo: ', message);
-    }
-
-    return message;
-  }
-  */
-
   updateAdminCodeModal(modal_success = '', modal_fail = '')
   {
     const showMessageSuccess = () =>
