@@ -15,6 +15,8 @@ export class AdminCodesComponent
 {
   current_page: number;
   current_admin_code: AdminCode | null;
+  temp_id_ticket: number | null;
+  temp_motivo_codigo: string | null;
 
   constructor(
     private codigoAdminService: AdminCodesService,
@@ -22,6 +24,8 @@ export class AdminCodesComponent
   {
     this.current_admin_code = null;
     this.current_page = 1;
+    this.temp_id_ticket = 0;
+    this.temp_motivo_codigo = '';
     // Esta instrucción es necesaria para que cargen correctamente los modales con valor
     this.getCurrentAdminCode(() => {});
   }
@@ -77,61 +81,40 @@ export class AdminCodesComponent
     this.getAdminCodes(this.current_page, gotoLastPageCallback);
   }
 
-  requestGenerateAdminCode(modal_success = '', modal_fail = '')
+  requestGenerateAdminCode(modal_input_motivo = '', modal_fail = '')
   {
-    const showMessageSuccess = () =>
-    {
-      this.showModal(modal_success);
-    };
-
-    const showMessageDenied = () =>
-    {
-      this.showModal(modal_fail);
-    };
-
     const continueGenerateCode = () =>
     {
       if(this.current_admin_code === null || this.current_admin_code.usado !== 0)
       {
-        const motive: string = this.getMessageFromPrompt();
-        this.generateAdminCode(motive, showMessageSuccess);
+        this.showModal(modal_input_motivo);
       }
       else
       {
-        showMessageDenied();
+        this.showModal(modal_fail);
       }
     };
 
     this.getCurrentAdminCode(continueGenerateCode);
   }
 
-  requestUpdateAdminCode(modal_success = '', modal_fail = '')
+  requestUpdateAdminCode(modal_input_id_ticket = '', modal_fail = '')
   {
-    const showMessageSuccess = () =>
-    {
-      this.showModal(modal_success);
-    };
-
-    const showMessageDenied = () =>
-    {
-      this.showModal(modal_fail);
-    };
-
     const continueUpdateCode = () =>
     {
       if(this.current_admin_code !== null && this.current_admin_code.usado === 0)
       {
-        const id_ticket: number = this.getIdTicketFromPrompt() as number;
-        this.updateAdminCode(this.current_admin_code.id!, id_ticket, showMessageSuccess);
+        this.showModal(modal_input_id_ticket);
       }
       else
       {
-        showMessageDenied();
+        this.showModal(modal_fail);
       }
     };
     this.getCurrentAdminCode(continueUpdateCode);
   }
 
+  /*
   getIdTicketFromPrompt(): number
   {
     let id_ticket: string | null = null;
@@ -156,6 +139,41 @@ export class AdminCodesComponent
     }
 
     return message;
+  }
+  */
+
+  updateAdminCodeModal(modal_success = '', modal_fail = '')
+  {
+    const showMessageSuccess = () =>
+    {
+      this.showModal(modal_success);
+    };
+
+    if(this.temp_id_ticket !== null && this.temp_id_ticket > 0)
+    {
+      this.updateAdminCode(this.current_admin_code!.id!, this.temp_id_ticket, showMessageSuccess);
+    }
+    else
+    {
+      this.showModal(modal_fail);
+    }
+  }
+
+  generateAdminCodeModal(modal_success = '', modal_fail = '')
+  {
+    const showMessageSuccess = () =>
+    {
+      this.showModal(modal_success);
+    };
+
+    if(this.temp_motivo_codigo !== null && this.temp_motivo_codigo !== '')
+    {
+      this.generateAdminCode(this.temp_motivo_codigo, showMessageSuccess);
+    }
+    else
+    {
+      this.showModal(modal_fail);
+    }
   }
 
   getAdminCodes(page: number, callback: CallbackResponseGet)
