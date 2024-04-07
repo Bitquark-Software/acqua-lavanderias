@@ -439,7 +439,7 @@ class CorteCajaController extends Controller
                 'transferencia' => $transferenciaT,
                 'tarjeta' => $tarjetaT,
                 'montoTotal' => $montoTotal,
-                'anticipoEnvios' => $pagosEnvios
+                'anticiposEnvios ' => $pagosEnvios
             ]);
         } catch (\Exception $e) {
             // Fecha no valida
