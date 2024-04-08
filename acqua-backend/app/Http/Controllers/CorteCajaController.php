@@ -90,7 +90,7 @@ class CorteCajaController extends Controller
             if ($codigo->usado) {
                 return response()->json([
                     'mensaje' => 'Codigo usado'
-                ],400);
+                ], 400);
             }
 
             $fechaActual = date('Y-m-d H:m-s');
@@ -201,8 +201,6 @@ class CorteCajaController extends Controller
         // Verifica si el monto cierre es menor al de apertura
         if ($request->monto_cierre < ($cajaActual->monto_apertura)) {
             $respuesta = $this->usoAdminCode($request, $fechaActual);
-
-            // todo: aqui ira el llamado del metodo para anticipos_envios
 
             if ($respuesta->status() !== 200) {
                 return response()->json([
@@ -356,6 +354,7 @@ class CorteCajaController extends Controller
                 ->get();
 
             $anticipoTickets = [];
+            $pagosEnvios = $this->totalesCalcEnvios($inicioFechaConsulta, $finFechaConsulta)->getData(true);
 
             foreach ($ticketsNucleo as $ticket) {
                 foreach ($ticket->anticipos as $anticipos) {
@@ -439,7 +438,8 @@ class CorteCajaController extends Controller
                 'efectivo' => $efectivoT,
                 'transferencia' => $transferenciaT,
                 'tarjeta' => $tarjetaT,
-                'montoTotal' => $montoTotal
+                'montoTotal' => $montoTotal,
+                'anticiposEnvios ' => $pagosEnvios
             ]);
         } catch (\Exception $e) {
             // Fecha no valida
@@ -452,7 +452,6 @@ class CorteCajaController extends Controller
         }
     }
 
-    // todo: esta funcion necesita la tabla anticipos_envios
     public function totalesCalcEnvios($inicioFechaConsulta, $finFechaConsulta)
     {
 
@@ -508,8 +507,6 @@ class CorteCajaController extends Controller
 
         // Convierto los resultados en una coleccion
         $anticiposCollection = collect($anticiposEnvios);
-
-        dd($anticiposCollection);
 
         $efectivoCredPendiente = $anticiposCollection->where('restante', '>', 0)
             ->where('tipo_credito', 'CREDITO')
