@@ -44,6 +44,7 @@ import {
   EditarSucursalComponent,
 } from './components/sucursales/editar-sucursal/editar-sucursal.component';
 import { AdminCodesComponent } from './components/admin-codes/admin-codes.component';
+import { CorteCajaComponent } from './components/corte-caja/corte-caja.component';
 registerLocaleData(localeEs, 'es');
 
 @NgModule ( {
@@ -76,6 +77,7 @@ registerLocaleData(localeEs, 'es');
     NuevaSucursalComponent,
     EditarSucursalComponent,
     AdminCodesComponent,
+    CorteCajaComponent,
   ],
   imports: [
     BrowserModule,
