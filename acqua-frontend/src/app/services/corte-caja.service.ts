@@ -33,7 +33,7 @@ export class CorteCajaService
     return this.httpClient.get(`${API_URL}/gestion-caja`, {
       headers: this.authService.getHeaders(),
     }).pipe(
-      this.handleNotifications('Obteniendo corte(s) de caja...'),
+      this.handleNotifications('Obteniendo corte(s) de caja', 'Corte(s) de caja obtenidos'),
     );
   }
 
@@ -47,18 +47,18 @@ export class CorteCajaService
     {
       headers: this.authService.getHeaders(),
     }).pipe(
-      this.handleNotifications('Creando corte de caja...'),
+      this.handleNotifications('Creando corte de caja', 'Corte de caja creado!'),
     );
   }
 
-  updateCorteCaja(id_caja: number, monto_cierre: number): Observable<CorteCajaResponsePut>
+  updateCorteCaja(id_caja: number, monto: number): Observable<CorteCajaResponsePut>
   {
     return this.httpClient.put(`${API_URL}/gestion-caja/${id_caja}`, {
-      monto_cierre,
+      monto_cierre: monto,
     }, {
       headers: this.authService.getHeaders(),
     }).pipe(
-      this.handleNotifications('Actualizando corte de caja...'),
+      this.handleNotifications('Actualizando corte de caja...', 'Corte de caja actualizada!'),
     );
   }
 
@@ -68,7 +68,7 @@ export class CorteCajaService
       headers: this.authService.getHeaders(),
       body: { codigoadmin: codigoadmin },
     }).pipe(
-      this.handleNotifications('Eliminando corte de caja...'),
+      this.handleNotifications('Eliminando corte de caja...', 'Corte de caja eliminado'),
     );
   }
 
@@ -80,18 +80,18 @@ export class CorteCajaService
     }, {
       headers: this.authService.getHeaders(),
     }).pipe(
-      this.handleNotifications('Obteniendo ganancias...'),
+      this.handleNotifications('Obteniendo ganancias de caja...', 'Ganancias de caja obtenidas'),
     );
   }
 
-  private handleNotifications(message: string): any
+  private handleNotifications(msg_loading: string, msg_success: string): any
   {
     return (source: Observable<any>): Observable<any> =>
     {
       return source.pipe(
         this.toast.observe({
-          loading: 'Procesando...',
-          success: () => message,
+          loading: msg_loading,
+          success: () => msg_success,
           error: (e) => `Error: ${e.error.error ?? 'Error desconocido'}`,
         }),
       );
