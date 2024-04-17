@@ -38,7 +38,11 @@ export class CorteCajaComponent
 
   abrirCorteCaja()
   {
-    this.corteCajaService.createCorteCaja(1, 1000, 'UNAO6782').subscribe({
+    const id_sucursal = Number(prompt('Ingrese el ID de la sucursal:'));
+    const monto_apertura = Number(prompt('Ingrese el monto de apertura:'));
+    const codigoadmin = prompt('Ingrese el código del admin:');
+
+    this.corteCajaService.createCorteCaja(id_sucursal, monto_apertura, codigoadmin!).subscribe({
       next: (response: CorteCajaResponsePost) =>
       {
         console.log('Respuesta (AperturaCajaResponsePost):', response.data);
@@ -52,7 +56,10 @@ export class CorteCajaComponent
 
   cerrarCorteCaja()
   {
-    this.corteCajaService.updateCorteCaja(11, 1000).subscribe({
+    const id_sucursal = Number(prompt('Ingrese el ID de la sucursal:'));
+    const monto_cierre = Number(prompt('Ingrese el monto de cierre:'));
+
+    this.corteCajaService.updateCorteCaja(id_sucursal, monto_cierre).subscribe({
       next: (response: CorteCajaResponsePut) =>
       {
         console.log('Respuesta (AperturaCajaResponsePut):', response);
@@ -66,7 +73,10 @@ export class CorteCajaComponent
 
   eliminarCorteCaja()
   {
-    this.corteCajaService.deleteCorteCaja(12, 'ZSTX2533').subscribe({
+    const id_caja = Number(prompt('Ingrese el ID de la caja:'));
+    const codigo_admin = prompt('Ingrese el código admin:');
+
+    this.corteCajaService.deleteCorteCaja(id_caja, codigo_admin!).subscribe({
       next: (response: void | CorteCajaResponseDelete) =>
       {
         console.log('Respuesta (eliminar corte de caja):', response);
@@ -80,7 +90,10 @@ export class CorteCajaComponent
 
   getCorteCajaGanancias()
   {
-    this.corteCajaService.getCorteCajaGanancias(1, 11).subscribe({
+    const id_sucursal = Number(prompt('Ingrese el ID de la sucursal:'));
+    const id_caja = Number(prompt('Ingrese id de la caja:'));
+
+    this.corteCajaService.getCorteCajaGanancias(id_sucursal, id_caja).subscribe({
       next: (response: GananciasResponseGet) =>
       {
         console.log('Respuesta (GananciasResponseGet):', response);
