@@ -40,7 +40,7 @@ export class CorteCajaComponent
   {
     const id_sucursal = Number(prompt('Ingrese el ID de la sucursal:'));
     const monto_apertura = Number(prompt('Ingrese el monto de apertura:'));
-    const codigoadmin = prompt('Ingrese el código del admin:');
+    const codigoadmin = prompt('Ingrese el código administrador:');
 
     this.corteCajaService.createCorteCaja(id_sucursal, monto_apertura, codigoadmin!).subscribe({
       next: (response: CorteCajaResponsePost) =>
@@ -56,10 +56,10 @@ export class CorteCajaComponent
 
   cerrarCorteCaja()
   {
-    const id_sucursal = Number(prompt('Ingrese el ID de la sucursal:'));
+    const id_caja = Number(prompt('Ingrese el ID de la caja:'));
     const monto_cierre = Number(prompt('Ingrese el monto de cierre:'));
 
-    this.corteCajaService.updateCorteCaja(id_sucursal, monto_cierre).subscribe({
+    this.corteCajaService.updateCorteCaja(id_caja, monto_cierre).subscribe({
       next: (response: CorteCajaResponsePut) =>
       {
         console.log('Respuesta (AperturaCajaResponsePut):', response);
@@ -74,7 +74,7 @@ export class CorteCajaComponent
   eliminarCorteCaja()
   {
     const id_caja = Number(prompt('Ingrese el ID de la caja:'));
-    const codigo_admin = prompt('Ingrese el código admin:');
+    const codigo_admin = prompt('Ingrese el código administrador:');
 
     this.corteCajaService.deleteCorteCaja(id_caja, codigo_admin!).subscribe({
       next: (response: void | CorteCajaResponseDelete) =>
@@ -91,7 +91,7 @@ export class CorteCajaComponent
   getCorteCajaGanancias()
   {
     const id_sucursal = Number(prompt('Ingrese el ID de la sucursal:'));
-    const id_caja = Number(prompt('Ingrese id de la caja:'));
+    const id_caja = Number(prompt('Ingrese ID de la caja:'));
 
     this.corteCajaService.getCorteCajaGanancias(id_sucursal, id_caja).subscribe({
       next: (response: GananciasResponseGet) =>
