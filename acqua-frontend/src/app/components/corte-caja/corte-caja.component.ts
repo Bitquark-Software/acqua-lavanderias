@@ -19,7 +19,7 @@ export class CorteCajaComponent
 {
   id_sucursal!: number;
   id_caja!: number;
-  monto_apertura_cierre!: number;
+  monto!: number;
   codigo_admin!: string;
   name_current_process!: string;
   msg_error!: string;
@@ -34,7 +34,7 @@ export class CorteCajaComponent
   {
     this.id_sucursal! = 0;
     this.id_caja! = 0;
-    this.monto_apertura_cierre! = 0;
+    this.monto! = 0;
     this.codigo_admin! = '';
     this.name_current_process! = '';
     this.msg_error! = '';
@@ -83,9 +83,9 @@ export class CorteCajaComponent
     });
   }
 
-  openCashierReconciliation(modal_show_error = '')
+  openCashierReconciliation(modal_error = '')
   {
-    this.corteCajaService.createCorteCaja(this.id_sucursal, this.monto_apertura_cierre, this.codigo_admin!).subscribe({
+    this.corteCajaService.createCorteCaja(this.id_sucursal, this.monto, this.codigo_admin!).subscribe({
       next: (response: CorteCajaResponsePost) =>
       {
         this.msg_success = response.mensaje;
@@ -95,12 +95,12 @@ export class CorteCajaComponent
       error: (error) =>
       {
         this.msg_error = error.error.mensaje;
-        this.showModal(modal_show_error, () => {this.clearDataTemp(); });
+        this.showModal(modal_error, () => {this.clearDataTemp(); });
       },
     });
   }
 
-  requestCashierReconciliation(input_id_sucursal = '', input_monto = '', input_codigo = '', modal_continuar = '', modal_error = '')
+  requestOpenCashierReconciliation(input_id_sucursal = '', input_monto = '', input_codigo = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = 'Apertura corte de caja'.toUpperCase();
 
@@ -116,10 +116,10 @@ export class CorteCajaComponent
     });
   }
 
-  validateAndOpenCashierReconciliation(modal_continuar_abrir_caja = '', modal_show_error = '')
+  validateAndOpenCashierReconciliation(modal_continuar_abrir_caja = '', modal_error = '')
   {
     const id_sucursal_valido = !isNaN(this.id_sucursal) && this.id_sucursal>0;
-    const monto_apertura_valido = !isNaN(this.monto_apertura_cierre) && this.monto_apertura_cierre>0;
+    const monto_apertura_valido = !isNaN(this.monto) && this.monto>0;
     const codigo_admin_valido = /^[\s\t\n]*$/;
 
     if(id_sucursal_valido)
@@ -133,19 +133,19 @@ export class CorteCajaComponent
         else
         {
           this.msg_error = 'Necesita ingresar un código valido';
-          this.showModal(modal_show_error, () => { this.clearDataTemp(); });
+          this.showModal(modal_error, () => { this.clearDataTemp(); });
         }
       }
       else
       {
         this.msg_error = 'El monto de apertura no es valido';
-        this.showModal(modal_show_error, () => { this.clearDataTemp(); });
+        this.showModal(modal_error, () => { this.clearDataTemp(); });
       }
     }
     else
     {
       this.msg_error = 'El ID de sucursal no es valido';
-      this.showModal(modal_show_error, () => { this.clearDataTemp(); });
+      this.showModal(modal_error, () => { this.clearDataTemp(); });
     }
   }
 
