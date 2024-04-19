@@ -83,13 +83,13 @@ export class CorteCajaComponent
     });
   }
 
-  openCashierReconciliation(modal_error = '')
+  openCashierReconciliation(modal_success = '', modal_error = '')
   {
     this.corteCajaService.createCorteCaja(this.id_sucursal, this.monto, this.codigo_admin!).subscribe({
       next: (response: CorteCajaResponsePost) =>
       {
         this.msg_success = response.mensaje;
-        this.showModal('modal_show_success', () => { this.clearDataTemp(); });
+        this.showModal(modal_success, () => { this.clearDataTemp(); });
         // console.log('Respuesta (AperturaCajaResponsePost):', response.data);
       },
       error: (error) =>
@@ -149,21 +149,59 @@ export class CorteCajaComponent
     }
   }
 
-  cerrarCorteCaja()
+  closeCashierReconciliation(modal_success = '', modal_error = '')
   {
-    const id_caja = Number(prompt('Ingrese el ID de la caja:'));
-    const monto_cierre = Number(prompt('Ingrese el monto de cierre:'));
-
-    this.corteCajaService.updateCorteCaja(id_caja, monto_cierre).subscribe({
+    this.corteCajaService.updateCorteCaja(this.id_caja, this.monto).subscribe({
       next: (response: CorteCajaResponsePut) =>
       {
-        console.log('Respuesta (AperturaCajaResponsePut):', response);
+        this.msg_success = response.mensaje;
+        this.showModal(modal_success, () => { this.clearDataTemp(); });
+        console.log('Respuesta (CorteCajaResponsePut):', response);
       },
       error: (error) =>
       {
+        this.msg_error = error.error.mensaje;
+        this.showModal(modal_error, () => {this.clearDataTemp(); });
         console.error('Error al actualizar corte de caja:', error);
       },
     });
+  }
+
+  requestCloseCashierReconciliation(input_id_caja = '', input_monto = '', modal_continuar = '', modal_error = '')
+  {
+    this.name_current_process = 'Cierre de caja'.toUpperCase();
+
+    this.showModal(input_id_caja, () =>
+    {
+      this.showModal(input_monto, () =>
+      {
+        this.validateAndCloseCashierReconciliation(modal_continuar, modal_error);
+      });
+    });
+  }
+
+  validateAndCloseCashierReconciliation(modal_continuar_cerrar_caja = '', modal_error = '')
+  {
+    const id_caja_valido = !isNaN(this.id_caja) && this.id_caja>0;
+    const monto_cierre_valido = !isNaN(this.monto) && this.monto>0;
+
+    if(id_caja_valido)
+    {
+      if(monto_cierre_valido)
+      {
+        this.showModal(modal_continuar_cerrar_caja);
+      }
+      else
+      {
+        this.msg_error = 'El monto de cierre no es valido';
+        this.showModal(modal_error, () => { this.clearDataTemp(); });
+      }
+    }
+    else
+    {
+      this.msg_error = 'El ID de la caja no es valido';
+      this.showModal(modal_error, () => { this.clearDataTemp(); });
+    }
   }
 
   eliminarCorteCaja()
