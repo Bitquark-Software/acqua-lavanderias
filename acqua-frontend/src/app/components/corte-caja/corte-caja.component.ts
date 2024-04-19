@@ -204,21 +204,67 @@ export class CorteCajaComponent
     }
   }
 
-  eliminarCorteCaja()
+  deleteCashierReconciliation(modal_success = '', modal_error = '')
   {
-    const id_caja = Number(prompt('Ingrese el ID de la caja:'));
-    const codigo_admin = prompt('Ingrese el código administrador:');
-
-    this.corteCajaService.deleteCorteCaja(id_caja, codigo_admin!).subscribe({
+    this.corteCajaService.deleteCorteCaja(this.id_caja, this.codigo_admin!).subscribe({
       next: (response: void | CorteCajaResponseDelete) =>
       {
+        if(!response)
+        {
+          this.msg_success = 'Eliminado correctamente';
+          this.showModal(modal_success, () => { this.clearDataTemp(); });
+        }
+        else
+        {
+          this.msg_error = response.mensaje;
+          this.showModal(modal_error, () => { this.clearDataTemp(); });
+        }
         console.log('Respuesta (eliminar corte de caja):', response);
       },
       error: (error) =>
       {
+        this.msg_error = error.error.mensaje;
+        this.showModal(modal_error, () => {this.clearDataTemp(); });
         console.error('Error al eliminar corte de caja:', error);
       },
     });
+  }
+
+  requestDeleteCashierReconciliation(input_id_caja = '', input_codigo = '', modal_continuar = '', modal_error = '')
+  {
+    this.name_current_process = 'Eliminación de caja'.toUpperCase();
+
+    this.showModal(input_id_caja, () =>
+    {
+      this.showModal(input_codigo, () =>
+      {
+        this.validateAndDeleteCashierReconciliation(modal_continuar, modal_error);
+      });
+    });
+  }
+
+  validateAndDeleteCashierReconciliation(modal_continuar_eliminar_caja = '', modal_error = '')
+  {
+    const id_caja_valido = !isNaN(this.id_caja) && this.id_caja>0;
+    const codigo_admin_valido = /^[\s\t\n]*$/;
+
+    if(id_caja_valido)
+    {
+      if(!codigo_admin_valido.test(this.codigo_admin))
+      {
+        this.showModal(modal_continuar_eliminar_caja);
+      }
+      else
+      {
+        this.msg_error = 'Necesita ingresar un código valido';
+        this.showModal(modal_error, () => { this.clearDataTemp(); });
+      }
+    }
+    else
+    {
+      this.msg_error = 'El ID de la caja no es valido';
+      this.showModal(modal_error, () => { this.clearDataTemp(); });
+    }
   }
 
   getCorteCajaGanancias()
