@@ -3,7 +3,7 @@
         <div class="card shadow-md">
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="abrirCorteCaja()" 
+                (click)="requestCashierReconciliation('modal_id_sucursal', 'modal_monto_apertura_cierre', 'modal_codigo_admin', 'modal_continuar_abrir_caja', 'modal_show_error')"
             >
                 <svg
                     width="24"
@@ -86,6 +86,91 @@
                 </svg>
                 Mostrar todos los cortes de caja
             </button>
+          <!-- MODALES PARA INGRESAR DATOS -->
+          <dialog id="modal_id_sucursal" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
+              <p class="py-4">Ingrese el ID de la sucursal: </p>
+              <input id="id_sucursal_input" [(ngModel)]="id_sucursal" placeholder="ID Sucursal..." type="text" class="input w-full mt-2">
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('modal_id_sucursal')" [disabled]="isInputEmpty('id_sucursal_input')">
+                    Continuar
+                  </button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="modal_monto_apertura_cierre" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
+              <p class="py-4">Ingrese el monto: </p>
+              <input id="monto_apertura_input" [(ngModel)]="monto_apertura_cierre" placeholder="Monto de apertura..." type="text" class="input w-full mt-2">
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('modal_monto_apertura_cierre')" [disabled]="isInputEmpty('monto_apertura_input')">
+                    Continuar
+                  </button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="modal_codigo_admin" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
+              <p class="py-4">Ingrese el código administrador: </p>
+              <input id="codigo_admin_input" [(ngModel)]="codigo_admin" placeholder="Código Administrador..." type="text" class="input w-full mt-2">
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('modal_codigo_admin')" [disabled]="isInputEmpty('codigo_admin_input')">
+                    Continuar
+                  </button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="modal_continuar_abrir_caja" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
+              <p class="py-4"><br />¿Desea continuar?</p>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn text-white bg-teal-600 mr-2" (click)="openCashierReconciliation('modal_show_error')">
+                    Si
+                  </button>
+                  <button class="btn text-white bg-orange-600 m-2" (click)="closeModal('modal_continuar_abrir_caja')">
+                    Cancelar
+                  </button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="modal_show_success" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
+              <p class="py-4"><br />{{msg_success}}</p>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn text-white bg-teal-600 m-2" (click)="closeModal('modal_show_success')">
+                    Aceptar
+                  </button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="modal_show_error" class="modal" hidden>
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
+              <p class="py-4"><br />{{msg_error}}</p>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn text-white bg-orange-600 m-2" (click)="closeModal('modal_show_error')">
+                    Aceptar
+                  </button>
+                </form>
+              </div>
+            </div>
+          </dialog>
         </div>
     </div>
 </app-drawer>

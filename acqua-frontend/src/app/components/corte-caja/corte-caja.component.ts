@@ -17,9 +17,56 @@ import {
 
 export class CorteCajaComponent
 {
+  id_sucursal!: number;
+  id_caja!: number;
+  monto_apertura_cierre!: number;
+  codigo_admin!: string;
+  name_current_process!: string;
+  msg_error!: string;
+  msg_success!: string;
+
   constructor(private corteCajaService: CorteCajaService)
   {
-    //
+    this.clearDataTemp();
+  }
+
+  clearDataTemp()
+  {
+    this.id_sucursal! = 0;
+    this.id_caja! = 0;
+    this.monto_apertura_cierre! = 0;
+    this.codigo_admin! = '';
+    this.name_current_process! = '';
+    this.msg_error! = '';
+    this.msg_success! = '';
+  }
+
+  isInputEmpty(id_input = ''): boolean
+  {
+    const idInput = document.getElementById(id_input) as HTMLInputElement;
+    return idInput.value.trim() === '';
+  }
+
+  showModal(name_modal = '', callback?: () => void): void
+  {
+    const modal = document.getElementById(name_modal);
+    if (modal instanceof HTMLDialogElement)
+    {
+      modal.showModal();
+      if (callback)
+      {
+        modal.addEventListener('close', callback, { once: true });
+      }
+    }
+  }
+
+  closeModal(name_modal = '')
+  {
+    const modal = document.getElementById(name_modal);
+    if (modal instanceof HTMLDialogElement)
+    {
+      modal.close();
+    }
   }
 
   getAllCorteCaja()
@@ -36,22 +83,70 @@ export class CorteCajaComponent
     });
   }
 
-  abrirCorteCaja()
+  openCashierReconciliation(modal_show_error = '')
   {
-    const id_sucursal = Number(prompt('Ingrese el ID de la sucursal:'));
-    const monto_apertura = Number(prompt('Ingrese el monto de apertura:'));
-    const codigoadmin = prompt('Ingrese el código administrador:');
-
-    this.corteCajaService.createCorteCaja(id_sucursal, monto_apertura, codigoadmin!).subscribe({
+    this.corteCajaService.createCorteCaja(this.id_sucursal, this.monto_apertura_cierre, this.codigo_admin!).subscribe({
       next: (response: CorteCajaResponsePost) =>
       {
-        console.log('Respuesta (AperturaCajaResponsePost):', response.data);
+        this.msg_success = response.mensaje;
+        this.showModal('modal_show_success', () => { this.clearDataTemp(); });
+        // console.log('Respuesta (AperturaCajaResponsePost):', response.data);
       },
       error: (error) =>
       {
-        console.error('Error al crear corte de caja:', error);
+        this.msg_error = error.error.mensaje;
+        this.showModal(modal_show_error, () => {this.clearDataTemp(); });
       },
     });
+  }
+
+  requestCashierReconciliation(input_id_sucursal = '', input_monto = '', input_codigo = '', modal_continuar = '', modal_error = '')
+  {
+    this.name_current_process = 'Apertura corte de caja'.toUpperCase();
+
+    this.showModal(input_id_sucursal, () =>
+    {
+      this.showModal(input_monto, () =>
+      {
+        this.showModal(input_codigo, () =>
+        {
+          this.validateAndOpenCashierReconciliation(modal_continuar, modal_error);
+        });
+      });
+    });
+  }
+
+  validateAndOpenCashierReconciliation(modal_continuar_abrir_caja = '', modal_show_error = '')
+  {
+    const id_sucursal_valido = !isNaN(this.id_sucursal) && this.id_sucursal>0;
+    const monto_apertura_valido = !isNaN(this.monto_apertura_cierre) && this.monto_apertura_cierre>0;
+    const codigo_admin_valido = /^[\s\t\n]*$/;
+
+    if(id_sucursal_valido)
+    {
+      if(monto_apertura_valido)
+      {
+        if(!codigo_admin_valido.test(this.codigo_admin))
+        {
+          this.showModal(modal_continuar_abrir_caja);
+        }
+        else
+        {
+          this.msg_error = 'Necesita ingresar un código valido';
+          this.showModal(modal_show_error, () => { this.clearDataTemp(); });
+        }
+      }
+      else
+      {
+        this.msg_error = 'El monto de apertura no es valido';
+        this.showModal(modal_show_error, () => { this.clearDataTemp(); });
+      }
+    }
+    else
+    {
+      this.msg_error = 'El ID de sucursal no es valido';
+      this.showModal(modal_show_error, () => { this.clearDataTemp(); });
+    }
   }
 
   cerrarCorteCaja()
