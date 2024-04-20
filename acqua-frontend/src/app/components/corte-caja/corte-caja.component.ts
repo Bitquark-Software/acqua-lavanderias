@@ -7,6 +7,7 @@ import {
   CorteCajaResponseGet,
   GananciasResponseGet,
   CorteCaja,
+  INPUT_ERRORS,
 } from 'src/app/dtos/corte-caja';
 
 @Component({
@@ -27,10 +28,10 @@ export class CorteCajaComponent
 
   constructor(private corteCajaService: CorteCajaService)
   {
-    this.clearDataTemp();
+    this.ClearTempInputsData();
   }
 
-  clearDataTemp()
+  ClearTempInputsData()
   {
     this.id_sucursal! = 0;
     this.id_caja! = 0;
@@ -89,20 +90,20 @@ export class CorteCajaComponent
       next: (response: CorteCajaResponsePost) =>
       {
         this.msg_success = response.mensaje;
-        this.showModal(modal_success, () => { this.clearDataTemp(); });
-        // console.log('Respuesta (AperturaCajaResponsePost):', response.data);
+        this.showModal(modal_success, () => { this.ClearTempInputsData(); });
+        console.log('Respuesta (AperturaCajaResponsePost):', response.data);
       },
       error: (error) =>
       {
         this.msg_error = error.error.mensaje;
-        this.showModal(modal_error, () => {this.clearDataTemp(); });
+        this.showModal(modal_error, () => {this.ClearTempInputsData(); });
       },
     });
   }
 
   requestOpenCashierReconciliation(input_id_sucursal = '', input_monto = '', input_codigo = '', modal_continuar = '', modal_error = '')
   {
-    this.name_current_process = 'Apertura corte de caja'.toUpperCase();
+    this.name_current_process = 'Apertura de caja'.toUpperCase();
 
     this.showModal(input_id_sucursal, () =>
     {
@@ -132,20 +133,20 @@ export class CorteCajaComponent
         }
         else
         {
-          this.msg_error = 'Necesita ingresar un código valido';
-          this.showModal(modal_error, () => { this.clearDataTemp(); });
+          this.msg_error = INPUT_ERRORS.CODIGO_ADMIN;
+          this.showModal(modal_error, () => { this.ClearTempInputsData(); });
         }
       }
       else
       {
-        this.msg_error = 'El monto de apertura no es valido';
-        this.showModal(modal_error, () => { this.clearDataTemp(); });
+        this.msg_error = INPUT_ERRORS.MONTO_APERTURA;
+        this.showModal(modal_error, () => { this.ClearTempInputsData(); });
       }
     }
     else
     {
-      this.msg_error = 'El ID de sucursal no es valido';
-      this.showModal(modal_error, () => { this.clearDataTemp(); });
+      this.msg_error = INPUT_ERRORS.ID_SUCURSAL;
+      this.showModal(modal_error, () => { this.ClearTempInputsData(); });
     }
   }
 
@@ -155,13 +156,13 @@ export class CorteCajaComponent
       next: (response: CorteCajaResponsePut) =>
       {
         this.msg_success = response.mensaje;
-        this.showModal(modal_success, () => { this.clearDataTemp(); });
+        this.showModal(modal_success, () => { this.ClearTempInputsData(); });
         console.log('Respuesta (CorteCajaResponsePut):', response);
       },
       error: (error) =>
       {
         this.msg_error = error.error.mensaje;
-        this.showModal(modal_error, () => {this.clearDataTemp(); });
+        this.showModal(modal_error, () => {this.ClearTempInputsData(); });
         console.error('Error al actualizar corte de caja:', error);
       },
     });
@@ -193,14 +194,14 @@ export class CorteCajaComponent
       }
       else
       {
-        this.msg_error = 'El monto de cierre no es valido';
-        this.showModal(modal_error, () => { this.clearDataTemp(); });
+        this.msg_error = INPUT_ERRORS.MONTO_CIERRE;
+        this.showModal(modal_error, () => { this.ClearTempInputsData(); });
       }
     }
     else
     {
-      this.msg_error = 'El ID de la caja no es valido';
-      this.showModal(modal_error, () => { this.clearDataTemp(); });
+      this.msg_error = INPUT_ERRORS.ID_CAJA;
+      this.showModal(modal_error, () => { this.ClearTempInputsData(); });
     }
   }
 
@@ -212,19 +213,19 @@ export class CorteCajaComponent
         if(!response)
         {
           this.msg_success = 'Eliminado correctamente';
-          this.showModal(modal_success, () => { this.clearDataTemp(); });
+          this.showModal(modal_success, () => { this.ClearTempInputsData(); });
         }
         else
         {
           this.msg_error = response.mensaje;
-          this.showModal(modal_error, () => { this.clearDataTemp(); });
+          this.showModal(modal_error, () => { this.ClearTempInputsData(); });
         }
         console.log('Respuesta (eliminar corte de caja):', response);
       },
       error: (error) =>
       {
         this.msg_error = error.error.mensaje;
-        this.showModal(modal_error, () => {this.clearDataTemp(); });
+        this.showModal(modal_error, () => {this.ClearTempInputsData(); });
         console.error('Error al eliminar corte de caja:', error);
       },
     });
@@ -256,14 +257,14 @@ export class CorteCajaComponent
       }
       else
       {
-        this.msg_error = 'Necesita ingresar un código valido';
-        this.showModal(modal_error, () => { this.clearDataTemp(); });
+        this.msg_error = INPUT_ERRORS.CODIGO_ADMIN;
+        this.showModal(modal_error, () => { this.ClearTempInputsData(); });
       }
     }
     else
     {
-      this.msg_error = 'El ID de la caja no es valido';
-      this.showModal(modal_error, () => { this.clearDataTemp(); });
+      this.msg_error = INPUT_ERRORS.ID_CAJA;
+      this.showModal(modal_error, () => { this.ClearTempInputsData(); });
     }
   }
 
@@ -273,13 +274,13 @@ export class CorteCajaComponent
       next: (response: GananciasResponseGet) =>
       {
         this.msg_success = 'Ganancias obtenidas correctamente!';
-        this.showModal(modal_success, () => { this.clearDataTemp(); });
+        this.showModal(modal_success, () => { this.ClearTempInputsData(); });
         console.log('Respuesta (GananciasResponseGet):', response);
       },
       error: (error) =>
       {
         this.msg_error = error.error.mensaje;
-        this.showModal(modal_error, () => {this.clearDataTemp(); });
+        this.showModal(modal_error, () => {this.ClearTempInputsData(); });
         console.error('Error al obtener ganancias:', error);
       },
     });
@@ -287,7 +288,7 @@ export class CorteCajaComponent
 
   requestGetProfitsFromCashierReconciliation(input_id_sucursal = '', input_id_caja = '', modal_continuar = '', modal_error = '')
   {
-    this.name_current_process = 'Obtener ganancias de una caja'.toUpperCase();
+    this.name_current_process = 'Obtener ganancias de caja'.toUpperCase();
 
     this.showModal(input_id_sucursal, () =>
     {
@@ -311,14 +312,14 @@ export class CorteCajaComponent
       }
       else
       {
-        this.msg_error = 'El ID de la caja no es valido';
-        this.showModal(modal_error, () => { this.clearDataTemp(); });
+        this.msg_error = INPUT_ERRORS.ID_CAJA;
+        this.showModal(modal_error, () => { this.ClearTempInputsData(); });
       }
     }
     else
     {
-      this.msg_error = 'El ID de la sucursal no es valido';
-      this.showModal(modal_error, () => { this.clearDataTemp(); });
+      this.msg_error = INPUT_ERRORS.ID_SUCURSAL;
+      this.showModal(modal_error, () => { this.ClearTempInputsData(); });
     }
   }
 }
