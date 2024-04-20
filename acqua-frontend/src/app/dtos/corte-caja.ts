@@ -104,3 +104,12 @@ export class GananciasResponseGet
   montoTotal?: number;
   anticiposEnvios?: AnticiposEnvios;
 }
+
+export enum INPUT_ERRORS
+{
+  ID_SUCURSAL = 'El ID de la sucursal no es valido',
+  ID_CAJA = 'El ID de la caja no es valido',
+  MONTO_APERTURA = 'El monto de apertura no es valido',
+  MONTO_CIERRE = 'El monto de cierre no es valido',
+  CODIGO_ADMIN = 'El código no es valido'
+}
