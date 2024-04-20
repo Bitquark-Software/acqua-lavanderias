@@ -267,20 +267,58 @@ export class CorteCajaComponent
     }
   }
 
-  getCorteCajaGanancias()
+  getProfitsFromCashierReconciliation(modal_success = '', modal_error = '')
   {
-    const id_sucursal = Number(prompt('Ingrese el ID de la sucursal:'));
-    const id_caja = Number(prompt('Ingrese ID de la caja:'));
-
-    this.corteCajaService.getCorteCajaGanancias(id_sucursal, id_caja).subscribe({
+    this.corteCajaService.getCorteCajaGanancias(this.id_sucursal, this.id_caja).subscribe({
       next: (response: GananciasResponseGet) =>
       {
+        this.msg_success = 'Ganancias obtenidas correctamente!';
+        this.showModal(modal_success, () => { this.clearDataTemp(); });
         console.log('Respuesta (GananciasResponseGet):', response);
       },
       error: (error) =>
       {
+        this.msg_error = error.error.mensaje;
+        this.showModal(modal_error, () => {this.clearDataTemp(); });
         console.error('Error al obtener ganancias:', error);
       },
     });
+  }
+
+  requestGetProfitsFromCashierReconciliation(input_id_sucursal = '', input_id_caja = '', modal_continuar = '', modal_error = '')
+  {
+    this.name_current_process = 'Obtener ganancias de una caja'.toUpperCase();
+
+    this.showModal(input_id_sucursal, () =>
+    {
+      this.showModal(input_id_caja, () =>
+      {
+        this.validateAndGetProfitsFromCashierReconciliation(modal_continuar, modal_error);
+      });
+    });
+  }
+
+  validateAndGetProfitsFromCashierReconciliation(modal_continuar_obtener_ganacias = '', modal_error = '')
+  {
+    const id_sucursal = !isNaN(this.id_sucursal) && this.id_sucursal>0;
+    const id_caja_valido = !isNaN(this.id_caja) && this.id_caja>0;
+
+    if(id_sucursal)
+    {
+      if(id_caja_valido)
+      {
+        this.showModal(modal_continuar_obtener_ganacias);
+      }
+      else
+      {
+        this.msg_error = 'El ID de la caja no es valido';
+        this.showModal(modal_error, () => { this.clearDataTemp(); });
+      }
+    }
+    else
+    {
+      this.msg_error = 'El ID de la sucursal no es valido';
+      this.showModal(modal_error, () => { this.clearDataTemp(); });
+    }
   }
 }
