@@ -32,9 +32,12 @@ export class CorteCaja
 
 // Tipo definido para respuesta get (corte de caja)
 
-export class CorteCajaResponseGet<CorteCaja> implements DataPagination<CorteCaja>
+export class CorteCajaResponseGet<CorteCaja> extends DataPagination<CorteCaja>
 {
-  data!: CorteCaja[];
+  constructor(data: CorteCaja[])
+  {
+    super(data); // Llama al constructor de la clase base con los datos proporcionados
+  }
 }
 
 // Tipo definido para la respuesta post (corte de caja)
