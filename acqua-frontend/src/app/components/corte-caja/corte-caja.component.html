@@ -20,7 +20,7 @@
             </button>
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="requestCloseCashierReconciliation('modal_id_caja', 'modal_monto', 'modal_continuar_cerrar_caja','modal_error')"
+                (click)="requestCloseCashierReconciliation('modal_id_caja', 'modal_monto', 'modal_continuar_cerrar_caja','modal_error', 'modal_success', 'modal_codigo_admin')"
             >
                 <svg
                     width="24"
@@ -71,7 +71,7 @@
             </button>
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="getAllCorteCaja()"
+                (click)="getCashierReconciliation()"
             >
                 <svg
                     width="24"

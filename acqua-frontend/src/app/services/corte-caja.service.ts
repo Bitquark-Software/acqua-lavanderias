@@ -28,9 +28,11 @@ export class CorteCajaService
     //
   }
 
-  getAllCorteCaja(): Observable<CorteCajaResponseGet<CorteCaja>>
+  fetchCorteCaja(page?: number): Observable<CorteCajaResponseGet<CorteCaja>>
   {
-    return this.httpClient.get(`${API_URL}/gestion-caja`, {
+    const URL = page ? `${API_URL}/gestion-caja?page=${page}`: `${API_URL}/gestion-caja`;
+
+    return this.httpClient.get(URL, {
       headers: this.authService.getHeaders(),
     }).pipe(
       this.handleNotifications('Obteniendo corte(s) de caja', 'Corte(s) de caja obtenidos'),
@@ -51,9 +53,9 @@ export class CorteCajaService
     );
   }
 
-  updateCorteCaja(id_caja: number, monto: number): Observable<CorteCajaResponsePut>
+  updateCorteCaja(idCaja: number, monto: number): Observable<CorteCajaResponsePut>
   {
-    return this.httpClient.put(`${API_URL}/gestion-caja/${id_caja}`, {
+    return this.httpClient.put(`${API_URL}/gestion-caja/${idCaja}`, {
       monto_cierre: monto,
     }, {
       headers: this.authService.getHeaders(),
@@ -62,11 +64,23 @@ export class CorteCajaService
     );
   }
 
-  deleteCorteCaja(id_caja: number, codigoadmin: string): Observable<void | CorteCajaResponseDelete>
+  forcedUpdateCorteCaja(idCaja: number, monto: number, codigo: string): Observable<CorteCajaResponsePut>
   {
-    return this.httpClient.delete(`${API_URL}/gestion-caja/${id_caja}`, {
+    return this.httpClient.put(`${API_URL}/gestion-caja/${idCaja}`, {
+      monto_cierre: monto,
+      codigoadmin: codigo,
+    }, {
       headers: this.authService.getHeaders(),
-      body: { codigoadmin: codigoadmin },
+    }).pipe(
+      this.handleNotifications('Actualizando corte de caja...', 'Corte de caja actualizada!'),
+    );
+  }
+
+  deleteCorteCaja(idCaja: number, codigo: string): Observable<void | CorteCajaResponseDelete>
+  {
+    return this.httpClient.delete(`${API_URL}/gestion-caja/${idCaja}`, {
+      headers: this.authService.getHeaders(),
+      body: { codigoadmin: codigo },
     }).pipe(
       this.handleNotifications('Eliminando corte de caja...', 'Corte de caja eliminado'),
     );
