@@ -3,7 +3,7 @@
         <div class="card shadow-md">
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="requestOpenCashierReconciliation('modal_id_sucursal', 'modal_monto', 'modal_codigo_admin', 'modal_continuar_abrir_caja', 'modal_error')"
+                (click)="requestOpenCashierReconciliation('modal_id_sucursal', 'modal_monto', 'modal_codigo_admin', 'modal_continuar_operacion', 'modal_error')"
             >
                 <svg
                     width="24"
@@ -20,7 +20,7 @@
             </button>
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="requestCloseCashierReconciliation('modal_id_caja', 'modal_monto', 'modal_continuar_cerrar_caja','modal_error', 'modal_success', 'modal_codigo_admin')"
+                (click)="requestCloseCashierReconciliation('modal_id_caja', 'modal_monto', 'modal_continuar_operacion','modal_error', 'modal_success', 'modal_codigo_admin')"
             >
                 <svg
                     width="24"
@@ -37,7 +37,7 @@
             </button>
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="requestDeleteCashierReconciliation('modal_id_caja', 'modal_codigo_admin', 'modal_continuar_eliminar_caja', 'modal_error')"
+                (click)="requestDeleteCashierReconciliation('modal_id_caja', 'modal_codigo_admin', 'modal_continuar_operacion', 'modal_error')"
                 >
                 <svg
                     width="24"
@@ -54,7 +54,7 @@
             </button>
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="requestGetProfitsFromCashierReconciliation('modal_id_sucursal', 'modal_id_caja', 'modal_continuar_obtener_ganacias', 'modal_error')"
+                (click)="requestGetProfitsFromCashierReconciliation('modal_id_sucursal', 'modal_id_caja', 'modal_continuar_operacion', 'modal_error')"
             >
                 <svg
                     width="24"
@@ -144,70 +144,22 @@
             </div>
           </dialog>
           <!-- MODALES PARA MOSTRAR MENSAJES -->
-          <dialog id="modal_continuar_abrir_caja" class="modal" hidden>
+          <dialog id="modal_continuar_operacion" class="modal" hidden>
             <div class="modal-box">
               <h3 class="font-bold text-lg">{{name_current_process}}</h3>
               <p class="py-4"><br />¿Desea continuar?</p>
               <div class="modal-action">
                 <form method="dialog">
-                  <button class="btn text-white bg-teal-600 mr-2" (click)="openCashierReconciliation('modal_success', 'modal_error')">
+                  <button class="btn text-white bg-teal-600 mr-2" (click)="continuarOperacion('modal_success', 'modal_error')">
                     Si
                   </button>
-                  <button class="btn text-white bg-orange-600 m-2" (click)="closeModal('modal_continuar_abrir_caja')">
+                  <button class="btn text-white bg-orange-600 m-2" (click)="closeModal('modal_continuar_operacion')">
                     Cancelar
                   </button>
                 </form>
               </div>
             </div>
           </dialog>
-          <dialog id="modal_continuar_cerrar_caja" class="modal" hidden>
-            <div class="modal-box">
-              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
-              <p class="py-4"><br />¿Desea continuar?</p>
-              <div class="modal-action">
-                <form method="dialog">
-                  <button class="btn text-white bg-teal-600 mr-2" (click)="closeCashierReconciliation('modal_success', 'modal_error')">
-                    Si
-                  </button>
-                  <button class="btn text-white bg-orange-600 m-2" (click)="closeModal('modal_continuar_cerrar_caja')">
-                    Cancelar
-                  </button>
-                </form>
-              </div>
-            </div>
-          </dialog>
-          <dialog id="modal_continuar_eliminar_caja" class="modal" hidden>
-            <div class="modal-box">
-              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
-              <p class="py-4"><br />¿Desea continuar?</p>
-              <div class="modal-action">
-                <form method="dialog">
-                  <button class="btn text-white bg-teal-600 mr-2" (click)="deleteCashierReconciliation('modal_success', 'modal_error')">
-                    Si
-                  </button>
-                  <button class="btn text-white bg-orange-600 m-2" (click)="closeModal('modal_continuar_eliminar_caja')">
-                    Cancelar
-                  </button>
-                </form>
-              </div>
-            </div>
-          </dialog>
-          <dialog id="modal_continuar_obtener_ganacias" class="modal" hidden>
-            <div class="modal-box">
-              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
-              <p class="py-4"><br />¿Desea continuar?</p>
-              <div class="modal-action">
-                <form method="dialog">
-                  <button class="btn text-white bg-teal-600 mr-2" (click)="getProfitsFromCashierReconciliation('modal_success', 'modal_error')">
-                    Si
-                  </button>
-                  <button class="btn text-white bg-orange-600 m-2" (click)="closeModal('modal_continuar_obtener_ganacias')">
-                    Cancelar
-                  </button>
-                </form>
-              </div>
-            </div>
-          </dialog>          
           <dialog id="modal_success" class="modal" hidden>
             <div class="modal-box">
               <h3 class="font-bold text-lg">{{name_current_process}}</h3>

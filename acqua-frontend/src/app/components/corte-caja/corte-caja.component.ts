@@ -8,6 +8,7 @@ import {
   GananciasResponseGet,
   CorteCaja,
   INPUT_ERRORS,
+  PROCESOS_CORTE_CAJA,
 } from 'src/app/dtos/corte-caja';
 
 @Component({
@@ -23,34 +24,37 @@ export class CorteCajaComponent
   id_caja!: string;
   monto!: number;
   codigo_admin!: string;
-  name_current_process!: string;
-  msg_error!: string;
-  msg_success!: string;
 
-  // Otros
-  current_caja!: CorteCaja | null;
+  // Para modales
+  name_current_process!: PROCESOS_CORTE_CAJA | null;
+  msg_success!: string;
+  msg_error!: string;
 
   constructor(private corteCajaService: CorteCajaService)
   {
-    this.current_caja = null;
-    this.clearTempInputsData();
+    this.clearTempDataModals();
+    this.clearTempDataCorteCaja();
   }
 
-  clearTempInputsData()
+  clearTempDataModals()
+  {
+    this.name_current_process = null;
+    this.msg_error! = '';
+    this.msg_success! = '';
+  }
+
+  clearTempDataCorteCaja()
   {
     this.id_sucursal! = 0;
     this.id_caja! = '';
     this.monto! = 0;
     this.codigo_admin! = '';
-    this.name_current_process! = '';
-    this.msg_error! = '';
-    this.msg_success! = '';
   }
 
   clearTempAllData()
   {
-    this.current_caja = null;
-    this.clearTempInputsData();
+    this.clearTempDataModals();
+    this.clearTempDataCorteCaja();
   }
 
   isInputEmpty(id_input = ''): boolean
@@ -78,6 +82,27 @@ export class CorteCajaComponent
     if (modal instanceof HTMLDialogElement)
     {
       modal.close();
+    }
+  }
+
+  continuarOperacion(modal_success = '', modal_error = '')
+  {
+    switch(this.name_current_process)
+    {
+    case PROCESOS_CORTE_CAJA.APERTURA:
+      this.openCashierReconciliation(modal_success, modal_error);
+      break;
+    case PROCESOS_CORTE_CAJA.CIERRE:
+      this.closeCashierReconciliation(modal_success, modal_error);
+      break;
+    case PROCESOS_CORTE_CAJA.ELIMINACION:
+      this.deleteCashierReconciliation(modal_success, modal_error);
+      break;
+    case PROCESOS_CORTE_CAJA.GANANCIAS:
+      this.getProfitsFromCashierReconciliation(modal_success, modal_error);
+      break;
+    default:
+      break;
     }
   }
 
@@ -116,7 +141,7 @@ export class CorteCajaComponent
 
   requestOpenCashierReconciliation(input_id_sucursal = '', input_monto = '', input_codigo = '', modal_continuar = '', modal_error = '')
   {
-    this.name_current_process = 'Apertura de caja'.toUpperCase();
+    this.name_current_process = PROCESOS_CORTE_CAJA.APERTURA;
 
     this.showModal(input_id_sucursal, () =>
     {
@@ -172,13 +197,13 @@ export class CorteCajaComponent
     updateCorteCajaSubscription.subscribe({
       next: (response: CorteCajaResponsePut) =>
       {
-        this.name_current_process = 'Cierre de caja'.toUpperCase();
+        this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
         this.msg_success = response.mensaje;
         this.showModal(modal_success, () => { this.clearTempAllData(); });
       },
       error: (error) =>
       {
-        this.name_current_process = 'Cierre de caja'.toUpperCase();
+        this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
         this.msg_error = error.error.mensaje;
         this.showModal(modal_error, () => {this.clearTempAllData(); });
       },
@@ -187,7 +212,7 @@ export class CorteCajaComponent
 
   requestCloseCashierReconciliation(input_id_caja = '', input_monto = '', modal_continuar = '', modal_error = '', modal_success = '', modal_codigo = '')
   {
-    this.name_current_process = 'Cierre de caja'.toUpperCase();
+    this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
 
     this.showModal(input_id_caja, () =>
     {
@@ -202,7 +227,7 @@ export class CorteCajaComponent
   {
     const forzar_cierre_de_caja = () =>
     {
-      this.name_current_process = 'Forzando el cierre de caja'.toUpperCase();
+      this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE_FORZADO;
       this.msg_error = 'El monto de cierre no corresponde con el de apertura';
       this.showModal(modal_error, () =>
       {
@@ -288,7 +313,7 @@ export class CorteCajaComponent
 
   requestDeleteCashierReconciliation(input_id_caja = '', input_codigo = '', modal_continuar = '', modal_error = '')
   {
-    this.name_current_process = 'Eliminación de caja'.toUpperCase();
+    this.name_current_process = PROCESOS_CORTE_CAJA.ELIMINACION;
 
     this.showModal(input_id_caja, () =>
     {
@@ -342,7 +367,7 @@ export class CorteCajaComponent
 
   requestGetProfitsFromCashierReconciliation(input_id_sucursal = '', input_id_caja = '', modal_continuar = '', modal_error = '')
   {
-    this.name_current_process = 'Obtener ganancias de caja'.toUpperCase();
+    this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
 
     this.showModal(input_id_sucursal, () =>
     {
