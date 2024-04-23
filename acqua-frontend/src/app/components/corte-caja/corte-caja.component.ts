@@ -10,6 +10,7 @@ import {
   INPUT_ERRORS,
   PROCESOS_CORTE_CAJA,
 } from 'src/app/dtos/corte-caja';
+import { AuthDto } from 'src/app/dtos/auth-dto';
 
 @Component({
   selector: 'app-corte-caja',
@@ -19,6 +20,9 @@ import {
 
 export class CorteCajaComponent
 {
+  // Variable de session
+  session!: AuthDto | null;
+
   // Variables para binding con input en de los modales
   id_sucursal!: number;
   id_caja!: string;
@@ -32,6 +36,7 @@ export class CorteCajaComponent
 
   constructor(private corteCajaService: CorteCajaService)
   {
+    this.fetchLocalSession();
     this.clearTempDataModals();
     this.clearTempDataCorteCaja();
   }
@@ -45,10 +50,25 @@ export class CorteCajaComponent
 
   clearTempDataCorteCaja()
   {
-    this.id_sucursal! = 0;
     this.id_caja! = '';
     this.monto! = 0;
     this.codigo_admin! = '';
+  }
+
+  private fetchLocalSession()
+  {
+    const localSession = localStorage.getItem('session');
+
+    if(localSession)
+    {
+      this.session = JSON.parse(localSession) as AuthDto;
+      this.id_sucursal = this.session.datos.id_sucursal;
+    }
+    else
+    {
+      this.session = null;
+      this.id_sucursal = -1;
+    }
   }
 
   clearTempAllData()
@@ -90,15 +110,19 @@ export class CorteCajaComponent
     switch(this.name_current_process)
     {
     case PROCESOS_CORTE_CAJA.APERTURA:
+      this.name_current_process = PROCESOS_CORTE_CAJA.APERTURA;
       this.openCashierReconciliation(modal_success, modal_error);
       break;
     case PROCESOS_CORTE_CAJA.CIERRE:
+      this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
       this.closeCashierReconciliation(modal_success, modal_error);
       break;
     case PROCESOS_CORTE_CAJA.ELIMINACION:
+      this.name_current_process = PROCESOS_CORTE_CAJA.ELIMINACION;
       this.deleteCashierReconciliation(modal_success, modal_error);
       break;
     case PROCESOS_CORTE_CAJA.GANANCIAS:
+      this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
       this.getProfitsFromCashierReconciliation(modal_success, modal_error);
       break;
     default:
@@ -139,18 +163,15 @@ export class CorteCajaComponent
     });
   }
 
-  requestOpenCashierReconciliation(input_id_sucursal = '', input_monto = '', input_codigo = '', modal_continuar = '', modal_error = '')
+  requestOpenCashierReconciliation(input_monto = '', input_codigo = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = PROCESOS_CORTE_CAJA.APERTURA;
 
-    this.showModal(input_id_sucursal, () =>
+    this.showModal(input_monto, () =>
     {
-      this.showModal(input_monto, () =>
+      this.showModal(input_codigo, () =>
       {
-        this.showModal(input_codigo, () =>
-        {
-          this.validateAndOpenCashierReconciliation(modal_continuar, modal_error);
-        });
+        this.validateAndOpenCashierReconciliation(modal_continuar, modal_error);
       });
     });
   }
@@ -365,16 +386,13 @@ export class CorteCajaComponent
     });
   }
 
-  requestGetProfitsFromCashierReconciliation(input_id_sucursal = '', input_id_caja = '', modal_continuar = '', modal_error = '')
+  requestGetProfitsFromCashierReconciliation(input_id_caja = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
 
-    this.showModal(input_id_sucursal, () =>
+    this.showModal(input_id_caja, () =>
     {
-      this.showModal(input_id_caja, () =>
-      {
-        this.validateAndGetProfitsFromCashierReconciliation(modal_continuar, modal_error);
-      });
+      this.validateAndGetProfitsFromCashierReconciliation(modal_continuar, modal_error);
     });
   }
 

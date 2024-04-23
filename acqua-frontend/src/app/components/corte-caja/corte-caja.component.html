@@ -3,7 +3,7 @@
         <div class="card shadow-md">
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="requestOpenCashierReconciliation('modal_id_sucursal', 'modal_monto', 'modal_codigo_admin', 'modal_continuar_operacion', 'modal_error')"
+                (click)="requestOpenCashierReconciliation('modal_monto', 'modal_codigo_admin', 'modal_continuar_operacion', 'modal_error')"
             >
                 <svg
                     width="24"
@@ -54,7 +54,7 @@
             </button>
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="requestGetProfitsFromCashierReconciliation('modal_id_sucursal', 'modal_id_caja', 'modal_continuar_operacion', 'modal_error')"
+                (click)="requestGetProfitsFromCashierReconciliation('modal_id_caja', 'modal_continuar_operacion', 'modal_error')"
             >
                 <svg
                     width="24"
@@ -95,20 +95,6 @@
               <div class="modal-action">
                 <form method="dialog">
                   <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('modal_id_caja')" [disabled]="isInputEmpty('id_caja_input')">
-                    Continuar
-                  </button>
-                </form>
-              </div>
-            </div>
-          </dialog>
-          <dialog id="modal_id_sucursal" class="modal" hidden>
-            <div class="modal-box">
-              <h3 class="font-bold text-lg">{{name_current_process}}</h3>
-              <p class="py-4">Ingrese el ID de la sucursal: </p>
-              <input id="id_sucursal_input" [(ngModel)]="id_sucursal" placeholder="Debe ser mayor a cero..." type="text" class="input w-full mt-2">
-              <div class="modal-action">
-                <form method="dialog">
-                  <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('modal_id_sucursal')" [disabled]="isInputEmpty('id_sucursal_input')">
                     Continuar
                   </button>
                 </form>
