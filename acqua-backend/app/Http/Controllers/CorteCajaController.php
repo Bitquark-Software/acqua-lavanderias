@@ -165,7 +165,7 @@ class CorteCajaController extends Controller
     {
         $request->validate([
             "monto_cierre" => ['required', 'numeric'],
-            'codigoadmin' => ['nullable']
+            'codigoadmin' => ['required']
         ]);
 
         try {
@@ -198,15 +198,12 @@ class CorteCajaController extends Controller
             ], 500);
         }
 
-        // Verifica si el monto cierre es menor al de apertura
-        if ($request->monto_cierre < ($cajaActual->monto_apertura)) {
-            $respuesta = $this->usoAdminCode($request, $fechaActual);
+        $respuesta = $this->usoAdminCode($request, $fechaActual);
 
-            if ($respuesta->status() !== 200) {
-                return response()->json([
-                    'mensaje' => $respuesta->content()
-                ], $respuesta->status());
-            }
+        if ($respuesta->status() !== 200) {
+            return response()->json([
+                'mensaje' => $respuesta->content()
+            ], $respuesta->status());
         }
 
         // hacer el put a esta sucursal

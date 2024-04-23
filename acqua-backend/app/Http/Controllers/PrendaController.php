@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Catalogo;
 use App\Models\Prenda;
-use Illuminate\Database\QueryException;
+use App\Models\ServicioTicket;
+
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFound;
 
 class PrendaController extends Controller
 {
@@ -14,9 +18,45 @@ class PrendaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Prenda::orderBy('nombre', 'ASC')->get();
+        $request->validate([
+            'idTicket' => ['required', 'exists:tickets,id']
+        ]);
+
+        // Buscamos el ID de Ropa de Cama
+        try {
+            $idRopaCama = Catalogo::where('name', 'ropa de cama')
+                ->with('servicios')
+                ->firstOrFail();
+        } catch (ModelNotFound $e) {
+            return response()->json([
+                'mensaje' => 'Catalogo ropa de cama no encontrado'
+            ]);
+        }
+
+        $serviciosRopaCama = [];
+        $ropaCama = ['almohada', 'cob/edr/edrc', 'cubrecolchon', 'sabanas'];
+
+        foreach ($idRopaCama->servicios as $servicio) {
+            $serviciosRopaCama[] = $servicio['id'];
+        }
+
+        $serviciosTicket = ServicioTicket::where('id_ticket', $request->idTicket)
+            ->whereIn('id_servicio', $serviciosRopaCama)
+            ->get()->toArray();
+
+        $prendasBD =  Prenda::orderBy('nombre', 'ASC')->get()->toArray();
+
+        if (count($serviciosTicket) === 0) {
+            foreach ($prendasBD as $prenda) {
+                if (!in_array(strtolower($prenda['nombre']), $ropaCama)) {
+                    $prendasArray[] = $prenda;
+                }
+            }
+        }
+
+        return $prendasArray ?? $prendasBD;
     }
 
     /**
@@ -28,7 +68,7 @@ class PrendaController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'nombre' => ['required', 'string', 'max:80' ,'unique:prendas']
+            'nombre' => ['required', 'string', 'max:80', 'unique:prendas']
         ]);
 
         $prenda = Prenda::create([
