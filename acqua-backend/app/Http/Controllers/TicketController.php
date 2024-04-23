@@ -8,11 +8,13 @@ use App\Models\AnticipoTicket;
 use App\Models\CodigoAdmin;
 use App\Models\Ticket;
 use App\Models\User;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFound;
 use Illuminate\Validation\ValidationException;
 
@@ -129,6 +131,14 @@ class TicketController extends Controller
     {
         // Retorna todas las relaciones Cliente, Direccion y Sucursal
         $ticket = Ticket::with('cliente.direccion', 'direccion', 'sucursal', 'comentarios', 'serviciosTicket', 'serviciosTicket.servicio', 'prendasTicket', 'procesosTicket')->find($id);
+
+        $user = Auth::user();
+
+        if ($user->role === 'operativo' && $ticket->status === 'ENTREGA') {
+            return response()->json([
+                'mensaje' => "No autorizado para $user->role"
+            ]);
+        }
 
         // Verifica si el número de referencia está presente y desencripta si es necesario
         if (!is_null($ticket->numero_referencia)) {

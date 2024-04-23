@@ -58,7 +58,6 @@ Route::middleware('auth:api', 'role:administrador,encargado', 'cajaestado')->gro
     });
 });
 
-// * Bloque de cajero y algunos de Encargado
 Route::middleware('auth:api', 'role:administrador,encargado,cajero', 'cajaestado')->group(function () {
 
     // Evita que el admin cree tickets si no tiene caja abierta
@@ -98,7 +97,7 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo', '
 
     Route::apiResource('prendas', PrendaController::class)->only('index', 'show');
 
-    Route::apiResource('tickets', TicketController::class)->only('index', 'show');
+    Route::apiResource('tickets', TicketController::class)->only('index', 'show'); // ! RUTA AL PARECER ESTA DEMAS
 
     Route::apiResource('proceso-tickets', ProcesoTicketController::class)->except('destroy');
 
@@ -118,17 +117,26 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero', 'cajaestado
     Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
 });
 
-Route::middleware(['auth:api', 'role:administrador', 'cajaestado'])->group(function () {
-    Route::apiResource('catalogos', CatalogoController::class)->except('index', 'store', 'show', 'update');
-    Route::apiResource('servicios', ServiciosController::class)->except('index', 'store', 'show', 'update');
+Route::middleware(['auth:api', 'role:administrador,encargado', 'cajaestado'])->group(function () {
+    // Solo Encargados
 
-    Route::apiResource('sucursales', SucursalController::class)->except('index', 'show');
-    Route::apiResource('prendas', PrendaController::class)->except('index', 'show');
+    Route::apiResource('tickets', TicketController::class)->except('index', 'store', 'show', 'update');
 
-    Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
+    Route::middleware(['role:administrador'])->group( function () {
+        // Solo Administradores
 
-    // Horarios por Sucursal
-    Route::apiResource('horarios', HorarioController::class);
+        Route::apiResource('catalogos', CatalogoController::class)->except('index', 'store', 'show', 'update');
+        Route::apiResource('servicios', ServiciosController::class)->except('index', 'store', 'show', 'update');
+    
+        Route::apiResource('sucursales', SucursalController::class)->except('index', 'show');
+        Route::apiResource('prendas', PrendaController::class)->except('index', 'show');
+    
+        Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
+    
+        // Horarios por Sucursal
+        Route::apiResource('horarios', HorarioController::class);
+    });
+
 });
 
 Route::middleware(['auth:api', 'role:administrador', 'cajaestado'])->group(function () {
