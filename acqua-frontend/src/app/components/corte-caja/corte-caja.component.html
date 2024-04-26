@@ -129,6 +129,81 @@
               </div>
             </div>
           </dialog>
+
+          <dialog id="modal_get_profits" class="modal" [hidden]="!showModal">
+            <div class="modal-box">
+              <h3 class="font-bold text-lg">{{ name_current_process }}</h3>
+              <p class="py-4"><br /><strong>Ganancias</strong></p>
+
+              <div class="overflow-x-auto">
+                <table class="table w-full">
+                  <thead>
+                    <tr>
+                      <th class="border px-4 py-2"><strong>Tipo de Ganancia</strong></th>
+                      <th class="border px-4 py-2"><strong>Monto</strong></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="border px-4 py-2">Efectivo</td>
+                      <td class="border px-4 py-2">{{ ganancias_caja.efectivo }}</td>
+                    </tr>
+                    <tr>
+                      <td class="border px-4 py-2">Transferencia</td>
+                      <td class="border px-4 py-2">{{ ganancias_caja.transferencia }}</td>
+                    </tr>
+                    <tr>
+                      <td class="border px-4 py-2">Tarjeta</td>
+                      <td class="border px-4 py-2">{{ ganancias_caja.tarjeta }}</td>
+                    </tr>
+                    <tr>
+                      <td class="border px-4 py-2"><strong>Total</strong></td>
+                      <td class="border px-4 py-2"><strong>{{ ganancias_caja.montoTotal }}</strong></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="py-4"><br /><strong>Anticipos</strong></p>
+
+              <div class="overflow-x-auto">
+                <table class="table w-full">
+                  <thead>
+                    <tr>
+                      <th class="border px-4 py-2"><strong>Tipo de Anticipo</strong></th>
+                      <th class="border px-4 py-2"><strong>Monto</strong></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="border px-4 py-2">Efectivo</td>
+                      <td class="border px-4 py-2">{{ ganancias_caja_anticipos.efectivo }}</td>
+                    </tr>
+                    <tr>
+                      <td class="border px-4 py-2">Transferencia</td>
+                      <td class="border px-4 py-2">{{ ganancias_caja_anticipos.transferencia }}</td>
+                    </tr>
+                    <tr>
+                      <td class="border px-4 py-2">Tarjeta</td>
+                      <td class="border px-4 py-2">{{ ganancias_caja_anticipos.tarjeta }}</td>
+                    </tr>
+                    <tr>
+                      <td class="border px-4 py-2"><strong>Total</strong></td>
+                      <td class="border px-4 py-2"><strong>{{ ganancias_caja_anticipos.montoTotal }}</strong></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn text-white bg-teal-600 m-2" (click)="closeModal('modal_get_profits')">
+                    Aceptar
+                  </button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+
           <!-- MODALES PARA MOSTRAR MENSAJES -->
           <dialog id="modal_continuar_operacion" class="modal" hidden>
             <div class="modal-box">

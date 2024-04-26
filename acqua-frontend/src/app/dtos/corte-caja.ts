@@ -91,21 +91,21 @@ export class TicketSummary
 
 export class AnticiposEnvios
 {
-  tickets?: TicketSummary[];
-  efectivo?: number;
-  transferencia?: number;
-  tarjeta?: number;
-  montoTotal?: number;
+  tickets!: TicketSummary[];
+  efectivo!: number;
+  transferencia!: number;
+  tarjeta!: number;
+  montoTotal!: number;
 }
 
 export class GananciasResponseGet
 {
-  tickets?: TicketSummary[];
-  efectivo?: number;
-  transferencia?: number;
-  tarjeta?: number;
-  montoTotal?: number;
-  anticiposEnvios?: AnticiposEnvios;
+  tickets!: TicketSummary[];
+  efectivo!: number;
+  transferencia!: number;
+  tarjeta!: number;
+  montoTotal!: number;
+  'anticiposEnvios '!: AnticiposEnvios;
 }
 
 export enum INPUT_ERRORS
@@ -123,5 +123,5 @@ export enum PROCESOS_CORTE_CAJA
   CIERRE = 'CIERRE DE CAJA',
   CIERRE_FORZADO = 'CIERRE DE CAJA FORZADO',
   ELIMINACION = 'ELIMINACIÓN DE CAJA',
-  GANANCIAS = 'OBTENER GANACIAS DE CAJA',
+  GANANCIAS = 'CONSULTA GANACIAS DE CAJA',
 }

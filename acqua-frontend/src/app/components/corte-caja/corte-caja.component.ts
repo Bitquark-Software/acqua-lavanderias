@@ -9,6 +9,7 @@ import {
   CorteCaja,
   INPUT_ERRORS,
   PROCESOS_CORTE_CAJA,
+  AnticiposEnvios,
 } from 'src/app/dtos/corte-caja';
 import { AuthDto } from 'src/app/dtos/auth-dto';
 
@@ -26,13 +27,17 @@ export class CorteCajaComponent
   // Variables para binding con input en de los modales
   id_sucursal!: number;
   id_caja!: string;
-  monto!: number;
+  monto!: string;
   codigo_admin!: string;
 
   // Para modales
   name_current_process!: PROCESOS_CORTE_CAJA | null;
   msg_success!: string;
   msg_error!: string;
+
+  // Otros
+  ganancias_caja!: GananciasResponseGet;
+  ganancias_caja_anticipos!: AnticiposEnvios;
 
   constructor(private corteCajaService: CorteCajaService)
   {
@@ -51,8 +56,10 @@ export class CorteCajaComponent
   clearTempDataCorteCaja()
   {
     this.id_caja! = '';
-    this.monto! = 0;
+    this.monto! = '';
     this.codigo_admin! = '';
+    this.ganancias_caja! = new GananciasResponseGet();
+    this.ganancias_caja_anticipos! = new AnticiposEnvios();
   }
 
   private fetchLocalSession()
@@ -123,7 +130,7 @@ export class CorteCajaComponent
       break;
     case PROCESOS_CORTE_CAJA.GANANCIAS:
       this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
-      this.getProfitsFromCashierReconciliation(modal_success, modal_error);
+      this.getProfitsFromCashierReconciliation('modal_get_profits', modal_error);
       break;
     default:
       break;
@@ -149,7 +156,7 @@ export class CorteCajaComponent
 
   openCashierReconciliation(modal_success = '', modal_error = '')
   {
-    this.corteCajaService.createCorteCaja(this.id_sucursal, this.monto, this.codigo_admin!).subscribe({
+    this.corteCajaService.createCorteCaja(this.id_sucursal, Number(this.monto), this.codigo_admin!).subscribe({
       next: (response: CorteCajaResponsePost) =>
       {
         this.msg_success = response.mensaje;
@@ -179,7 +186,7 @@ export class CorteCajaComponent
   validateAndOpenCashierReconciliation(modal_continuar_abrir_caja = '', modal_error = '')
   {
     const id_sucursal_valido = !isNaN(this.id_sucursal) && this.id_sucursal>0;
-    const monto_apertura_valido = !isNaN(this.monto) && this.monto>0;
+    const monto_apertura_valido = !isNaN(Number(this.monto)) && Number(this.monto)>0;
     const codigo_admin_valido = /^[\s\t\n]*$/;
 
     if(id_sucursal_valido)
@@ -212,8 +219,8 @@ export class CorteCajaComponent
   closeCashierReconciliation(modal_success = '', modal_error = '', codigo_admin?: string)
   {
     const updateCorteCajaSubscription = codigo_admin ?
-      this.corteCajaService.forcedUpdateCorteCaja(Number(this.id_caja), this.monto, codigo_admin) :
-      this.corteCajaService.updateCorteCaja(Number(this.id_caja), this.monto);
+      this.corteCajaService.forcedUpdateCorteCaja(Number(this.id_caja), Number(this.monto), codigo_admin) :
+      this.corteCajaService.updateCorteCaja(Number(this.id_caja), Number(this.monto));
 
     updateCorteCajaSubscription.subscribe({
       next: (response: CorteCajaResponsePut) =>
@@ -269,7 +276,7 @@ export class CorteCajaComponent
       const current_caja: CorteCaja = response.data[0];
       const monto_apertura = Number(current_caja!.monto_apertura);
       const id_caja_valido = !isNaN(Number(this.id_caja)) && Number(this.id_caja) === Number(current_caja.id);
-      const monto_cierre_valido = !isNaN(this.monto) && this.monto>0;
+      const monto_cierre_valido = !isNaN(Number(this.monto)) && Number(this.monto)>0;
 
       if(current_caja!.abierto === 1)
       {
@@ -369,14 +376,15 @@ export class CorteCajaComponent
     }
   }
 
-  getProfitsFromCashierReconciliation(modal_success = '', modal_error = '')
+  getProfitsFromCashierReconciliation(modal_ganancias_caja = '', modal_error = '')
   {
     this.corteCajaService.getCorteCajaGanancias(this.id_sucursal, Number(this.id_caja)).subscribe({
       next: (response: GananciasResponseGet) =>
       {
-        this.msg_success = 'Ganancias obtenidas correctamente!';
-        this.showModal(modal_success, () => { this.clearTempAllData(); });
-        console.log('* getProfitsFromCashierReconciliation => ', response);
+        this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
+        this.ganancias_caja = response;
+        this.ganancias_caja_anticipos = response['anticiposEnvios ']!;
+        this.showModal(modal_ganancias_caja);
       },
       error: (error) =>
       {
@@ -385,7 +393,6 @@ export class CorteCajaComponent
       },
     });
   }
-
   requestGetProfitsFromCashierReconciliation(input_id_caja = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
