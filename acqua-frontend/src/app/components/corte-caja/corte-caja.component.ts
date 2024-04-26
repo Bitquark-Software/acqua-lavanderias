@@ -42,6 +42,11 @@ export class CorteCajaComponent
   constructor(private corteCajaService: CorteCajaService)
   {
     this.fetchLocalSession();
+    this.clearTempAllData();
+  }
+
+  clearTempAllData()
+  {
     this.clearTempDataModals();
     this.clearTempDataCorteCaja();
   }
@@ -76,12 +81,6 @@ export class CorteCajaComponent
       this.session = null;
       this.id_sucursal = -1;
     }
-  }
-
-  clearTempAllData()
-  {
-    this.clearTempDataModals();
-    this.clearTempDataCorteCaja();
   }
 
   isInputEmpty(id_input = ''): boolean
@@ -137,39 +136,6 @@ export class CorteCajaComponent
     }
   }
 
-  getCashierReconciliation(callback?: (response: CorteCajaResponseGet<CorteCaja>) => void)
-  {
-    this.corteCajaService.fetchCorteCaja().subscribe({
-      next: (response: CorteCajaResponseGet<CorteCaja>) =>
-      {
-        if(callback)
-        {
-          callback(response);
-        }
-      },
-      error: (error) =>
-      {
-        console.error('Error al obtener corte(s) de caja:', error);
-      },
-    });
-  }
-
-  openCashierReconciliation(modal_success = '', modal_error = '')
-  {
-    this.corteCajaService.createCorteCaja(this.id_sucursal, Number(this.monto), this.codigo_admin!).subscribe({
-      next: (response: CorteCajaResponsePost) =>
-      {
-        this.msg_success = response.mensaje;
-        this.showModal(modal_success, () => { this.clearTempAllData(); });
-      },
-      error: (error) =>
-      {
-        this.msg_error = error.error.mensaje;
-        this.showModal(modal_error, () => {this.clearTempAllData(); });
-      },
-    });
-  }
-
   requestOpenCashierReconciliation(input_monto = '', input_codigo = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = PROCESOS_CORTE_CAJA.APERTURA;
@@ -214,28 +180,6 @@ export class CorteCajaComponent
       this.msg_error = INPUT_ERRORS.ID_SUCURSAL;
       this.showModal(modal_error, () => { this.clearTempAllData(); });
     }
-  }
-
-  closeCashierReconciliation(modal_success = '', modal_error = '', codigo_admin?: string)
-  {
-    const updateCorteCajaSubscription = codigo_admin ?
-      this.corteCajaService.forcedUpdateCorteCaja(Number(this.id_caja), Number(this.monto), codigo_admin) :
-      this.corteCajaService.updateCorteCaja(Number(this.id_caja), Number(this.monto));
-
-    updateCorteCajaSubscription.subscribe({
-      next: (response: CorteCajaResponsePut) =>
-      {
-        this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
-        this.msg_success = response.mensaje;
-        this.showModal(modal_success, () => { this.clearTempAllData(); });
-      },
-      error: (error) =>
-      {
-        this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
-        this.msg_error = error.error.mensaje;
-        this.showModal(modal_error, () => {this.clearTempAllData(); });
-      },
-    });
   }
 
   requestCloseCashierReconciliation(input_id_caja = '', input_monto = '', modal_continuar = '', modal_error = '', modal_success = '', modal_codigo = '')
@@ -315,30 +259,6 @@ export class CorteCajaComponent
     this.getCashierReconciliation(continuar_operaciones);
   }
 
-  deleteCashierReconciliation(modal_success = '', modal_error = '')
-  {
-    this.corteCajaService.deleteCorteCaja(Number(this.id_caja), this.codigo_admin!).subscribe({
-      next: (response: void | CorteCajaResponseDelete) =>
-      {
-        if(!response)
-        {
-          this.msg_success = 'Eliminado correctamente';
-          this.showModal(modal_success, () => { this.clearTempAllData(); });
-        }
-        else
-        {
-          this.msg_error = response.mensaje;
-          this.showModal(modal_error, () => { this.clearTempAllData(); });
-        }
-      },
-      error: (error) =>
-      {
-        this.msg_error = error.error.mensaje;
-        this.showModal(modal_error, () => {this.clearTempAllData(); });
-      },
-    });
-  }
-
   requestDeleteCashierReconciliation(input_id_caja = '', input_codigo = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = PROCESOS_CORTE_CAJA.ELIMINACION;
@@ -376,23 +296,6 @@ export class CorteCajaComponent
     }
   }
 
-  getProfitsFromCashierReconciliation(modal_ganancias_caja = '', modal_error = '')
-  {
-    this.corteCajaService.getCorteCajaGanancias(this.id_sucursal, Number(this.id_caja)).subscribe({
-      next: (response: GananciasResponseGet) =>
-      {
-        this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
-        this.ganancias_caja = response;
-        this.ganancias_caja_anticipos = response['anticiposEnvios ']!;
-        this.showModal(modal_ganancias_caja);
-      },
-      error: (error) =>
-      {
-        this.msg_error = error.error.mensaje;
-        this.showModal(modal_error, () => {this.clearTempAllData(); });
-      },
-    });
-  }
   requestGetProfitsFromCashierReconciliation(input_id_caja = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
@@ -425,5 +328,102 @@ export class CorteCajaComponent
       this.msg_error = INPUT_ERRORS.ID_SUCURSAL;
       this.showModal(modal_error, () => { this.clearTempAllData(); });
     }
+  }
+
+  getCashierReconciliation(callback?: (response: CorteCajaResponseGet<CorteCaja>) => void)
+  {
+    this.corteCajaService.fetchCorteCaja().subscribe({
+      next: (response: CorteCajaResponseGet<CorteCaja>) =>
+      {
+        if(callback)
+        {
+          callback(response);
+        }
+      },
+      error: (error) =>
+      {
+        console.error('Error al obtener corte(s) de caja:', error);
+      },
+    });
+  }
+
+  openCashierReconciliation(modal_success = '', modal_error = '')
+  {
+    this.corteCajaService.createCorteCaja(this.id_sucursal, Number(this.monto), this.codigo_admin!).subscribe({
+      next: (response: CorteCajaResponsePost) =>
+      {
+        this.msg_success = response.mensaje;
+        this.showModal(modal_success, () => { this.clearTempAllData(); });
+      },
+      error: (error) =>
+      {
+        this.msg_error = error.error.mensaje;
+        this.showModal(modal_error, () => {this.clearTempAllData(); });
+      },
+    });
+  }
+
+  closeCashierReconciliation(modal_success = '', modal_error = '', codigo_admin?: string)
+  {
+    const updateCorteCajaSubscription = codigo_admin ?
+      this.corteCajaService.forcedUpdateCorteCaja(Number(this.id_caja), Number(this.monto), codigo_admin) :
+      this.corteCajaService.updateCorteCaja(Number(this.id_caja), Number(this.monto));
+
+    updateCorteCajaSubscription.subscribe({
+      next: (response: CorteCajaResponsePut) =>
+      {
+        this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
+        this.msg_success = response.mensaje;
+        this.showModal(modal_success, () => { this.clearTempAllData(); });
+      },
+      error: (error) =>
+      {
+        this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
+        this.msg_error = error.error.mensaje;
+        this.showModal(modal_error, () => {this.clearTempAllData(); });
+      },
+    });
+  }
+
+  deleteCashierReconciliation(modal_success = '', modal_error = '')
+  {
+    this.corteCajaService.deleteCorteCaja(Number(this.id_caja), this.codigo_admin!).subscribe({
+      next: (response: void | CorteCajaResponseDelete) =>
+      {
+        if(!response)
+        {
+          this.msg_success = 'Eliminado correctamente';
+          this.showModal(modal_success, () => { this.clearTempAllData(); });
+        }
+        else
+        {
+          this.msg_error = response.mensaje;
+          this.showModal(modal_error, () => { this.clearTempAllData(); });
+        }
+      },
+      error: (error) =>
+      {
+        this.msg_error = error.error.mensaje;
+        this.showModal(modal_error, () => {this.clearTempAllData(); });
+      },
+    });
+  }
+
+  getProfitsFromCashierReconciliation(modal_ganancias_caja = '', modal_error = '')
+  {
+    this.corteCajaService.getCorteCajaGanancias(this.id_sucursal, Number(this.id_caja)).subscribe({
+      next: (response: GananciasResponseGet) =>
+      {
+        this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
+        this.ganancias_caja = response;
+        this.ganancias_caja_anticipos = response['anticiposEnvios ']!;
+        this.showModal(modal_ganancias_caja);
+      },
+      error: (error) =>
+      {
+        this.msg_error = error.error.mensaje;
+        this.showModal(modal_error, () => {this.clearTempAllData(); });
+      },
+    });
   }
 }
