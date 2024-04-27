@@ -61,7 +61,6 @@ Route::middleware('auth:api', 'role:administrador,encargado')->group(function ()
 
 // todo: Agregar 'cajaestado' al middleware cuando ya este listo el frontend
 Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
-
     // Evita que el admin cree tickets si no tiene caja abierta
     // todo: descomentar todo el bloque de Route cuando ya este listo el frontend de Corte Caja
     // Route::middleware('flexadmincaja')->group( function () {
@@ -126,7 +125,6 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
 // todo: Agregar 'cajaestado' al middleware cuando ya este listo el frontend
 Route::middleware(['auth:api', 'role:administrador,encargado'])->group(function () {
     // Solo Encargados
-
     Route::apiResource('tickets', TicketController::class)->except('index', 'store', 'show', 'update');
 
     Route::middleware(['role:administrador'])->group( function () {

@@ -129,7 +129,13 @@ class CorteCajaController extends Controller
      */
     public function show($id)
     {
-        return CorteCaja::with('sucursal')->find($id);
+        $corteCaja = CorteCaja::with('sucursal')->find($id);
+        if (!$corteCaja) {
+            return response()->json([
+                'mensaje' => 'Caja no encontrada'
+            ]);
+        }
+        return $corteCaja;
     }
 
     /**
@@ -174,6 +180,12 @@ class CorteCajaController extends Controller
             return response()->json([
                 'mensaje' => 'La caja con el ID proporcionado no se encontró'
             ], 404);
+        }
+
+        if ($cajaActual->abierto === 0) {
+            return response()->json([
+                'mensaje' => 'La caja ingresada esta actualmente cerrada'
+            ]);
         }
 
         $fechaActual = date('Y-m-d H:m:s');
@@ -244,7 +256,7 @@ class CorteCajaController extends Controller
         $fechaActual = date("Y-m-d H:i:s");
 
         try {
-            $caja = CorteCaja::find($id);
+            $caja = CorteCaja::findOrFail($id);
         } catch (ModelNotFound $e) {
             return response()->json([
                 'mensaje' => 'Caja no encontrada con el ID ingresado'
