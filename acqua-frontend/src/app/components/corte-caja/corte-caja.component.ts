@@ -190,13 +190,17 @@ export class CorteCajaComponent
     {
       this.showModal(input_monto, () =>
       {
-        this.validateAndCloseCashierReconciliation(modal_continuar, modal_error, modal_success, modal_codigo);
+        this.showModal(modal_codigo, () =>
+        {
+          this.validateAndCloseCashierReconciliation(modal_continuar, modal_error, modal_success);
+        });
       });
     });
   }
 
-  validateAndCloseCashierReconciliation(modal_continuar_cerrar_caja = '', modal_error = '', modal_success = '', modal_codigo = '')
+  validateAndCloseCashierReconciliation(modal_continuar_cerrar_caja = '', modal_error = '', modal_success = '')
   {
+    /*
     const forzar_cierre_de_caja = () =>
     {
       this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE_FORZADO;
@@ -214,13 +218,15 @@ export class CorteCajaComponent
         });
       });
     };
+    */
 
     const continuar_operaciones = (response: CorteCajaResponseGet<CorteCaja>) =>
     {
       const current_caja: CorteCaja = response.data[0];
-      const monto_apertura = Number(current_caja!.monto_apertura);
+      // const monto_apertura = Number(current_caja!.monto_apertura);
       const id_caja_valido = !isNaN(Number(this.id_caja)) && Number(this.id_caja) === Number(current_caja.id);
       const monto_cierre_valido = !isNaN(Number(this.monto)) && Number(this.monto)>0;
+      const codigo_admin_valido = /^[\s\t\n]*$/;
 
       if(current_caja!.abierto === 1)
       {
@@ -228,19 +234,20 @@ export class CorteCajaComponent
         {
           if(monto_cierre_valido)
           {
-            if(Number(this.monto) >= monto_apertura)
+            if(codigo_admin_valido.test(this.codigo_admin))
             {
               this.showModal(modal_continuar_cerrar_caja);
             }
             else
             {
-              forzar_cierre_de_caja();
+              this.msg_error = INPUT_ERRORS.CODIGO_ADMIN;
+              this.closeCashierReconciliation(modal_success, modal_error, this.codigo_admin);
             }
           }
           else
           {
             this.msg_error = INPUT_ERRORS.MONTO_CIERRE;
-            this.showModal(modal_error, () => { this.clearTempAllData(); });
+            this.closeCashierReconciliation(modal_success, modal_error, this.codigo_admin);
           }
         }
         else
