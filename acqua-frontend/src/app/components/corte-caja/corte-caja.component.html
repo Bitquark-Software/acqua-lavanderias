@@ -3,40 +3,6 @@
         <div class="card shadow-md">
             <button
                 class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="requestOpenCashierReconciliation('modal_monto', 'modal_codigo_admin', 'modal_continuar_operacion', 'modal_error')"
-            >
-                <svg
-                    width="24"
-                    height="24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path class="fill-current" d="M12 10v-4c0-3.313-2.687-6-6-6s-6 2.687-6 6v3h2v-3c0-2.206 1.794-4 4-4s4 1.794 4 4v4h-4v14h18v-14h-12zm10 12h-14v-10h14v10z"/>
-                </svg>
-                Abrir corte de caja
-            </button>
-            <button
-                class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
-                (click)="requestCloseCashierReconciliation('modal_id_caja', 'modal_monto', 'modal_continuar_operacion','modal_error', 'modal_success', 'modal_codigo_admin')"
-            >
-                <svg
-                    width="24"
-                    height="24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path class="fill-current" d="M18 10v-4c0-3.313-2.687-6-6-6s-6 2.687-6 6v4h-3v14h18v-14h-3zm-10-4c0-2.206 1.795-4 4-4s4 1.794 4 4v4h-8v-4zm11 16h-14v-10h14v10zm-7.737-2l-2.843-2.756 1.173-1.173 1.67 1.583 3.563-3.654 1.174 1.173-4.737 4.827z"/>
-                </svg>
-                Cerrar corte de caja
-            </button>
-            <button
-                class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
                 (click)="requestGetProfitsFromCashierReconciliation('modal_id_caja', 'modal_continuar_operacion', 'modal_error')"
             >
                 <svg
