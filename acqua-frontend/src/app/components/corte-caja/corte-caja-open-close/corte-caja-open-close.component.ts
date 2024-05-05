@@ -1,7 +1,15 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { AuthDto } from 'src/app/dtos/auth-dto';
-import { CorteCaja, CorteCajaResponseGet, CorteCajaResponsePost, CorteCajaResponsePut, INPUT_ERRORS, PROCESOS_CORTE_CAJA } from 'src/app/dtos/corte-caja';
+import {
+  CorteCaja,
+  CorteCajaResponseGet,
+  CorteCajaResponsePost,
+  CorteCajaResponsePut,
+  INPUT_ERRORS,
+  PROCESOS_CORTE_CAJA,
+} from 'src/app/dtos/corte-caja';
 import { CorteCajaService } from 'src/app/services/corte-caja.service';
+import { CajaStateService } from 'src/app/services/caja-state.service';
 
 @Component({
   selector: 'app-corte-caja-open-close',
@@ -28,7 +36,10 @@ export class CorteCajaOpenCloseComponent
   // Otros
   @Output() mostrarCajaEvent = new EventEmitter<boolean>();
 
-  constructor(private corteCajaService: CorteCajaService)
+  constructor(
+    private corteCajaService: CorteCajaService,
+    private cajaStateService: CajaStateService,
+  )
   {
     this.fetchLocalSession();
     this.clearTempAllData();
@@ -324,12 +335,12 @@ export class CorteCajaOpenCloseComponent
 
   mostrarCaja()
   {
-    this.mostrarCajaEvent.emit(true);
+    this.cajaStateService.mostrarCajaEvent.emit(true);
   }
 
   ocultarCaja()
   {
-    this.mostrarCajaEvent.emit(false);
+    this.cajaStateService.mostrarCajaEvent.emit(false);
   }
 
 }
