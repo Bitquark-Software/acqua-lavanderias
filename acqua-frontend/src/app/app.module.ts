@@ -51,6 +51,9 @@ import {
 import {
   CorteCajaOpenCloseComponent,
 } from './components/corte-caja/corte-caja-open-close/corte-caja-open-close.component';
+import {
+  CorteCajaShowAllComponent,
+} from './components/corte-caja/corte-caja-show-all/corte-caja-show-all.component';
 registerLocaleData(localeEs, 'es');
 
 @NgModule ( {
@@ -86,6 +89,7 @@ registerLocaleData(localeEs, 'es');
     CorteCajaComponent,
     ModalGananciasCajaComponent,
     CorteCajaOpenCloseComponent,
+    CorteCajaShowAllComponent,
   ],
   imports: [
     BrowserModule,

@@ -30,6 +30,9 @@ import {
 } from './components/sucursales/editar-sucursal/editar-sucursal.component';
 import { AdminCodesComponent } from './components/admin-codes/admin-codes.component';
 import { CorteCajaComponent } from './components/corte-caja/corte-caja.component';
+import {
+  CorteCajaShowAllComponent,
+} from './components/corte-caja/corte-caja-show-all/corte-caja-show-all.component';
 
 const routes: Routes = [
   {
@@ -141,6 +144,12 @@ const routes: Routes = [
   {
     path: 'corte-caja',
     component: CorteCajaComponent,
+    canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado] },
+  },
+  {
+    path: 'corte-caja-show-all',
+    component: CorteCajaShowAllComponent,
     canActivate: [authGuard],
     data: { roles: [Role.Administrador, Role.Encargado] },
   },
