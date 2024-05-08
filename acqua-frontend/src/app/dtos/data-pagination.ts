@@ -19,7 +19,7 @@ export class DataPagination<T>
   next_page_url ?: string | null;
   last_page_url?: string;
   to?: number;
-  total?: number;
+  total!: number;
 
   constructor(data: T[])
   {
