@@ -22,6 +22,7 @@ export class CorteCajaShowAllComponent
 
   // Variables para binding con input en de los modales
   id_sucursal!: number;
+  id_caja!: number;
 
   // Para modales
   name_current_process!: PROCESOS_CORTE_CAJA | null;
@@ -63,6 +64,7 @@ export class CorteCajaShowAllComponent
 
   clearTempDataCorteCaja()
   {
+    this.id_caja = 0;
     this.ganancias_caja! = new GananciasResponseGet();
     this.ganancias_caja_anticipos! = new AnticiposEnvios();
   }
@@ -120,4 +122,52 @@ export class CorteCajaShowAllComponent
     }
   }
 
+  showModal(name_modal = '', callback?: () => void): void
+  {
+    const modal = document.getElementById(name_modal);
+    if (modal instanceof HTMLDialogElement)
+    {
+      modal.showModal();
+      if (callback)
+      {
+        modal.addEventListener('close', callback, { once: true });
+      }
+    }
+  }
+
+  closeModal(name_modal = '')
+  {
+    const modal = document.getElementById(name_modal);
+    if (modal instanceof HTMLDialogElement)
+    {
+      modal.close();
+    }
+  }
+
+  getProfitsFromCashierReconciliation(id_caja = 0, modal_ganancias_caja = '', modal_error = '')
+  {
+    if(id_caja != 0)
+    {
+      this.corteCajaService.getCorteCajaGanancias(this.id_sucursal, Number(id_caja)).subscribe({
+        next: (response: GananciasResponseGet) =>
+        {
+          this.name_current_process = PROCESOS_CORTE_CAJA.GANANCIAS;
+          this.id_caja = id_caja;
+          this.ganancias_caja = response;
+          this.ganancias_caja_anticipos = response['anticiposEnvios ']!;
+          this.showModal(modal_ganancias_caja);
+        },
+        error: (error) =>
+        {
+          this.msg_error = error.error.mensaje;
+          this.showModal(modal_error, () => {this.clearTempAllData(); });
+        },
+      });
+    }
+    else
+    {
+      this.msg_error = 'El ID de la caja no es valido';
+      this.showModal(modal_error, () => {this.clearTempAllData(); });
+    }
+  }
 }

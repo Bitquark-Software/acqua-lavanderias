@@ -13,10 +13,12 @@ import {
 
 export class ModalGananciasCajaComponent
 {
-  @Input() showModal = false;
-  @Input() current_process!: PROCESOS_CORTE_CAJA | null;
+  @Input() id_caja!: number;
+  @Input() name_current_process!: PROCESOS_CORTE_CAJA | null;
   @Input() ganancias_caja!: GananciasResponseGet;
   @Input() ganancias_caja_anticipos!: AnticiposEnvios;
+  @Input() msg_success!: string;
+  @Input() msg_error!: string;
 
   closeModal(name_modal = '')
   {
@@ -29,9 +31,11 @@ export class ModalGananciasCajaComponent
 
   ngOnChanges(changes: SimpleChanges)
   {
-    if (changes['current_process'] || changes['ganancias_caja'] || changes['ganancias_caja_anticipos'])
+    if (changes['name_current_process'] || changes['ganancias_caja'] || changes['ganancias_caja_anticipos'])
     {
-      // console.log('Cambios en las propiedades de entrada');
+      // console.log("* name_current_process: ", this.name_current_process);
+      // console.log("* ganancias_caja: ", this.ganancias_caja);
+      // console.log("* ganancias_caja_anticipos: ", this.ganancias_caja_anticipos);
     }
   }
 }
