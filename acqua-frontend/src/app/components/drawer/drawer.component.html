@@ -235,8 +235,8 @@
           Códigos de administrador
         </a>
       </li>
-      <li *ngIf="userRole === Role.Administrador">
-        <a routerLink="/corte-caja" class="text-primary dark:text-white">
+      <li *ngIf="userRole === Role.Administrador || userRole === Role.Encargado">
+        <a routerLink="/corte-caja-show-all" class="text-primary dark:text-white">
           <svg
             width="35"
             height="35"

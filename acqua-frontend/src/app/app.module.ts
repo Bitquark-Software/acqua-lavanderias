@@ -44,7 +44,6 @@ import {
   EditarSucursalComponent,
 } from './components/sucursales/editar-sucursal/editar-sucursal.component';
 import { AdminCodesComponent } from './components/admin-codes/admin-codes.component';
-import { CorteCajaComponent } from './components/corte-caja/corte-caja.component';
 import {
   ModalGananciasCajaComponent,
 } from './components/corte-caja/modal-ganancias-caja/modal-ganancias-caja.component';
@@ -86,7 +85,6 @@ registerLocaleData(localeEs, 'es');
     NuevaSucursalComponent,
     EditarSucursalComponent,
     AdminCodesComponent,
-    CorteCajaComponent,
     ModalGananciasCajaComponent,
     CorteCajaOpenCloseComponent,
     CorteCajaShowAllComponent,
