@@ -21,6 +21,7 @@ export class CorteCajaOpenCloseComponent
 {
   // Variable de session
   session!: AuthDto | null;
+  caja_abierta!: boolean;
 
   // Variables para binding con input en de los modales
   id_sucursal!: number;
@@ -43,6 +44,11 @@ export class CorteCajaOpenCloseComponent
   {
     this.fetchLocalSession();
     this.clearTempAllData();
+
+    this.cajaStateService.mostrarCajaEvent.subscribe((mostrar: boolean) =>
+    {
+      this.caja_abierta = mostrar;
+    });
   }
 
   ngOnInit()
