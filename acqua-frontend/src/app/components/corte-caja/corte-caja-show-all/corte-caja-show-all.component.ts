@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CorteCajaService } from 'src/app/services/corte-caja.service';
+import { CajaStateService } from 'src/app/services/caja-state.service';
 import {
   CorteCajaResponseGet,
   GananciasResponseGet,
@@ -35,17 +36,27 @@ export class CorteCajaShowAllComponent
   cortes_de_caja!: CorteCaja[];
   cortes_de_caja_structure!: CorteCajaResponseGet<CorteCaja>;
 
-  constructor(private corteCajaService: CorteCajaService)
+  constructor(
+    private corteCajaService: CorteCajaService,
+    private cajaStateService: CajaStateService)
   {
     this.fetchLocalSession();
     this.clearTempAllData();
+    this.updateCortesDeCaja();
 
+    this.cajaStateService.mostrarCajaEvent.subscribe((mostrar: boolean) =>
+    {
+      this.updateCortesDeCaja();
+    });
+  }
+
+  updateCortesDeCaja()
+  {
     const mostrarCortesDeCajaPorConsola = (response: CorteCajaResponseGet<CorteCaja>) =>
     {
       this.cortes_de_caja = response.data;
       this.cortes_de_caja_structure = response;
     };
-
     this.getAllCashierClosures(1, mostrarCortesDeCajaPorConsola);
   }
 
