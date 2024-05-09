@@ -28,7 +28,7 @@
                 <button
                 class="btn btn-sm btn-info btn-square btn-outline m-auto lg:tooltip"
                 data-tip="Ver Ganancias"
-
+                (click)="getProfitsFromCashierReconciliation(caja.id, 'modal_get_profits', 'modal_error')"
               >
                 <svg
                   aria-hidden="true"
@@ -64,4 +64,14 @@
         </div>
       </div>
     </div>
+
+    <app-modal-ganancias-caja
+    [name_current_process]="name_current_process"
+    [id_caja]="id_caja"
+    [ganancias_caja]="ganancias_caja"
+    [ganancias_caja_anticipos]="ganancias_caja_anticipos"
+    [msg_success]="msg_success"
+    [msg_error]="msg_error"
+    ></app-modal-ganancias-caja>
+
 </app-drawer>

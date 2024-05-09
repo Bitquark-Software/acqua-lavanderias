@@ -1,7 +1,8 @@
 <dialog id="modal_get_profits" class="modal">
   <div class="modal-box">
-    <h3 class="font-bold text-lg">{{ current_process }}</h3>
-    <p class="py-4"><br /><strong>Ganancias</strong></p>
+    <h3 class="font-bold text-lg">{{ name_current_process }}</h3>
+    <p><strong>CAJA: {{ id_caja }}</strong></p>
+    <p class="py-4"><strong>Ganancias</strong></p>
     <div class="overflow-x-auto">
       <table class="table w-full">
         <thead>
@@ -62,6 +63,32 @@
     <div class="modal-action">
       <form method="dialog">
         <button class="btn text-white bg-teal-600 m-2" (click)="closeModal('modal_get_profits')">
+          Aceptar
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog>
+<dialog id="modal_success" class="modal" hidden>
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">{{name_current_process}}</h3>
+    <p class="py-4"><br />{{msg_success}}</p>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn text-white bg-teal-600 m-2" (click)="closeModal('modal_success')">
+          Aceptar
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog>
+<dialog id="modal_error" class="modal" hidden>
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">{{name_current_process}}</h3>
+    <p class="py-4"><br />{{msg_error}}</p>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn text-white bg-orange-600 m-2" (click)="closeModal('modal_error')">
           Aceptar
         </button>
       </form>
