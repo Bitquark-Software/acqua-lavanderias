@@ -46,7 +46,8 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
 });
 
 // * Bloque de Encargado
-Route::middleware('auth:api', 'role:administrador,encargado', 'cajaestado')->group(function () {
+// todo: Agregar 'cajaestado' al middleware cuando ya este listo el frontend
+Route::middleware('auth:api', 'role:administrador,encargado')->group(function () {
     Route::apiResource('catalogos', CatalogoController::class)->only('index', 'store', 'show', 'update');
     Route::apiResource('servicios', ServiciosController::class)->only('index', 'store', 'show', 'update');
     // Bloque de Reportes
@@ -58,13 +59,13 @@ Route::middleware('auth:api', 'role:administrador,encargado', 'cajaestado')->gro
     });
 });
 
-// * Bloque de cajero y algunos de Encargado
-Route::middleware('auth:api', 'role:administrador,encargado,cajero', 'cajaestado')->group(function () {
-
+// todo: Agregar 'cajaestado' al middleware cuando ya este listo el frontend
+Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
     // Evita que el admin cree tickets si no tiene caja abierta
-    Route::middleware('flexadmincaja')->group( function () {
-        Route::apiResource('tickets', TicketController::class);
-    });
+    // todo: descomentar todo el bloque de Route cuando ya este listo el frontend de Corte Caja
+    // Route::middleware('flexadmincaja')->group( function () {
+    Route::apiResource('tickets', TicketController::class);
+    // });
 
     // Rutas para buscar Clientes por Nombre y Telefono
     Route::post('/clientes/nombre', [ClienteController::class, 'buscarPorNombre'])
@@ -77,13 +78,15 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero', 'cajaestado
     Route::apiResource('servicios', ServiciosController::class)->only('index', 'show');
 });
 
+// todo: Agregar 'cajaestado' al middleware cuando ya este listo el frontend
 // * Bloque de Operativo
-Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo', 'cajaestado')->group(function () {
+Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo')->group(function () {
     // Evita que el admin resiva pagos si no tiene caja abierta
-    Route::middleware('flexadmincaja')->group( function () {
-        Route::get('/anticipoTickets', [AnticiposTicketsController::class, 'index'])->name('anticipo.index');
-        Route::post('/anticipoTickets', [AnticiposTicketsController::class, 'store'])->name('anticipo.store'); // * COBRAR ANTICIPOS
-    });
+    // todo: Descomentar el bloque del middleware 'flexadmincaja' cuando el frontend tenga el corte de caja
+    // Route::middleware('flexadmincaja')->group( function () {
+    Route::get('/anticipoTickets', [AnticiposTicketsController::class, 'index'])->name('anticipo.index');
+    Route::post('/anticipoTickets', [AnticiposTicketsController::class, 'store'])->name('anticipo.store'); // * COBRAR ANTICIPOS
+    // });
 
     // Lavadora y Secadora Extra
     Route::post('lavadora-secadora-adicional', [ProcesoTicketController::class, 'addLavadorasSecadoras'])->name('procesotickets.addLavSec');
@@ -98,7 +101,7 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo', '
 
     Route::apiResource('prendas', PrendaController::class)->only('index', 'show');
 
-    Route::apiResource('tickets', TicketController::class)->only('index', 'show');
+    Route::apiResource('tickets', TicketController::class)->only('index', 'show'); // ! RUTA AL PARECER ESTA DEMAS
 
     Route::apiResource('proceso-tickets', ProcesoTicketController::class)->except('destroy');
 
@@ -110,33 +113,45 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo', '
     Route::delete('/prendas_tickets/{id}', [PrendasTicketController::class, 'destroy'])->name('prendasticket.destroy');
 });
 
+// todo: Agregar 'cajaestado' al middleware cuando ya este listo el frontend
 // Administradores, Encargados y Cajeros
-Route::middleware('auth:api', 'role:administrador,encargado,cajero', 'cajaestado')->group(function () {
+Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(function () {
 
     Route::apiResource('servicios-ticket', ServicioTicketController::class)->except('destroy');
 
     Route::post('/comentario', [ComentarioController::class, 'store'])->name('comentarios.store');
 });
 
-Route::middleware(['auth:api', 'role:administrador', 'cajaestado'])->group(function () {
-    Route::apiResource('catalogos', CatalogoController::class)->except('index', 'store', 'show', 'update');
-    Route::apiResource('servicios', ServiciosController::class)->except('index', 'store', 'show', 'update');
+// todo: Agregar 'cajaestado' al middleware cuando ya este listo el frontend
+Route::middleware(['auth:api', 'role:administrador,encargado'])->group(function () {
+    // Solo Encargados
+    Route::apiResource('tickets', TicketController::class)->except('index', 'store', 'show', 'update');
 
-    Route::apiResource('sucursales', SucursalController::class)->except('index', 'show');
-    Route::apiResource('prendas', PrendaController::class)->except('index', 'show');
+    Route::middleware(['role:administrador'])->group( function () {
+        // Solo Administradores
 
-    Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
+        Route::apiResource('catalogos', CatalogoController::class)->except('index', 'store', 'show', 'update');
+        Route::apiResource('servicios', ServiciosController::class)->except('index', 'store', 'show', 'update');
+    
+        Route::apiResource('sucursales', SucursalController::class)->except('index', 'show');
+        Route::apiResource('prendas', PrendaController::class)->except('index', 'show');
+    
+        Route::post('/proceso', [ProcesoController::class, 'store'])->name('proceso.store');
+    
+        // Horarios por Sucursal
+        Route::apiResource('horarios', HorarioController::class);
+    });
 
-    // Horarios por Sucursal
-    Route::apiResource('horarios', HorarioController::class);
 });
 
-Route::middleware(['auth:api', 'role:administrador', 'cajaestado'])->group(function () {
+// todo: Agregar 'cajaestado' al middleware cuando ya este listo el frontend
+Route::middleware(['auth:api', 'role:administrador'])->group(function () {
     Route::apiResource('lavadoras', LavadoraController::class)->except('index', 'show');
     Route::apiResource('secadoras', SecadoraController::class)->except('index', 'show');
 });
 
-Route::prefix('stats')->middleware(['auth:api', 'role:administrador', 'cajaestado'])->group(function () {
+// todo: Agregar 'cajaestado' al middleware cuando ya este listo el frontend
+Route::prefix('stats')->middleware(['auth:api', 'role:administrador'])->group(function () {
     // Datos de Reportes
     Route::get('/ingresos', [StatsController::class, 'generateReport'])->name('stats.ingresos');
     // Clientes nuevos
