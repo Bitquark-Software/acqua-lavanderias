@@ -39,6 +39,7 @@ export class DetallesTicketComponent
   showDisplayError = false;
   ticketId!: number;
   ticket!: ReimpimirTicket;
+  impresionTicket!: Ticket;
 
   @ViewChild('comentariosModal') comentariosModal!: ElementRef<HTMLDialogElement>;
 
@@ -176,6 +177,7 @@ export class DetallesTicketComponent
     this.ticketService.getTicketById(this.ticketId).subscribe({
       next: (ticket) =>
       {
+        this.impresionTicket = ticket;
         this.ticket = ticket;
         this.ticket.created_at = new Date(ticket.created_at).toLocaleString('es-MX');
         setTimeout(() =>
@@ -487,11 +489,21 @@ export class DetallesTicketComponent
     return window.confirm(message);
   }
 
-  handleConteoFinal(prendaTicket: PrendaTicket)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleConteoFinal(prendaTicket: PrendaTicket, e: any)
   {
     if(prendaTicket.total_final != prendaTicket.total_inicial)
     {
-      this.toast.warning(`El conteo final no coincide con el inicial: ${prendaTicket.total_inicial}`);
+      const ingresado = e.target.value ? parseInt(e.target.value) : 0;
+      const faltante = prendaTicket.total_inicial ?
+        prendaTicket.total_inicial - ingresado:
+        prendaTicket.total_inicial;
+
+      if ((faltante ?? 1) > 0)
+      {
+        this.toast.warning(
+          `El conteo final no coincide con el inicial, te faltan ${faltante} ${prendaTicket.nombre}(s)`);
+      }
     }
     this.checkReconteo();
   }
@@ -995,19 +1007,25 @@ export class DetallesTicketComponent
 
   renderPagosModal()
   {
-    this.pagosContainer.clear();
-    const modalPagosFactory = this.pagosModalFactory.resolveComponentFactory(RegistrarPagoComponent);
-    const modalPagoRef = this.pagosContainer.createComponent(modalPagosFactory);
-    modalPagoRef.instance.setTicket(this.ticket);
-    this.pagosContainerRef = modalPagoRef;
-    modalPagoRef.instance.setParentComponent(this.pagosModal);
-    this.pagosModal.nativeElement.show();
-
-    this.pagosModal.nativeElement.onclose = () =>
+    if(this.auth.session?.datos.role != Role.Operativo)
     {
-      this.isLoading = true;
-      this.fetchTicketById();
-    };
+      this.pagosContainer.clear();
+      const modalPagosFactory = this.pagosModalFactory.resolveComponentFactory(RegistrarPagoComponent);
+      const modalPagoRef = this.pagosContainer.createComponent(modalPagosFactory);
+      modalPagoRef.instance.setTicket(this.ticket);
+      this.pagosContainerRef = modalPagoRef;
+      modalPagoRef.instance.setParentComponent(this.pagosModal);
+      this.pagosModal.nativeElement.show();
+      this.pagosModal.nativeElement.onclose = () =>
+      {
+        this.isLoading = true;
+        this.fetchTicketById();
+      };
+    }
+    else
+    {
+      this.toast.warning('No tienes permisos para registrar anticipos, contacta a tu gerente');
+    }
   }
   closePagosModal()
   {
@@ -1046,8 +1064,356 @@ export class DetallesTicketComponent
     return `${horas }:${ minutos }:${ segundos}`;
   }
 
-  openReimprimirModal()
+  openModalServicios()
   {
     this.reimprimirModal.nativeElement.show();
+  }
+
+  closeModalCerrarVenta()
+  {
+    const modal = document.getElementById('reImpresionModal') as HTMLDialogElement;
+    if(modal)
+    {
+      modal.close();
+    }
+  }
+
+  openReimprimirTicket()
+  {
+    const modal = document.getElementById('reImpresionModal') as HTMLDialogElement;
+    if(modal)
+    {
+      modal.show();
+      setTimeout(() =>
+      {
+        this.ticketPreviewContainer.clear();
+        const ticketPreviewFactory =
+        this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+        const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+
+        ticketPreviewRef.instance.ticket = this.impresionTicket;
+        ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+        ticketPreviewRef.instance.total = Number(this.impresionTicket.total);
+        ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+        ticketPreviewRef.instance.setAnticipo(Number(this.impresionTicket.anticipo ?? '0'));
+        ticketPreviewRef.instance.setIncluyeIva(this.impresionTicket.incluye_iva);
+        ticketPreviewRef.instance.setSaldoPendiente(Number(this.impresionTicket.restante ?? '0'));
+        ticketPreviewRef.instance.setTipoCompra(this.impresionTicket.tipo_credito);
+        ticketPreviewRef.instance.setTotal(Number(this.impresionTicket.total) ?? 0);
+        ticketPreviewRef.instance.setCalculoIva(this.impresionTicket.total_iva);
+        ticketPreviewRef.instance.setMetodoPago(this.impresionTicket.metodo_pago);
+        ticketPreviewRef.instance.setCliente(this.impresionTicket.cliente);
+        // eslint-disable-next-line max-len
+        ticketPreviewRef.instance.setTipoEntrega(this.impresionTicket.envio_domicilio == true ? 'ENVIO' : 'SUCURSAL');
+        ticketPreviewRef.instance.setTicket(this.impresionTicket);
+        // eslint-disable-next-line max-len
+        const sucursalSeleccionada = this.sucursales?.find((s) => s.id == this.impresionTicket.id_sucursal ?? 1);
+        ticketPreviewRef.instance.setSucursal(
+          sucursalSeleccionada as Sucursal,
+        );
+        this.ticketPreviewRef = ticketPreviewRef;
+      }, 2000);
+    }
+  }
+
+  setupPreviewForCliente(event: Event)
+  {
+    event.preventDefault();
+    this.ticketPreviewContainer.clear();
+
+    setTimeout(() =>
+    {
+      this.ticketPreviewContainer.clear();
+      const ticketPreviewFactory =
+        this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+      const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+
+      ticketPreviewRef.instance.ticket = this.impresionTicket;
+      ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+      ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+      ticketPreviewRef.instance.setAnticipo(Number(this.impresionTicket.anticipo ?? '0'));
+      ticketPreviewRef.instance.setIncluyeIva(this.impresionTicket.incluye_iva);
+      ticketPreviewRef.instance.setSaldoPendiente(Number(this.impresionTicket.restante ?? '0'));
+      ticketPreviewRef.instance.setTipoCompra(this.impresionTicket.tipo_credito);
+      ticketPreviewRef.instance.setTotal(Number(this.impresionTicket.total) ?? 0);
+      ticketPreviewRef.instance.setCalculoIva(this.impresionTicket.total_iva);
+      ticketPreviewRef.instance.setMetodoPago(this.impresionTicket.metodo_pago);
+      ticketPreviewRef.instance.setCliente(this.impresionTicket.cliente);
+      // eslint-disable-next-line max-len
+      ticketPreviewRef.instance.setTipoEntrega(this.impresionTicket.envio_domicilio == true ? 'ENVIO' : 'SUCURSAL');
+      ticketPreviewRef.instance.setTicket(this.impresionTicket);
+      // eslint-disable-next-line max-len
+      const sucursalSeleccionada = this.sucursales?.find((s) => s.id == this.impresionTicket.id_sucursal ?? 1);
+      ticketPreviewRef.instance.setSucursal(
+          sucursalSeleccionada as Sucursal,
+      );
+      this.ticketPreviewRef.instance.esTicketCliente = true;
+      this.ticketPreviewRef.instance.setTipoTicket(true);
+      this.ticketPreviewRef = ticketPreviewRef;
+      setTimeout(() =>
+      {
+        this.printCliente(event);
+      }, 500);
+    }, 2000);
+  }
+
+  printCliente(event: Event)
+  {
+    event.preventDefault();
+
+    const newWindow = window.open('', '_blank');
+
+    if(newWindow)
+    {
+      newWindow.document.write(
+        `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>TICKET DEL CLIENTE</title>
+          </head>
+
+          <body>
+            ${this.ticketPreviewRef.location.nativeElement.outerHTML}
+          </body>
+
+          <style>
+            @page { size:  auto; margin: 0px; }
+            * {
+              font-size: 10px;
+              font-family: "Times New Roman";
+            }
+          
+            td,
+            th,
+            tr,
+            table {
+              border-top: 1px solid black;
+              border-collapse: collapse;
+            }
+          
+            td.description,
+            th.description {
+              width: 75px;
+              max-width: 75px;
+            }
+          
+            td.quantity,
+            th.quantity {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            td.price,
+            th.price {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            .centered {
+              text-align: center;
+              align-content: center;
+              font-weight: bold;
+            }
+          
+            .ticket {
+              width: 155px;
+              max-width: 155px;
+            }
+          
+            img {
+              max-width: inherit;
+              width: inherit;
+            }
+          
+            @media print {
+              .hidden-print,
+              .hidden-print * {
+                display: none !important;
+              }
+            }
+
+            .qrcodeImage {
+              display: flex;
+              flex: 1;
+            }
+            
+            /* Add custom styles here */
+            .center {
+              display: flex;
+              flex: 1;
+              justify-content: center;
+            }
+          </style>
+        </html> 
+        `);
+      newWindow.document.close();
+      newWindow.onload = () =>
+      {
+        newWindow.print();
+      };
+    }
+  }
+
+  setupPreviewForServicio(event: Event)
+  {
+    event.preventDefault();
+    this.ticketPreviewContainer.clear();
+
+    setTimeout(() =>
+    {
+      this.ticketPreviewContainer.clear();
+      const ticketPreviewFactory =
+        this.ticketPreviewFactory.resolveComponentFactory(TicketPreviewComponent);
+      const ticketPreviewRef = this.ticketPreviewContainer.createComponent(ticketPreviewFactory);
+
+      ticketPreviewRef.instance.ticket = this.impresionTicket;
+      ticketPreviewRef.instance.serviciosTicket = this.serviciosTicket;
+      ticketPreviewRef.instance.setServiciosTicket(this.serviciosTicket);
+      ticketPreviewRef.instance.setAnticipo(Number(this.impresionTicket.anticipo ?? '0'));
+      ticketPreviewRef.instance.setIncluyeIva(this.impresionTicket.incluye_iva);
+      ticketPreviewRef.instance.setSaldoPendiente(Number(this.impresionTicket.restante ?? '0'));
+      ticketPreviewRef.instance.setTipoCompra(this.impresionTicket.tipo_credito);
+      ticketPreviewRef.instance.setTotal(Number(this.impresionTicket.total) ?? 0);
+      ticketPreviewRef.instance.setCalculoIva(this.impresionTicket.total_iva);
+      ticketPreviewRef.instance.setMetodoPago(this.impresionTicket.metodo_pago);
+      ticketPreviewRef.instance.setCliente(this.impresionTicket.cliente);
+      // eslint-disable-next-line max-len
+      ticketPreviewRef.instance.setTipoEntrega(this.impresionTicket.envio_domicilio == true ? 'ENVIO' : 'SUCURSAL');
+      ticketPreviewRef.instance.setTicket(this.impresionTicket);
+      // eslint-disable-next-line max-len
+      const sucursalSeleccionada = this.sucursales?.find((s) => s.id == this.impresionTicket.id_sucursal ?? 1);
+      ticketPreviewRef.instance.setSucursal(
+          sucursalSeleccionada as Sucursal,
+      );
+      this.ticketPreviewRef.instance.esTicketCliente = false;
+      this.ticketPreviewRef.instance.setTipoTicket(false);
+      this.ticketPreviewRef = ticketPreviewRef;
+      setTimeout(() =>
+      {
+        this.printServicio(event);
+      }, 500);
+    }, 1000);
+  }
+
+  printServicio(event: Event)
+  {
+    event.preventDefault();
+
+    const newWindow = window.open('', '_blank');
+
+    if(newWindow)
+    {
+      newWindow.document.write(
+        `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>TICKET DE SERVICIO</title>
+          </head>
+
+          <body>
+            ${this.ticketPreviewRef.location.nativeElement.outerHTML}
+          </body>
+
+          <style>
+            @page { size:  auto; margin: 0px; }
+            * {
+              font-size: 10px;
+              font-family: "Times New Roman";
+            }
+          
+            td,
+            th,
+            tr,
+            table {
+              border-top: 1px solid black;
+              border-collapse: collapse;
+            }
+          
+            td.description,
+            th.description {
+              width: 75px;
+              max-width: 75px;
+            }
+          
+            td.quantity,
+            th.quantity {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            td.price,
+            th.price {
+              width: 40px;
+              max-width: 40px;
+              word-break: break-all;
+            }
+          
+            .centered {
+              text-align: center;
+              align-content: center;
+              font-weight: bold;
+            }
+          
+            .ticket {
+              width: 155px;
+              max-width: 155px;
+            }
+          
+            img {
+              max-width: inherit;
+              width: inherit;
+            }
+          
+            @media print {
+              .hidden-print,
+              .hidden-print * {
+                display: none !important;
+              }
+            }
+
+            .qrcodeImage {
+              display: flex;
+              flex: 1;
+            }
+            
+            /* Add custom styles here */
+            .center {
+              display: flex;
+              flex: 1;
+              justify-content: center;
+            }
+          </style>
+        </html> 
+        `);
+      newWindow.document.close();
+      newWindow.onload = () =>
+      {
+        newWindow.print();
+      };
+    }
+  }
+
+  isAllowedToSeeInitialCount()
+  {
+    return this.auth.session?.datos.role === Role.Administrador ||
+    this.auth.session?.datos.role === Role.Encargado;
+  }
+
+  isAllowedToSeeEntregaScreen()
+  {
+    return this.auth.session?.datos.role === Role.Administrador ||
+    this.auth.session?.datos.role === Role.Encargado ||
+    this.auth.session?.datos.role === Role.Cajero;
   }
 }

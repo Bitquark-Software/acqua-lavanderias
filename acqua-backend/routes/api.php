@@ -111,7 +111,7 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo', '
 });
 
 // Administradores, Encargados y Cajeros
-Route::middleware('auth:api', 'role:administrador,encargado,cajero', 'cajaestado')->group(function () {
+Route::middleware('auth:api', 'role:administrador,encargado,cajero,operativo', 'cajaestado')->group(function () {
 
     Route::apiResource('servicios-ticket', ServicioTicketController::class)->except('destroy');
 

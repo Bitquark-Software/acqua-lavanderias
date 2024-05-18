@@ -6,6 +6,8 @@ import { Ticket, TicketResponse } from 'src/app/dtos/ticket';
 import { TicketService } from 'src/app/services/ticket.service';
 import { Proceso, ProcesosAcqua } from 'src/app/dtos/proceso';
 import { HotToastService } from '@ngneat/hot-toast';
+import { Role } from 'src/app/enums/Role.enum';
+import { AuthService } from 'src/app/services/auth-service.service';
 
 @Component({
   selector: 'app-tickets',
@@ -25,6 +27,7 @@ export class TicketsComponent
     private toast: HotToastService,
     private route: ActivatedRoute,
     private ticketsService: TicketService,
+    private auth: AuthService,
   )
   {
     this.route.queryParams.subscribe({
@@ -136,5 +139,10 @@ export class TicketsComponent
         console.log(err);
       },
     });
+  }
+
+  isOperativo()
+  {
+    return this.auth.session?.datos.role === Role.Operativo;
   }
 }

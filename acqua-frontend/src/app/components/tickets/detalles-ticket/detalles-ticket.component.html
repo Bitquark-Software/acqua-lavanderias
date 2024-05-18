@@ -14,12 +14,15 @@
       <div class="card-body">
         <!-- TODO: Agregar botón para re-imprimir el ticket -->
         <div class="grid grid-cols-3 gap-2 content-between">
-          <div class="col-span-2">
+          <div class="col-span-1">
             <p class="font-medium text-xl text-secondary">Cliente: {{ticket.cliente.nombre}}</p>
-            <p class="font-thin text-xs">Ticket creado: {{ticket.created_at}}</p>
-            <p class="font-thin text-xs">No. Ticket: {{ticket.id}}</p>
+            <p class="text-md">Ticket creado: {{ticket.created_at}}</p>
+            <p class="text-md">No. Ticket: {{ticket.id}}</p>
           </div>
-          <button class="btn btn-outline btn-secondary" (click)="openReimprimirModal()">
+          <button class="btn btn-outline btn-secondary" (click)="openReimprimirTicket()">
+            Imprimir ticket
+          </button>
+          <button class="btn btn-outline btn-success" (click)="openModalServicios()">
             Ver servicios
           </button>
         </div>
@@ -312,7 +315,7 @@
             <tr>
               <th>#</th>
               <th>Prenda</th>
-              <th>Conteo inicial</th>
+              <th *ngIf="isAllowedToSeeInitialCount()">Conteo inicial</th>
               <th>Conteo Final</th>
             </tr>
           </thead>
@@ -320,10 +323,10 @@
             <tr *ngFor="let pt of prendasTicket; let i = index">
               <th>{{ (i+1) }}</th>
               <td>{{ pt.nombre }}</td>
-              <td>{{ pt.total_inicial }}</td>
+              <td *ngIf="isAllowedToSeeInitialCount()">{{ pt.total_inicial }}</td>
               <td>
                 <div class="form-control">
-                  <input type="tel" placeholder="1" min="1" class="input input-bordered w-full" [(ngModel)]="pt.total_final" (change)="handleConteoFinal(pt)"/>
+                  <input type="tel" placeholder="1" min="1" class="input input-bordered w-full" [(ngModel)]="pt.total_final" (change)="handleConteoFinal(pt, $event)"/>
                 </div>
               </td>
             </tr>
@@ -360,8 +363,12 @@
       class="p-4 w-11/12 bg-base-100 rounded-lg border shadow-md sm:p-8 m-auto"
       *ngIf="stepCursor == 4"
     >
-      <h3 class="font-bold text-3xl ml-2 pt-6">Entrega / Recolección</h3>
-      <div class="w-fit m-auto tabs tabs-boxed mt-3">
+      <h3 class="font-bold text-3xl ml-2 pt-6" *ngIf="isAllowedToSeeEntregaScreen()">Entrega / Recolección</h3>
+      <h3 class="font-bold text-3xl ml-2 pt-6" *ngIf="!isAllowedToSeeEntregaScreen()">¡Excelente trabajo!</h3>
+
+      <p class="text-center font-light" *ngIf="!isAllowedToSeeEntregaScreen()">Un encargado, administrador o cajero puede proceder con la entrega de este servicio.</p>
+
+      <div class="w-fit m-auto tabs tabs-boxed mt-3" *ngIf="isAllowedToSeeEntregaScreen()">
         <a
           class="tab text-primary text-center"
           [ngClass]="{
@@ -393,7 +400,7 @@
         </a> 
       </div>
 
-      <div class="w-full mt-3 pb-12" *ngIf="cursorEntrega == 0">
+      <div class="w-full mt-3 pb-12" *ngIf="cursorEntrega == 0 && isAllowedToSeeEntregaScreen()">
         <div class="form-control w-6/12">
           <label class="label">
             <span class="label-text">Selecciona un centro de recolección</span>
@@ -404,7 +411,7 @@
         </div>
       </div>
 
-      <div class="w-full mt-3 pb-12" *ngIf="cursorEntrega == 1">
+      <div class="w-full mt-3 pb-12" *ngIf="cursorEntrega == 1 && isAllowedToSeeEntregaScreen()">
         <div class="form-control w-6/12" *ngIf="ticket.cliente.direccion">
           <label class="label">
             <span class="label-text">Selecciona una ubicación del cliente</span>
@@ -415,7 +422,7 @@
         </div>
       </div>
     </div>
-    <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 4">
+    <div class="w-full items-center p-4 bg-base-100 text-neutral-content" *ngIf="stepCursor == 4 && isAllowedToSeeEntregaScreen()">
       <div class="flex justify-end">
         <button [disabled]="shouldDisableFinalizarEntregaButton()" class="btn btn-outline btn-primary shadow-md md:mr-8" (click)="nextStep()">
           Servicio entregado
@@ -779,6 +786,27 @@
       <form method="dialog">
         <button class="btn">Cerrar</button>
       </form>
+    </div>
+  </div>
+</dialog>
+<dialog class="modal" id="reImpresionModal">
+  <!-- #ticketPreviewContainer -->
+  <div class="modal-box h-fit w-fit">
+    <ng-container class="w-full shadow-sm rounded-xl" #ticketPreviewContainer></ng-container>
+    <div class="modal-action">
+      <div class="join join-vertical md:join-horizontal m-auto">
+        <button class="btn btn-xs btn-ghost join-item" (click)="closeModalCerrarVenta()">Volver</button>
+        <button class="btn btn-xs join-item" (click)="setupPreviewForCliente($event)">
+          <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          Cliente</button>
+        <button class="btn btn-xs join-item" (click)="setupPreviewForServicio($event)">
+          <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          Servicio</button>
+      </div>
     </div>
   </div>
 </dialog>

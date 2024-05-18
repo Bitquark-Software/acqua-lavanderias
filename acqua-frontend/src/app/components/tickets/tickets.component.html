@@ -158,7 +158,7 @@
                   <p class="text-sm font-medium text-gray-900 truncate">
                     {{ ticket.cliente.nombre }}
                   </p>
-                  <p class="text-sm text-gray-500 truncate">
+                  <p class="text-sm text-gray-500 truncate" *ngIf="!isOperativo()">
                     {{ ticket.cliente.telefono }}
                   </p>
                   <p class="text-sm text-gray-500 truncate">
