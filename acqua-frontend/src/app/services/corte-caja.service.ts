@@ -52,19 +52,7 @@ export class CorteCajaService
       this.handleNotifications('Creando corte de caja', 'Corte de caja creado!'),
     );
   }
-
-  updateCorteCaja(idCaja: number, monto: number): Observable<CorteCajaResponsePut>
-  {
-    return this.httpClient.put(`${API_URL}/gestion-caja/${idCaja}`, {
-      monto_cierre: monto,
-    }, {
-      headers: this.authService.getHeaders(),
-    }).pipe(
-      this.handleNotifications('Actualizando corte de caja...', 'Corte de caja actualizada!'),
-    );
-  }
-
-  forcedUpdateCorteCaja(idCaja: number, monto: number, codigo: string): Observable<CorteCajaResponsePut>
+  updateCorteCaja(idCaja: number, monto: number, codigo: string): Observable<CorteCajaResponsePut>
   {
     return this.httpClient.put(`${API_URL}/gestion-caja/${idCaja}`, {
       monto_cierre: monto,
