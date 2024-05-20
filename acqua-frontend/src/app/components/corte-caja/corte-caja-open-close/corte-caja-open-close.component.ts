@@ -130,7 +130,7 @@ export class CorteCajaOpenCloseComponent
       break;
     case PROCESOS_CORTE_CAJA.CIERRE:
       this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
-      this.closeCashierReconciliation(modal_success, modal_error);
+      this.closeCashierReconciliation(modal_success, modal_error, this.codigo_admin);
       break;
     default:
       break;
@@ -183,7 +183,7 @@ export class CorteCajaOpenCloseComponent
     }
   }
 
-  requestCloseCashierReconciliation(input_id_caja = '', input_monto = '', modal_continuar = '', modal_error = '', modal_success = '', modal_codigo = '')
+  requestCloseCashierReconciliation(input_id_caja = '', input_monto = '', modal_codigo = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
 
@@ -193,20 +193,20 @@ export class CorteCajaOpenCloseComponent
       {
         this.showModal(modal_codigo, () =>
         {
-          this.validateAndCloseCashierReconciliation(modal_continuar, modal_error, modal_success);
+          this.validateAndCloseCashierReconciliation(modal_continuar, modal_error);
         });
       });
     });
   }
 
-  validateAndCloseCashierReconciliation(modal_continuar_cerrar_caja = '', modal_error = '', modal_success = '')
+  validateAndCloseCashierReconciliation(modal_continuar_cerrar_caja = '', modal_error = '')
   {
     const continuar_operaciones = (response: CorteCajaResponseGet<CorteCaja>) =>
     {
       const current_caja: CorteCaja = response.data[0];
       const id_caja_valido = !isNaN(Number(this.id_caja)) && Number(this.id_caja) === Number(current_caja.id);
       const monto_cierre_valido = !isNaN(Number(this.monto)) && Number(this.monto)>0;
-      const codigo_admin_valido = /^[\s\t\n]*$/;
+      const codigo_admin_formato_valido = this.codigo_admin.trim().length > 0;
 
       if(current_caja!.abierto === 1)
       {
@@ -214,20 +214,20 @@ export class CorteCajaOpenCloseComponent
         {
           if(monto_cierre_valido)
           {
-            if(codigo_admin_valido.test(this.codigo_admin))
+            if(codigo_admin_formato_valido)
             {
               this.showModal(modal_continuar_cerrar_caja);
             }
             else
             {
               this.msg_error = INPUT_ERRORS.CODIGO_ADMIN;
-              this.closeCashierReconciliation(modal_success, modal_error, this.codigo_admin);
+              this.showModal(modal_error, () => { this.clearTempAllData(); });
             }
           }
           else
           {
             this.msg_error = INPUT_ERRORS.MONTO_CIERRE;
-            this.closeCashierReconciliation(modal_success, modal_error, this.codigo_admin);
+            this.showModal(modal_error, () => { this.clearTempAllData(); });
           }
         }
         else
@@ -279,13 +279,9 @@ export class CorteCajaOpenCloseComponent
     });
   }
 
-  closeCashierReconciliation(modal_success = '', modal_error = '', codigo_admin?: string)
+  closeCashierReconciliation(modal_success = '', modal_error = '', codigo_admin: string)
   {
-    const updateCorteCajaSubscription = codigo_admin ?
-      this.corteCajaService.forcedUpdateCorteCaja(Number(this.id_caja), Number(this.monto), codigo_admin) :
-      this.corteCajaService.updateCorteCaja(Number(this.id_caja), Number(this.monto));
-
-    updateCorteCajaSubscription.subscribe({
+    this.corteCajaService.updateCorteCaja(Number(this.id_caja), Number(this.monto), codigo_admin).subscribe({
       next: (response: CorteCajaResponsePut) =>
       {
         this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
