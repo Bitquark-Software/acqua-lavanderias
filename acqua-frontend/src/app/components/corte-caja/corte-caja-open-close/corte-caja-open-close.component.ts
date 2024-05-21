@@ -34,6 +34,8 @@ export class CorteCajaOpenCloseComponent
   msg_success!: string;
   msg_error!: string;
 
+  process_aborted!: boolean;
+
   // Otros
   @Output() mostrarCajaEvent = new EventEmitter<boolean>();
 
@@ -71,6 +73,7 @@ export class CorteCajaOpenCloseComponent
 
   clearTempDataCorteCaja()
   {
+    this.process_aborted = false;
     this.id_caja! = '';
     this.monto! = '';
     this.codigo_admin! = '';
@@ -94,8 +97,10 @@ export class CorteCajaOpenCloseComponent
 
   isInputEmpty(id_input = ''): boolean
   {
+    // Valida saltos de linea, tabulaciones y espacios en blanco
+    const regex_input = /^[\s\t\n]+$/;
     const idInput = document.getElementById(id_input) as HTMLInputElement;
-    return idInput.value.trim() === '';
+    return regex_input.test(idInput.value) || idInput.value.length === 0;
   }
 
   showModal(name_modal = '', callback?: () => void): void
@@ -137,16 +142,41 @@ export class CorteCajaOpenCloseComponent
     }
   }
 
+  cancelarOperacion(modal_continuar = '')
+  {
+    this.closeModal(modal_continuar);
+    this.clearTempAllData();
+  }
+
+  abort_process()
+  {
+    this.process_aborted = true;
+  }
+
   requestOpenCashierReconciliation(input_monto = '', input_codigo = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = PROCESOS_CORTE_CAJA.APERTURA;
 
     this.showModal(input_monto, () =>
     {
-      this.showModal(input_codigo, () =>
+      if(!this.process_aborted)
       {
-        this.validateAndOpenCashierReconciliation(modal_continuar, modal_error);
-      });
+        this.showModal(input_codigo, () =>
+        {
+          if(!this.process_aborted)
+          {
+            this.validateAndOpenCashierReconciliation(modal_continuar, modal_error);
+          }
+          else
+          {
+            this.clearTempAllData();
+          }
+        });
+      }
+      else
+      {
+        this.clearTempAllData();
+      }
     });
   }
 
@@ -154,21 +184,12 @@ export class CorteCajaOpenCloseComponent
   {
     const id_sucursal_valido = !isNaN(this.id_sucursal) && this.id_sucursal>0;
     const monto_apertura_valido = !isNaN(Number(this.monto)) && Number(this.monto)>0;
-    const codigo_admin_valido = /^[\s\t\n]*$/;
 
     if(id_sucursal_valido)
     {
       if(monto_apertura_valido)
       {
-        if(!codigo_admin_valido.test(this.codigo_admin))
-        {
-          this.showModal(modal_continuar_abrir_caja);
-        }
-        else
-        {
-          this.msg_error = INPUT_ERRORS.CODIGO_ADMIN;
-          this.showModal(modal_error, () => { this.clearTempAllData(); });
-        }
+        this.showModal(modal_continuar_abrir_caja);
       }
       else
       {
@@ -189,13 +210,34 @@ export class CorteCajaOpenCloseComponent
 
     this.showModal(input_id_caja, () =>
     {
-      this.showModal(input_monto, () =>
+      if(!this.process_aborted)
       {
-        this.showModal(modal_codigo, () =>
+        this.showModal(input_monto, () =>
         {
-          this.validateAndCloseCashierReconciliation(modal_continuar, modal_error);
+          if(!this.process_aborted)
+          {
+            this.showModal(modal_codigo, () =>
+            {
+              if(!this.process_aborted)
+              {
+                this.validateAndCloseCashierReconciliation(modal_continuar, modal_error);
+              }
+              else
+              {
+                this.clearTempAllData();
+              }
+            });
+          }
+          else
+          {
+            this.clearTempAllData();
+          }
         });
-      });
+      }
+      else
+      {
+        this.clearTempAllData();
+      }
     });
   }
 
@@ -206,7 +248,6 @@ export class CorteCajaOpenCloseComponent
       const current_caja: CorteCaja = response.data[0];
       const id_caja_valido = !isNaN(Number(this.id_caja)) && Number(this.id_caja) === Number(current_caja.id);
       const monto_cierre_valido = !isNaN(Number(this.monto)) && Number(this.monto)>0;
-      const codigo_admin_formato_valido = this.codigo_admin.trim().length > 0;
 
       if(current_caja!.abierto === 1)
       {
@@ -214,15 +255,7 @@ export class CorteCajaOpenCloseComponent
         {
           if(monto_cierre_valido)
           {
-            if(codigo_admin_formato_valido)
-            {
-              this.showModal(modal_continuar_cerrar_caja);
-            }
-            else
-            {
-              this.msg_error = INPUT_ERRORS.CODIGO_ADMIN;
-              this.showModal(modal_error, () => { this.clearTempAllData(); });
-            }
+            this.showModal(modal_continuar_cerrar_caja);
           }
           else
           {
