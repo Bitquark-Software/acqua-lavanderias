@@ -9,7 +9,7 @@ import { CajaStateService } from 'src/app/services/caja-state.service';
 
 export class DashboardComponent
 {
-  mostrarCaja!: boolean;
+  caja_abierta!: boolean;
 
   constructor(private cajaStateService: CajaStateService)
   {
@@ -20,7 +20,7 @@ export class DashboardComponent
   {
     this.cajaStateService.mostrarCajaEvent.subscribe((mostrar: boolean) =>
     {
-      this.mostrarCaja = mostrar;
+      this.caja_abierta = mostrar;
     });
   }
 }
