@@ -167,7 +167,7 @@ class CorteCajaController extends Controller
      *   "mensaje": "La caja con el ID proporcionado no se encontró"
      * }
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         $request->validate([
             "monto_cierre" => ['required', 'numeric'],
@@ -175,17 +175,12 @@ class CorteCajaController extends Controller
         ]);
 
         try {
-            $cajaActual = CorteCaja::findOrFail($id);
+            $cajaActual = CorteCaja::where('id_sucursal', $request->user()->id_sucursal)
+                ->where('abierto', 1)->firstOrFail();
         } catch (ModelNotFound $e) {
             return response()->json([
-                'mensaje' => 'La caja con el ID proporcionado no se encontró'
+                'mensaje' => 'La caja de tu sucursal no se encontro o ya esta cerrada'
             ], 404);
-        }
-
-        if ($cajaActual->abierto === 0) {
-            return response()->json([
-                'mensaje' => 'La caja ingresada esta actualmente cerrada'
-            ]);
         }
 
         $fechaActual = date('Y-m-d H:m:s');
