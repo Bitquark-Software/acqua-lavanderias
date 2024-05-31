@@ -33,6 +33,8 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
     // Ganancias efectivo,transferencia y tarjeta por sucursal
     Route::post('gestion-caja-ganancias', [CorteCajaController::class, 'ventaGeneral'])->name('gestion-caja-ganancias');
 
+    Route::put('gestion-caja', [CorteCajaController::class, 'update'])->name('gestion-caja.update');
+
     Route::middleware('role:administrador,encargado')->group(function () {
         // Generacion de Codigos de Cancelacion Tickets
         Route::apiResource('codigos-admin', CodigoAdminController::class);
@@ -41,7 +43,10 @@ Route::middleware('auth:api', 'role:administrador,encargado,cajero')->group(func
         Route::post('busqueda_codigo', [CodigoAdminController::class, 'buscarCodigo'])->name('codigos.buscar');
 
         // Aperturas y Cortes de cajas
-        Route::apiResource('gestion-caja', CorteCajaController::class);
+        Route::get('gestion-caja', [CorteCajaController::class, 'index'])->name('gestion-caja.index');
+        Route::post('gestion-caja', [CorteCajaController::class, 'store'])->name('gestion-caja.store');
+        Route::get('gestion-caja/{gestion_caja}', [CorteCajaController::class, 'show'])->name('gestion-caja.show');
+        Route::delete('gestion-caja/{gestion_caja}', [CorteCajaController::class, 'destroy'])->name('gestion-caja.destroy');
     });
 });
 
