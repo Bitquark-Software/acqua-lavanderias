@@ -27,6 +27,7 @@ export class AdminCodesComponent
 
   current_process_name!: string;
   aborted_process!: boolean;
+  is_requesting!: boolean;
   copied_clipboard!: boolean;
 
   msg_success_modal!: string;
@@ -65,6 +66,7 @@ export class AdminCodesComponent
     this.msg_error_modal = '';
     this.current_process_name = '';
     this.aborted_process = false;
+    this.is_requesting = false;
     this.copied_clipboard = false;
   }
 
@@ -149,7 +151,10 @@ export class AdminCodesComponent
     this.current_process_name = 'Consulta del código actual'.toUpperCase();
     this.getCurrentAdminCode(() =>
     {
-      this.showModal(AdminCodesComponent.show_code_modal);
+      this.showModal(AdminCodesComponent.show_code_modal, () =>
+      {
+        this.inicializarVariables();
+      });
     });
   }
 
@@ -279,6 +284,7 @@ export class AdminCodesComponent
 
   getAdminCodes(page: number, callback: CallbackResponseGet)
   {
+    this.is_requesting = true;
     this.codigoAdminService.fetchAdminCodes(page).subscribe({
       next: (response: AdminCodeResponseGet) =>
       {
@@ -295,6 +301,7 @@ export class AdminCodesComponent
 
   generateAdminCode(message: string, callback: CallbackResponsePostPut)
   {
+    this.is_requesting = true;
     this.codigoAdminService.createAdminCode(message).subscribe({
       next: (response: AdminCodeResponsePostPut) =>
       {
@@ -311,6 +318,7 @@ export class AdminCodesComponent
 
   updateAdminCode(id_code: number, id_ticket: number, callback: CallbackResponsePostPut)
   {
+    this.is_requesting = true;
     this.codigoAdminService.updateAdminCodeById(id_code, id_ticket).subscribe({
       next: (response: AdminCodeResponsePostPut) =>
       {
