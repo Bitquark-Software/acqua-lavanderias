@@ -41,3 +41,9 @@ export class AdminCodeResponsePostPut
   data!: AdminCode;
   mensaje!: string;
 }
+
+export enum StatusCode
+{
+  USADO = 1,
+  NO_USADO = 0
+}

@@ -1,6 +1,12 @@
 import { Component } from '@angular/core';
-import { AdminCode, AdminCodeResponseGet, AdminCodeResponsePostPut } from 'src/app/dtos/admin-code';
+import { HotToastService } from '@ngneat/hot-toast';
 import { AdminCodesService } from 'src/app/services/admin-codes.service';
+import {
+  AdminCode,
+  StatusCode,
+  AdminCodeResponseGet,
+  AdminCodeResponsePostPut,
+} from 'src/app/dtos/admin-code';
 
 type CallbackResponseGet = (response: AdminCodeResponseGet) => void;
 type CallbackResponsePostPut = (response: AdminCodeResponsePostPut) => void;
@@ -13,139 +19,262 @@ type CallbackResponsePostPut = (response: AdminCodeResponsePostPut) => void;
 
 export class AdminCodesComponent
 {
-  current_page: number;
-  current_admin_code: AdminCode | null;
-  temp_id_ticket: number | null;
-  temp_motivo_codigo: string | null;
+  current_page!: number;
+  current_code!: AdminCode | null;
+
+  ticket_id_input!: string | null;
+  code_reason_input!: string | null;
+
+  current_process_name!: string;
+  aborted_process!: boolean;
+  copied_clipboard!: boolean;
+
+  msg_success_modal!: string;
+  msg_error_modal!: string;
+
+  static show_code_modal: string;
+  static success_modal: string;
+  static error_modal: string;
+  static code_reason_modal: string;
+  static ticket_id_modal: string;
 
   constructor(
     private codigoAdminService: AdminCodesService,
+    private toast: HotToastService,
   )
   {
-    this.current_admin_code = null;
-    this.current_page = 1;
-    this.temp_id_ticket = 0;
-    this.temp_motivo_codigo = '';
-    // Esta instrucción es necesaria para que cargen correctamente los modales con valor
-    this.getCurrentAdminCode(() => {});
+    AdminCodesComponent.show_code_modal = 'show_code_modal_id';
+    AdminCodesComponent.success_modal = 'success_modal_id';
+    AdminCodesComponent.error_modal = 'error_modal_id';
+    AdminCodesComponent.code_reason_modal = 'code_reason_modal_id';
+    AdminCodesComponent.ticket_id_modal = 'ticket_id_modal_id';
   }
 
-  showModal(name_modal = '')
+  ngOnInit()
+  {
+    this.inicializarVariables();
+  }
+
+  inicializarVariables()
+  {
+    this.current_code = new AdminCode();
+    this.current_page = 1;
+    this.ticket_id_input = '0';
+    this.code_reason_input = '';
+    this.msg_success_modal = '';
+    this.msg_error_modal = '';
+    this.current_process_name = '';
+    this.aborted_process = false;
+    this.copied_clipboard = false;
+  }
+
+  copyCodeToClipboard()
+  {
+    if(this.current_code !== null && !(this.current_code.usado === StatusCode.USADO) && this.current_code.codigo !== '')
+    {
+      navigator.clipboard.writeText(this.current_code.codigo!).then(() =>
+      {
+        this.copied_clipboard = true;
+        this.toast.info('Se ha copiado al protapapeles');
+      }).catch((error) =>
+      {
+        this.toast.error('No fue posible copiar al portapales');
+        console.error('Clipboard error:', error);
+      });
+    }
+    else
+    {
+      this.toast.warning('No hay código disponible para copiar');
+    }
+  }
+
+  clearClipboard()
+  {
+    navigator.clipboard.writeText('').then(() =>
+    {
+      this.copied_clipboard = false;
+      this.toast.info('Se ha limpiado el portapapeles');
+    }).catch((error) =>
+    {
+      this.toast.error('No fue posible copiar al portapales');
+      console.error('Clipboard error:', error);
+    });
+  }
+
+  showModal(name_modal = '', callback?: () => void): void
   {
     const modal = document.getElementById(name_modal);
     if (modal instanceof HTMLDialogElement)
     {
       modal.showModal();
+      if (callback)
+      {
+        modal.addEventListener('close', callback, { once: true });
+      }
     }
   }
 
-  closeModal(name_modal = '')
+  closeModal(name_modal = '', callback?: () => void)
   {
     const modal = document.getElementById(name_modal);
     if (modal instanceof HTMLDialogElement)
     {
       modal.close();
+      if (callback)
+      {
+        modal.addEventListener('close', callback, { once: true });
+      }
     }
   }
 
-  requestCurrentAdminCode(modal_success = '', modal_fail = '')
+  isInputEmpty(id_input = ''): boolean
   {
-    const modalMessages = () =>
-    {
-      if(this.current_admin_code !== null && this.current_admin_code!.usado === 0)
-      {
-        this.showModal(modal_success);
-      }
-      else
-      {
-        this.showModal(modal_fail);
-      }
-    };
-    this.getCurrentAdminCode(modalMessages);
+    // Valida saltos de linea, tabulaciones y espacios en blanco
+    const regex_input = /^[\s\t\n]+$/;
+    const idInput = document.getElementById(id_input) as HTMLInputElement;
+    return regex_input.test(idInput.value) || idInput.value.length === 0;
   }
 
-  getCurrentAdminCode(showMessage: () => void)
+  abort_process(modal_close = '')
   {
-    const gotoLastPageCallback = (response: AdminCodeResponseGet) =>
+    this.aborted_process = true;
+    this.closeModal(modal_close, () =>
     {
-      if(this.current_page !== response.last_page)
-      {
-        this.current_page = response.last_page!;
-        this.getAdminCodes(response.last_page!, showMessage);
-      }
-      else
-      {
-        showMessage();
-      }
-    };
-    this.getAdminCodes(this.current_page, gotoLastPageCallback);
+      this.inicializarVariables();
+    });
   }
 
-  requestGenerateAdminCode(modal_input_motivo = '', modal_fail = '')
+  requestCurrentAdminCode()
   {
+    this.current_process_name = 'Consulta del código actual'.toUpperCase();
+    this.getCurrentAdminCode(() =>
+    {
+      this.showModal(AdminCodesComponent.show_code_modal);
+    });
+  }
+
+  requestGenerateAdminCode()
+  {
+    this.current_process_name = 'Creación de nuevo código'.toUpperCase();
+
     const continueGenerateCode = () =>
     {
-      if(this.current_admin_code === null || this.current_admin_code.usado !== 0)
+      if(this.current_code !== null && this.current_code.usado === StatusCode.USADO)
       {
-        this.showModal(modal_input_motivo);
+        this.generateAdminCode(this.code_reason_input!, (response: AdminCodeResponsePostPut) =>
+        {
+          this.msg_success_modal = `Su nuevo código es ahora: ${response.data.codigo}`;
+          this.current_code = response.data;
+          this.showModal(AdminCodesComponent.show_code_modal, () =>
+          {
+            this.inicializarVariables();
+          });
+        });
       }
       else
       {
-        this.showModal(modal_fail);
+        this.msg_error_modal = 'Ya se dispone de un código, no es necesario generar otro';
+        this.showModal(AdminCodesComponent.error_modal, () =>
+        {
+          this.inicializarVariables();
+        });
       }
     };
 
-    this.getCurrentAdminCode(continueGenerateCode);
+    this.showModal(AdminCodesComponent.code_reason_modal, () =>
+    {
+      if(this.aborted_process === false)
+      {
+        this.getCurrentAdminCode(() =>
+        {
+          continueGenerateCode();
+        });
+      }
+    });
+
   }
 
-  requestUpdateAdminCode(modal_input_id_ticket = '', modal_fail = '')
+  requestUpdateAdminCode()
   {
+    this.current_process_name = 'Actualización del estado del código'.toUpperCase();
+
     const continueUpdateCode = () =>
     {
-      if(this.current_admin_code !== null && this.current_admin_code.usado === 0)
+      if(this.current_code !== null && this.current_code.usado === StatusCode.NO_USADO)
       {
-        this.showModal(modal_input_id_ticket);
+        this.updateAdminCode(Number(this.current_code.id), Number(this.ticket_id_input), (response: AdminCodeResponsePostPut) =>
+        {
+          this.msg_success_modal = `Su código ${response.data.codigo} se ha actualizado  y no se puede volver a usar`;
+          this.showModal(AdminCodesComponent.success_modal, () =>
+          {
+            this.inicializarVariables();
+          });
+        });
       }
       else
       {
-        this.showModal(modal_fail);
+        this.msg_error_modal = 'No hay código disponible para actualizar';
+        this.showModal(AdminCodesComponent.error_modal, () =>
+        {
+          this.inicializarVariables();
+        });
       }
     };
-    this.getCurrentAdminCode(continueUpdateCode);
+
+    this.showModal(AdminCodesComponent.ticket_id_modal, () =>
+    {
+      if(this.aborted_process === false)
+      {
+        if(!isNaN(Number(this.ticket_id_input)) && Number(this.ticket_id_input)>0)
+        {
+          this.getCurrentAdminCode(() =>
+          {
+            continueUpdateCode();
+          });
+        }
+        else
+        {
+          this.msg_error_modal = 'El id del ticket no es valido';
+          this.showModal(AdminCodesComponent.error_modal, () =>
+          {
+            this.inicializarVariables();
+          });
+        }
+      }
+    });
   }
 
-  updateAdminCodeModal(modal_success = '', modal_fail = '')
+  getCurrentAdminCode(callBack: (response: AdminCodeResponseGet) => void)
   {
-    const showMessageSuccess = () =>
+    const setMessageLastCode = (response: AdminCodeResponseGet) =>
     {
-      this.showModal(modal_success);
+      if(response.data.length > 0)
+      {
+        if(response.data[response.data.length-1].usado === StatusCode.NO_USADO)
+        {
+          this.msg_success_modal = `El código actualmente disponible es: ${this.current_code!.codigo}`;
+        }
+        else
+        {
+          this.msg_success_modal = 'No hay códigos disponibles, debe generar uno nuevo';
+        }
+      }
+      else
+      {
+        this.msg_success_modal = 'No hay códigos disponibles, debe generar uno nuevo';
+      }
     };
 
-    if(this.temp_id_ticket !== null && this.temp_id_ticket > 0)
+    this.getAdminCodes(this.current_page, (first_response: AdminCodeResponseGet) =>
     {
-      this.updateAdminCode(this.current_admin_code!.id!, this.temp_id_ticket, showMessageSuccess);
-    }
-    else
-    {
-      this.showModal(modal_fail);
-    }
-  }
-
-  generateAdminCodeModal(modal_success = '', modal_fail = '')
-  {
-    const showMessageSuccess = () =>
-    {
-      this.showModal(modal_success);
-    };
-
-    if(this.temp_motivo_codigo !== null && this.temp_motivo_codigo !== '')
-    {
-      this.generateAdminCode(this.temp_motivo_codigo, showMessageSuccess);
-    }
-    else
-    {
-      this.showModal(modal_fail);
-    }
+      this.current_page = first_response.last_page!;
+      this.getAdminCodes(first_response.last_page!, (second_response: AdminCodeResponseGet) =>
+      {
+        this.current_code = second_response.data[second_response.data.length-1];
+        setMessageLastCode(second_response);
+        callBack(second_response);
+      });
+    });
   }
 
   getAdminCodes(page: number, callback: CallbackResponseGet)
@@ -153,12 +282,13 @@ export class AdminCodesComponent
     this.codigoAdminService.fetchAdminCodes(page).subscribe({
       next: (response: AdminCodeResponseGet) =>
       {
-        this.current_admin_code = response.data[response.data.length-1];
         callback(response);
       },
       error: (err) =>
       {
-        console.error(`Error: ${err.message ?? ' - No fue posible obtener los codigos'}`);
+        this.msg_error_modal = 'No fue posible obtener los codigos';
+        this.showModal(AdminCodesComponent.error_modal);
+        console.error('Error al obtener los código: ', err.message);
       },
     });
   }
@@ -168,12 +298,13 @@ export class AdminCodesComponent
     this.codigoAdminService.createAdminCode(message).subscribe({
       next: (response: AdminCodeResponsePostPut) =>
       {
-        this.current_admin_code = response.data;
         callback(response);
       },
       error: (err) =>
       {
-        console.error(`Error: ${err.message ?? ' - No fue posible crear el código'}`);
+        this.msg_error_modal = 'No fue posible crear el código';
+        this.showModal(AdminCodesComponent.error_modal);
+        console.error('Error al generar el código: ', err.message);
       },
     });
   }
@@ -183,12 +314,13 @@ export class AdminCodesComponent
     this.codigoAdminService.updateAdminCodeById(id_code, id_ticket).subscribe({
       next: (response: AdminCodeResponsePostPut) =>
       {
-        this.current_admin_code = response.data;
         callback(response);
       },
       error: (err) =>
       {
-        console.error(`Error: ${err.message ?? ' - No fue posible actualizar el estado del código'}`);
+        this.msg_error_modal = ' No fue posible actualizar el estado del código';
+        this.showModal(AdminCodesComponent.error_modal);
+        console.error('Error al actualizar el código: ', err.message);
       },
     });
   }
