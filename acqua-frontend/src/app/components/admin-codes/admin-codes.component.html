@@ -62,10 +62,10 @@
           <input type="text" [(ngModel)]="code_reason_input" id="code_reason_input_id" placeholder="Ingrese el motivo..." class="input w-full mt-2">
           <div class="modal-action">
             <form method="dialog">
-              <button class="btn text-white bg-orange-600 m-2" (click)="abort_process('code_reason_modal_id')">
+              <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="abort_process('code_reason_modal_id')">
                 Cancelar
               </button>
-              <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('code_reason_modal_id')" [disabled]="isInputEmpty('code_reason_input_id')">
+              <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="closeModal('code_reason_modal_id')" [disabled]="isInputEmpty('code_reason_input_id')">
                 Continuar
               </button>
             </form>
@@ -80,10 +80,10 @@
           <input type="text" [(ngModel)]="ticket_id_input" id="ticket_id_input_id" placeholder="Solo números" class="input w-full mt-2">
           <div class="modal-action">
             <form method="dialog">
-              <button class="btn text-white bg-orange-600 m-2" (click)="abort_process('ticket_id_modal_id')">
+              <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="abort_process('ticket_id_modal_id')">
                 Cancelar
               </button>
-              <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('ticket_id_modal_id')" [disabled]="isInputEmpty('ticket_id_input_id')">
+              <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="closeModal('ticket_id_modal_id')" [disabled]="isInputEmpty('ticket_id_input_id')">
                 Continuar
               </button>
             </form>
@@ -96,15 +96,15 @@
           <h3 class="font-bold text-lg">{{current_process_name}}</h3>
           <p class="py-4"><br />{{msg_success_modal!}}</p>
           <div class="modal-action">
-            <button class="btn text-white bg-indigo-600 m-2" (click)="copyCodeToClipboard(); $event.stopPropagation()" [disabled]="current_code!.usado || copied_clipboard">
-              Copy
+            <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="copyCodeToClipboard(); $event.stopPropagation()" [disabled]="current_code!.usado || copied_clipboard">
+              Copiar
             </button>
-            <button class="btn text-white bg-orange-600 m-2" (click)="clearClipboard(); $event.stopPropagation()" [disabled]="!copied_clipboard">
-              Clear
+            <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="clearClipboard(); $event.stopPropagation()" [disabled]="!copied_clipboard">
+              Borrar
             </button>
             <form method="dialog">
-              <button class="btn text-white bg-teal-600 m-2" (click)="closeModal('show_code_modal_id')">
-                Close
+              <button class="btn text-white bg-teal-600 hover:bg-teal-400 m-2" (click)="closeModal('show_code_modal_id')">
+                Cerrar
               </button>
             </form>
           </div>
@@ -117,8 +117,8 @@
           <p class="py-4"><br />{{msg_success_modal!}}</p>
           <div class="modal-action">
             <form method="dialog">
-              <button class="btn text-white bg-teal-600 m-2" (click)="closeModal('success_modal_id')">
-                Close
+              <button class="btn text-white bg-teal-600 hover:bg-teal-400 m-2" (click)="closeModal('success_modal_id')">
+                Cerrar
               </button>
             </form>
           </div>
@@ -131,8 +131,8 @@
           <p class="py-4"><br />{{msg_error_modal!}}</p>
           <div class="modal-action">
             <form method="dialog">
-              <button class="btn text-white bg-orange-600 m2" (click)="closeModal('error_modal_id')">
-                Aceptar
+              <button class="btn text-white bg-orange-600 hover:bg-orange-400 m2" (click)="closeModal('error_modal_id')">
+                Cerrra
               </button>
             </form>
           </div>
