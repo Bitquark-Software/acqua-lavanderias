@@ -60,12 +60,13 @@ export class CorteCajaShowAllComponent
 
   updateCortesDeCaja()
   {
-    const getCortesDeCaja = (response: CorteCajaResponseGet<CorteCaja>) =>
+    const updateCurrentPageCorteCaja = (response: CorteCajaResponseGet<CorteCaja>) =>
     {
       this.cortes_de_caja = response.data;
       this.cortes_de_caja_structure = response;
     };
-    this.getAllCashierClosures(1, getCortesDeCaja);
+
+    this.getAllCashierClosures(1, updateCurrentPageCorteCaja);
   }
 
   getAllCashierClosures(page: number, callback?: (response: CorteCajaResponseGet<CorteCaja>) => void)
@@ -90,21 +91,33 @@ export class CorteCajaShowAllComponent
 
   fetchPreviousPage()
   {
+    const updateCurrentPageCorteCaja = (response: CorteCajaResponseGet<CorteCaja>) =>
+    {
+      this.cortes_de_caja = response.data;
+      this.cortes_de_caja_structure = response;
+    };
+
     if(this.cortes_de_caja_structure.prev_page_url)
     {
       const previousPageNumber = parseInt(this.cortes_de_caja_structure.prev_page_url
         .charAt(this.cortes_de_caja_structure.prev_page_url.length - 1));
-      this.getAllCashierClosures(previousPageNumber);
+      this.getAllCashierClosures(previousPageNumber, updateCurrentPageCorteCaja);
     }
   }
 
   fetchNextPage()
   {
+    const updateCurrentPageCorteCaja = (response: CorteCajaResponseGet<CorteCaja>) =>
+    {
+      this.cortes_de_caja = response.data;
+      this.cortes_de_caja_structure = response;
+    };
+
     if(this.cortes_de_caja_structure.next_page_url)
     {
       const nextPageNumber = parseInt(this.cortes_de_caja_structure.next_page_url
         .charAt(this.cortes_de_caja_structure.next_page_url.length - 1));
-      this.getAllCashierClosures(nextPageNumber);
+      this.getAllCashierClosures(nextPageNumber, updateCurrentPageCorteCaja);
     }
   }
 
