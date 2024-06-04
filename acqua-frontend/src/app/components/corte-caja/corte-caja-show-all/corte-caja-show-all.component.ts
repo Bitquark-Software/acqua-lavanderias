@@ -21,20 +21,18 @@ export class CorteCajaShowAllComponent
   // Variable de session
   session!: AuthDto | null;
 
-  // Variables para binding con input en de los modales
-  id_sucursal!: number;
-  id_caja!: number;
-
-  // Para modales
+  // Para mensajes de los modales
   name_current_process!: PROCESOS_CORTE_CAJA | null;
   msg_success!: string;
   msg_error!: string;
 
-  // Otros
-  ganancias_caja!: GananciasResponseGet;
-  ganancias_caja_anticipos!: AnticiposEnvios;
+  // Otros datos necesarios
+  id_sucursal!: number;
+  id_caja!: number;
   cortes_de_caja!: CorteCaja[];
   cortes_de_caja_structure!: CorteCajaResponseGet<CorteCaja>;
+  ganancias_caja!: GananciasResponseGet;
+  ganancias_caja_anticipos!: AnticiposEnvios;
 
   is_requesting!: boolean;
 
@@ -42,10 +40,18 @@ export class CorteCajaShowAllComponent
     private corteCajaService: CorteCajaService,
     private cajaStateService: CajaStateService)
   {
+    //
+  }
+
+  ngOnInit()
+  {
     this.fetchLocalSession();
     this.clearTempAllData();
-    this.updateCortesDeCaja();
+    this.subscribeToUpdateCorteCajaEvent();
+  }
 
+  private subscribeToUpdateCorteCajaEvent(): void
+  {
     this.cajaStateService.mostrarCajaEvent.subscribe((mostrar: boolean) =>
     {
       this.updateCortesDeCaja();
@@ -54,48 +60,12 @@ export class CorteCajaShowAllComponent
 
   updateCortesDeCaja()
   {
-    const mostrarCortesDeCajaPorConsola = (response: CorteCajaResponseGet<CorteCaja>) =>
+    const getCortesDeCaja = (response: CorteCajaResponseGet<CorteCaja>) =>
     {
       this.cortes_de_caja = response.data;
       this.cortes_de_caja_structure = response;
     };
-    this.getAllCashierClosures(1, mostrarCortesDeCajaPorConsola);
-  }
-
-  clearTempAllData()
-  {
-    this.clearTempDataModals();
-    this.clearTempDataCorteCaja();
-  }
-
-  clearTempDataModals()
-  {
-    this.name_current_process = null;
-    this.msg_error! = '';
-    this.msg_success! = '';
-  }
-
-  clearTempDataCorteCaja()
-  {
-    this.id_caja = 0;
-    this.ganancias_caja! = new GananciasResponseGet();
-    this.ganancias_caja_anticipos! = new AnticiposEnvios();
-  }
-
-  private fetchLocalSession()
-  {
-    const localSession = localStorage.getItem('session');
-
-    if(localSession)
-    {
-      this.session = JSON.parse(localSession) as AuthDto;
-      this.id_sucursal = this.session.datos.id_sucursal;
-    }
-    else
-    {
-      this.session = null;
-      this.id_sucursal = -1;
-    }
+    this.getAllCashierClosures(1, getCortesDeCaja);
   }
 
   getAllCashierClosures(page: number, callback?: (response: CorteCajaResponseGet<CorteCaja>) => void)
@@ -138,28 +108,6 @@ export class CorteCajaShowAllComponent
     }
   }
 
-  showModal(name_modal = '', callback?: () => void): void
-  {
-    const modal = document.getElementById(name_modal);
-    if (modal instanceof HTMLDialogElement)
-    {
-      modal.showModal();
-      if (callback)
-      {
-        modal.addEventListener('close', callback, { once: true });
-      }
-    }
-  }
-
-  closeModal(name_modal = '')
-  {
-    const modal = document.getElementById(name_modal);
-    if (modal instanceof HTMLDialogElement)
-    {
-      modal.close();
-    }
-  }
-
   getProfitsFromCashierReconciliation(id_caja = 0, modal_ganancias_caja = '', modal_error = '')
   {
     if(id_caja != 0)
@@ -188,5 +136,65 @@ export class CorteCajaShowAllComponent
       this.msg_error = 'El ID de la caja no es valido';
       this.showModal(modal_error, () => {this.clearTempAllData(); });
     }
+  }
+
+  private fetchLocalSession()
+  {
+    const localSession = localStorage.getItem('session');
+
+    if(localSession)
+    {
+      this.session = JSON.parse(localSession) as AuthDto;
+      this.id_sucursal = this.session.datos.id_sucursal;
+    }
+    else
+    {
+      this.session = null;
+      this.id_sucursal = -1;
+    }
+  }
+
+  showModal(name_modal = '', callback?: () => void): void
+  {
+    const modal = document.getElementById(name_modal);
+    if (modal instanceof HTMLDialogElement)
+    {
+      modal.showModal();
+      if (callback)
+      {
+        modal.addEventListener('close', callback, { once: true });
+      }
+    }
+  }
+
+  closeModal(name_modal = '')
+  {
+    const modal = document.getElementById(name_modal);
+    if (modal instanceof HTMLDialogElement)
+    {
+      modal.close();
+    }
+  }
+
+  clearTempAllData()
+  {
+    this.clearTempDataModals();
+    this.clearTempDataCorteCaja();
+  }
+
+  clearTempDataModals()
+  {
+    this.name_current_process = null;
+    this.msg_error! = '';
+    this.msg_success! = '';
+  }
+
+  clearTempDataCorteCaja()
+  {
+    this.id_caja = 0;
+    this.ganancias_caja = new GananciasResponseGet();
+    this.ganancias_caja_anticipos = new AnticiposEnvios();
+    this.cortes_de_caja = [];
+    this.cortes_de_caja_structure = new CorteCajaResponseGet<CorteCaja>([]);
   }
 }
