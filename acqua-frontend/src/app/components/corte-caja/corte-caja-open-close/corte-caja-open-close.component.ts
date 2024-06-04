@@ -204,29 +204,19 @@ export class CorteCajaOpenCloseComponent
     }
   }
 
-  requestCloseCashierReconciliation(input_id_caja = '', input_monto = '', modal_codigo = '', modal_continuar = '', modal_error = '')
+  requestCloseCashierReconciliation(input_monto = '', modal_codigo = '', modal_continuar = '', modal_error = '')
   {
     this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;
 
-    this.showModal(input_id_caja, () =>
+    this.showModal(input_monto, () =>
     {
       if(!this.process_aborted)
       {
-        this.showModal(input_monto, () =>
+        this.showModal(modal_codigo, () =>
         {
           if(!this.process_aborted)
           {
-            this.showModal(modal_codigo, () =>
-            {
-              if(!this.process_aborted)
-              {
-                this.validateAndCloseCashierReconciliation(modal_continuar, modal_error);
-              }
-              else
-              {
-                this.clearTempAllData();
-              }
-            });
+            this.validateAndCloseCashierReconciliation(modal_continuar, modal_error);
           }
           else
           {
@@ -246,26 +236,17 @@ export class CorteCajaOpenCloseComponent
     const continuar_operaciones = (response: CorteCajaResponseGet<CorteCaja>) =>
     {
       const current_caja: CorteCaja = response.data[0];
-      const id_caja_valido = !isNaN(Number(this.id_caja)) && Number(this.id_caja) === Number(current_caja.id);
       const monto_cierre_valido = !isNaN(Number(this.monto)) && Number(this.monto)>0;
 
       if(current_caja!.abierto === 1)
       {
-        if(id_caja_valido)
+        if(monto_cierre_valido)
         {
-          if(monto_cierre_valido)
-          {
-            this.showModal(modal_continuar_cerrar_caja);
-          }
-          else
-          {
-            this.msg_error = INPUT_ERRORS.MONTO_CIERRE;
-            this.showModal(modal_error, () => { this.clearTempAllData(); });
-          }
+          this.showModal(modal_continuar_cerrar_caja);
         }
         else
         {
-          this.msg_error = INPUT_ERRORS.ID_CAJA;
+          this.msg_error = INPUT_ERRORS.MONTO_CIERRE;
           this.showModal(modal_error, () => { this.clearTempAllData(); });
         }
       }
@@ -314,7 +295,7 @@ export class CorteCajaOpenCloseComponent
 
   closeCashierReconciliation(modal_success = '', modal_error = '', codigo_admin: string)
   {
-    this.corteCajaService.updateCorteCaja(Number(this.id_caja), Number(this.monto), codigo_admin).subscribe({
+    this.corteCajaService.updateCorteCaja(Number(this.monto), codigo_admin).subscribe({
       next: (response: CorteCajaResponsePut) =>
       {
         this.name_current_process = PROCESOS_CORTE_CAJA.CIERRE;

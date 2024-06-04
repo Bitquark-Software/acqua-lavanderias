@@ -22,7 +22,7 @@
     <button
     [disabled]="!caja_abierta"
     class="btn bg-teal-600 hover:bg-teal-500 text-white w-auto rounded ml-3"
-    (click)="requestCloseCashierReconciliation('modal_id_caja', 'modal_monto', 'modal_codigo_admin', 'modal_continuar_operacion', 'modal_error')"
+    (click)="requestCloseCashierReconciliation('modal_monto', 'modal_codigo_admin', 'modal_continuar_operacion', 'modal_error')"
     >
     <svg
         width="24"
@@ -41,23 +41,7 @@
     </button>
 
     <!-- MODALES PARA INGRESAR DATOS -->
-    <dialog id="modal_id_caja" class="modal" hidden>
-      <div class="modal-box">
-        <h3 class="font-bold text-lg">{{name_current_process}}</h3>
-        <p class="py-4">Ingrese el ID de la caja: </p>
-        <input id="id_caja_input" [(ngModel)]="id_caja" placeholder="Debe ser mayor a cero..." type="text" class="input w-full mt-2">
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn text-white bg-orange-600 m-2" (click)="abort_process()">
-              Cancelar
-            </button>
-            <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('modal_id_caja')" [disabled]="isInputEmpty('id_caja_input')">
-              Continuar
-            </button>
-          </form>
-        </div>
-      </div>
-    </dialog>
+
     <dialog id="modal_monto" class="modal" hidden>
       <div class="modal-box">
         <h3 class="font-bold text-lg">{{name_current_process}}</h3>
@@ -75,6 +59,7 @@
         </div>
       </div>
     </dialog>
+
     <dialog id="modal_codigo_admin" class="modal" hidden>
       <div class="modal-box">
         <h3 class="font-bold text-lg">{{name_current_process}}</h3>
@@ -110,6 +95,7 @@
         </div>
       </div>
     </dialog>
+
     <dialog id="modal_success" class="modal" hidden>
       <div class="modal-box">
         <h3 class="font-bold text-lg">{{name_current_process}}</h3>
@@ -123,6 +109,7 @@
         </div>
       </div>
     </dialog>
+
     <dialog id="modal_error" class="modal" hidden>
       <div class="modal-box">
         <h3 class="font-bold text-lg">{{name_current_process}}</h3>
@@ -136,4 +123,5 @@
         </div>
       </div>
     </dialog>
+
   </div>
