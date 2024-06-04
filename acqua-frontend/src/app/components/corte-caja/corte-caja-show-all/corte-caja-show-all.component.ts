@@ -36,6 +36,8 @@ export class CorteCajaShowAllComponent
   cortes_de_caja!: CorteCaja[];
   cortes_de_caja_structure!: CorteCajaResponseGet<CorteCaja>;
 
+  is_requesting!: boolean;
+
   constructor(
     private corteCajaService: CorteCajaService,
     private cajaStateService: CajaStateService)
@@ -98,6 +100,7 @@ export class CorteCajaShowAllComponent
 
   getAllCashierClosures(page: number, callback?: (response: CorteCajaResponseGet<CorteCaja>) => void)
   {
+    this.is_requesting = true;
     this.corteCajaService.fetchCorteCaja(page).subscribe({
       next: (response: CorteCajaResponseGet<CorteCaja>) =>
       {
@@ -105,10 +108,12 @@ export class CorteCajaShowAllComponent
         {
           callback(response);
         }
+        this.is_requesting = false;
       },
       error: (error) =>
       {
         console.error('Error al obtener corte(s) de caja:', error);
+        this.is_requesting = false;
       },
     });
   }
@@ -159,6 +164,7 @@ export class CorteCajaShowAllComponent
   {
     if(id_caja != 0)
     {
+      this.is_requesting = true;
       this.corteCajaService.getCorteCajaGanancias(this.id_sucursal, Number(id_caja)).subscribe({
         next: (response: GananciasResponseGet) =>
         {
@@ -167,11 +173,13 @@ export class CorteCajaShowAllComponent
           this.ganancias_caja = response;
           this.ganancias_caja_anticipos = response['anticiposEnvios ']!;
           this.showModal(modal_ganancias_caja);
+          this.is_requesting = false;
         },
         error: (error) =>
         {
           this.msg_error = error.error.mensaje;
           this.showModal(modal_error, () => {this.clearTempAllData(); });
+          this.is_requesting = false;
         },
       });
     }

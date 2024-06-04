@@ -26,10 +26,11 @@
               <td class="text-primary dark:text-white">{{ caja.fecha_fin }}</td>
               <td class="text-primary dark:text-white">
                 <button
-                class="btn btn-sm btn-info btn-square btn-outline m-auto lg:tooltip"
                 data-tip="Ver Ganancias"
+                class="btn btn-sm btn-info btn-square btn-outline m-auto lg:tooltip"
                 (click)="getProfitsFromCashierReconciliation(caja.id, 'modal_get_profits', 'modal_error')"
-              >
+                [disabled]="is_requesting"
+                >
                 <svg
                   aria-hidden="true"
                   fill="none"
@@ -49,7 +50,7 @@
                     stroke-linejoin="round"
                   ></path>
                 </svg>
-              </button>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -58,9 +59,17 @@
 
       <div class="w-full flex mt-4 justify-center" *ngIf="cortes_de_caja_structure != null && cortes_de_caja_structure.total > 0">
         <div class="join">
-          <button class="join-item btn" [disabled]="cortes_de_caja_structure != null && !cortes_de_caja_structure.prev_page_url" (click)="fetchPreviousPage()">«</button>
+          <button
+            class="join-item btn"
+            (click)="fetchPreviousPage()"
+            [disabled]="(cortes_de_caja_structure != null && !cortes_de_caja_structure.prev_page_url) || is_requesting"
+          >«</button>
           <button class="join-item btn">Pág. {{cortes_de_caja_structure.current_page}}</button>
-          <button class="join-item btn" [disabled]="cortes_de_caja_structure != null && !cortes_de_caja_structure.next_page_url" (click)="fetchNextPage()">»</button>
+          <button
+            class="join-item btn"
+            (click)="fetchNextPage()"
+            [disabled]="(cortes_de_caja_structure != null && !cortes_de_caja_structure.next_page_url) || is_requesting"
+          >»</button>
         </div>
       </div>
     </div>
