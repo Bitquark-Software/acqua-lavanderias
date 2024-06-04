@@ -49,10 +49,10 @@
         <input id="monto_input" [(ngModel)]="monto" placeholder="Debe ser mayor a cero..." type="text" class="input w-full mt-2">
         <div class="modal-action">
           <form method="dialog">
-            <button class="btn text-white bg-orange-600 m-2" (click)="abort_process()">
+            <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="abort_process()">
               Cancelar
             </button>
-            <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('modal_monto')" [disabled]="isInputEmpty('monto_input')">
+            <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="closeModal('modal_monto')" [disabled]="isInputEmpty('monto_input')">
               Continuar
             </button>
           </form>
@@ -67,10 +67,10 @@
         <input id="codigo_admin_input" [(ngModel)]="codigo_admin" placeholder="Código Administrador..." type="text" class="input w-full mt-2">
         <div class="modal-action">
           <form method="dialog">
-            <button class="btn text-white bg-orange-600 m-2" (click)="abort_process()">
+            <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="abort_process()">
               Cancelar
             </button>
-            <button class="btn text-white bg-indigo-600 m-2" (click)="closeModal('modal_codigo_admin')" [disabled]="isInputEmpty('codigo_admin_input')">
+            <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="closeModal('modal_codigo_admin')" [disabled]="isInputEmpty('codigo_admin_input')">
               Continuar
             </button>
           </form>
@@ -85,10 +85,10 @@
         <p class="py-4"><br />¿Desea continuar?</p>
         <div class="modal-action">
           <form method="dialog">
-            <button class="btn text-white bg-teal-600 mr-2" (click)="continuarOperacion('modal_success', 'modal_error')">
-              Si
+            <button class="btn text-white bg-teal-600 hover:bg-teal-400 mr-2" (click)="continuarOperacion('modal_success', 'modal_error')">
+              Continuar
             </button>
-            <button class="btn text-white bg-orange-600 m-2" (click)="cancelarOperacion('modal_continuar_operacion')">
+            <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="cancelarOperacion('modal_continuar_operacion')">
               Cancelar
             </button>
           </form>
@@ -102,7 +102,7 @@
         <p class="py-4"><br />{{msg_success}}</p>
         <div class="modal-action">
           <form method="dialog">
-            <button class="btn text-white bg-teal-600 m-2" (click)="closeModal('modal_success')">
+            <button class="btn text-white bg-teal-600 hover:bg-teal-400 m-2" (click)="closeModal('modal_success')">
               Aceptar
             </button>
           </form>
@@ -116,7 +116,7 @@
         <p class="py-4"><br />{{msg_error}}</p>
         <div class="modal-action">
           <form method="dialog">
-            <button class="btn text-white bg-orange-600 m-2" (click)="closeModal('modal_error')">
+            <button class="btn text-white bg-orange-600 hover:bg.bg-orange-400 m-2" (click)="closeModal('modal_error')">
               Aceptar
             </button>
           </form>
