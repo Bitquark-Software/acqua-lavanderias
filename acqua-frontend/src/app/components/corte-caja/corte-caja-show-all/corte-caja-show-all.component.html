@@ -28,7 +28,7 @@
                 <button
                 data-tip="Ver Ganancias"
                 class="btn btn-sm btn-info btn-square btn-outline m-auto lg:tooltip"
-                (click)="getProfitsFromCashierReconciliation(caja.id, 'modal_get_profits', 'modal_error')"
+                (click)="validateAndFetchCashierClosureProfits(caja.id, 'modal_get_profits', 'modal_error')"
                 [disabled]="is_requesting"
                 >
                 <svg
