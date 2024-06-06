@@ -25,8 +25,13 @@ import { ReportesComponent } from './components/reportes/reportes.component';
 import { Role } from './enums/Role.enum';
 import { SucursalesComponent } from './components/sucursales/sucursales.component';
 import { NuevaSucursalComponent } from './components/sucursales/nueva-sucursal/nueva-sucursal.component';
-import { EditarSucursalComponent } from './components/sucursales/editar-sucursal/editar-sucursal.component';
+import {
+  EditarSucursalComponent,
+} from './components/sucursales/editar-sucursal/editar-sucursal.component';
 import { AdminCodesComponent } from './components/admin-codes/admin-codes.component';
+import {
+  CorteCajaShowAllComponent,
+} from './components/corte-caja/corte-caja-show-all/corte-caja-show-all.component';
 
 const routes: Routes = [
   {
@@ -134,6 +139,12 @@ const routes: Routes = [
     component: AdminCodesComponent,
     canActivate: [authGuard],
     data: { roles: [Role.Administrador] },
+  },
+  {
+    path: 'corte-caja-show-all',
+    component: CorteCajaShowAllComponent,
+    canActivate: [authGuard],
+    data: { roles: [Role.Administrador, Role.Encargado] },
   },
   {
     path: 'sucursales',

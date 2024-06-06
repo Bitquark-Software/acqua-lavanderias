@@ -40,8 +40,19 @@ import localeEs from '@angular/common/locales/es';
 import { registerLocaleData } from '@angular/common';
 import { SucursalesComponent } from './components/sucursales/sucursales.component';
 import { NuevaSucursalComponent } from './components/sucursales/nueva-sucursal/nueva-sucursal.component';
-import { EditarSucursalComponent } from './components/sucursales/editar-sucursal/editar-sucursal.component';
+import {
+  EditarSucursalComponent,
+} from './components/sucursales/editar-sucursal/editar-sucursal.component';
 import { AdminCodesComponent } from './components/admin-codes/admin-codes.component';
+import {
+  ModalGananciasCajaComponent,
+} from './components/corte-caja/modal-ganancias-caja/modal-ganancias-caja.component';
+import {
+  CorteCajaOpenCloseComponent,
+} from './components/corte-caja/corte-caja-open-close/corte-caja-open-close.component';
+import {
+  CorteCajaShowAllComponent,
+} from './components/corte-caja/corte-caja-show-all/corte-caja-show-all.component';
 registerLocaleData(localeEs, 'es');
 
 @NgModule ( {
@@ -74,6 +85,9 @@ registerLocaleData(localeEs, 'es');
     NuevaSucursalComponent,
     EditarSucursalComponent,
     AdminCodesComponent,
+    ModalGananciasCajaComponent,
+    CorteCajaOpenCloseComponent,
+    CorteCajaShowAllComponent,
   ],
   imports: [
     BrowserModule,

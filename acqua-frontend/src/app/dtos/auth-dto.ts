@@ -6,6 +6,7 @@ class DatosSesion
   name!: string;
   email!: string;
   role!: Role;
+  id_sucursal!: number;
 }
 
 export class AuthDto
