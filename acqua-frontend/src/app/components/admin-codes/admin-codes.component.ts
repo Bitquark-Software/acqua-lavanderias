@@ -3,7 +3,6 @@ import { HotToastService } from '@ngneat/hot-toast';
 import { AdminCodesService } from 'src/app/services/admin-codes.service';
 import {
   AdminCode,
-  StatusCode,
   AdminCodeResponseGet,
   AdminCodeResponsePostPut,
 } from 'src/app/dtos/admin-code';
@@ -58,7 +57,7 @@ export class AdminCodesComponent
 
   inicializarVariables()
   {
-    this.current_code = new AdminCode();
+    this.current_code = null;
     this.current_page = 1;
     this.ticket_id_input = '0';
     this.code_reason_input = '';
@@ -72,7 +71,7 @@ export class AdminCodesComponent
 
   copyCodeToClipboard()
   {
-    if(this.current_code !== null && !(this.current_code.usado === StatusCode.USADO) && this.current_code.codigo !== '')
+    if(this.current_code !== null && !this.current_code.usado)
     {
       navigator.clipboard.writeText(this.current_code.codigo!).then(() =>
       {
@@ -164,7 +163,7 @@ export class AdminCodesComponent
 
     const continueGenerateCode = () =>
     {
-      if(this.current_code !== null && this.current_code.usado === StatusCode.USADO)
+      if(this.current_code === null || this.current_code !== null && this.current_code.usado)
       {
         this.generateAdminCode(this.code_reason_input!, (response: AdminCodeResponsePostPut) =>
         {
@@ -205,7 +204,7 @@ export class AdminCodesComponent
 
     const continueUpdateCode = () =>
     {
-      if(this.current_code !== null && this.current_code.usado === StatusCode.NO_USADO)
+      if(this.current_code !== null && !this.current_code.usado)
       {
         this.updateAdminCode(Number(this.current_code.id), Number(this.ticket_id_input), (response: AdminCodeResponsePostPut) =>
         {
@@ -255,7 +254,7 @@ export class AdminCodesComponent
     {
       if(response.data.length > 0)
       {
-        if(response.data[response.data.length-1].usado === StatusCode.NO_USADO)
+        if(!response.data[response.data.length-1].usado)
         {
           this.msg_success_modal = `El código actualmente disponible es: ${this.current_code!.codigo}`;
         }
@@ -275,7 +274,14 @@ export class AdminCodesComponent
       this.current_page = first_response.last_page!;
       this.getAdminCodes(first_response.last_page!, (second_response: AdminCodeResponseGet) =>
       {
-        this.current_code = second_response.data[second_response.data.length-1];
+        if(first_response.data.length > 0)
+        {
+          this.current_code = second_response.data[second_response.data.length-1];
+        }
+        else
+        {
+          this.current_code = null;
+        }
         setMessageLastCode(second_response);
         callBack(second_response);
       });

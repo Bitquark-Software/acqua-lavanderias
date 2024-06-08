@@ -96,7 +96,7 @@
           <h3 class="font-bold text-lg">{{current_process_name}}</h3>
           <p class="py-4"><br />{{msg_success_modal!}}</p>
           <div class="modal-action">
-            <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="copyCodeToClipboard(); $event.stopPropagation()" [disabled]="current_code!.usado || copied_clipboard">
+            <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="copyCodeToClipboard(); $event.stopPropagation()" [disabled]="current_code == null || (current_code != null && current_code!.usado) || copied_clipboard">
               Copiar
             </button>
             <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="clearClipboard(); $event.stopPropagation()" [disabled]="!copied_clipboard">
