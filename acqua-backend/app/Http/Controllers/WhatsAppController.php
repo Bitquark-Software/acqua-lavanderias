@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\Ticket;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client;
@@ -14,30 +15,38 @@ class WhatsAppController extends Controller
     
     private function conteoTemplate($nombre_cliente, $numero_ticket, $prendas, $fecha_entrega)
     {
+        $template = "Hola buenas tardes Sr(a) *{$nombre_cliente}* nos comunicamos de Acqua Lavanderías 🐘🧼.\n";
+
+        $template .= "Muchas gracias por su confianza, el conteo de sus prendas recibidas con el ticket *# {$numero_ticket}* es:\n\n";
+        
         $prendasString = $this->getPrendasArrayToString($prendas);
+        $template .= $prendasString;
 
         $dateFromString = date_create($fecha_entrega);
-        $fechaFormateada = date_format($dateFromString, 'd-m-y H:s');
+        $fechaFormateada = date_format($dateFromString, 'd-m-y H:i');
+        
+        $template .= "\nLe recordamos que la entrega está programada para el día *{$fechaFormateada}*, en caso de estar listo antes nos comunicaremos por este medio. \n";
+        
+        $template .= "Deseamos que tenga un excelente día.  👋🏽🐘✨ \n\n";
+        
+        $template .= '#AcquaLavanderías';
 
-        return [
-            '1' => $nombre_cliente,
-            '2' => $numero_ticket,
-            '3' => json_encode($prendasString, JSON_UNESCAPED_LINE_TERMINATORS),
-            '4' => $fechaFormateada,
-        ];
+        return $template;
     }
+
 
     private function entregaTemplate($numero_ticket)
     {
-        // Message template SID (replace this with your approved template SID)
-        $templateSid = 'HXd93e52542b78fd0bf3b9ee0003766601';
+        $template = "Estamos felices 😊☺ por comunicarle que su servicio de lavandería con el Ticket No. *{$numero_ticket}*, se encuentra listo para su entrega✅✅.\n\n";
+        $template .= "En caso de no haber considerado el servicio de entrega a domicilio y lo necesita, con gusto podemos programarlo.\n";
+        $template .= "Le recordamos que nuestro horario de servicio es: \n";
+        
+        $template .= "L a V --- 9am - 8pm\n";
+        $template .= "S ------- 9am - 3pm.\n\n";
+        
+        $template .= "Que tenga un excelente día, y agradecemos su preferencia.\nBendiciones\n";
 
-        // Template variables
-        $templateData = array(
-            '1' => $numero_ticket,
-        );
-
-        return [$templateSid, $templateData];
+        return $template;
     }
 
     private function getPrendasArrayToString($prendas): string
@@ -53,16 +62,58 @@ class WhatsAppController extends Controller
             $result .= "{$nombrePrenda}: *{$conteolPrendas}*\n";
         }
 
-        $finalString = "Piezas: {$contadorPrendas}\n";
+        $finalString = "Piezas: *{$contadorPrendas}*\n\n";
         $finalString .= $result;
         return $finalString;
+    }
+
+    public function sendInitialWhatsAppTemplate(Request $r)
+    {
+        $r->validate([
+            'ticket_id' => ['required', 'exists:tickets,id']
+        ]);
+
+        $numero_ticket = $r->ticket_id;
+        $ticket = Ticket::where('id', $numero_ticket)->first();
+        if (!$ticket) {
+            return response()->json('Ticket no encontrado', 404);
+        }
+        $cliente = Cliente::where('id', $ticket->id_cliente)->first();
+        if (!$cliente) {
+            return response()->json('Cliente no encontrado', 404);
+        }
+
+        $twilioSid = env('TWILIO_SID');
+        $twilioToken = env('TWILIO_AUTH_TOKEN');
+
+        // $numeroCliente = $cliente->telefono;
+        $numeroCliente = '9611003141';
+        $recipientNumber = "+521{$numeroCliente}";
+
+        try {
+            $twilio = new Client($twilioSid, $twilioToken);
+            $templateSid = env('TWILIO_MENSAJE_BIENVENIDA_TEMPLATE_SID');
+            $messagingServiceId = env('TWILIO_WHATSAPP_MESSAGING_SERVICE_SID');
+
+            $twilio->messages->create(
+                "whatsapp:{$recipientNumber}",
+                [
+                    'contentSid' => $templateSid,
+                    'from' => $messagingServiceId,
+                ]
+            );
+
+            return response()->json(['message' => 'WhatsApp message sent successfully']);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json($e->getMessage(), 500);
+        }
     }
 
     public function mensajeConteo(Request $r)
     {
         $r->validate([
             'ticket_id' => ['required', 'exists:tickets,id'],
-            'nombre_cliente' => ['required', 'string'],
         ]);
 
         $numero_ticket = $r->ticket_id;
@@ -76,10 +127,13 @@ class WhatsAppController extends Controller
         $prendas = $ticket->prendasTicket;
         $fecha_entrega = $ticket->fecha_entrega;
 
-        $templateVariables = $this->conteoTemplate($r->nombre_cliente, $numero_ticket, $prendas, $fecha_entrega);
-
-
         $cliente = Cliente::where('id', $ticket->id_cliente)->first();
+
+        if (!$cliente) {
+            return response()->json('Cliente no encontrado', 404);
+        }
+
+        $nombre_cliente = $cliente->nombre;
 
         $twilioSid = env('TWILIO_SID');
         $twilioToken = env('TWILIO_AUTH_TOKEN');
@@ -88,19 +142,23 @@ class WhatsAppController extends Controller
         $recipientNumber = "+521{$numeroCliente}"; // Replace with the recipient's phone number in WhatsApp format (e.g., "whatsapp:+1234567890")
 
         $twilio = new Client($twilioSid, $twilioToken);
-        $templateSid = env('TWILIO_CONTEO_PRENDAS_TEMPLATE_SID');
+        $whatsappSender = env('TWILIO_WHATSAPP_NUMBER');
         $messagingServiceId = env('TWILIO_WHATSAPP_MESSAGING_SERVICE_SID');
 
-        $contentVariables = json_encode($templateVariables);
-        Log::info($contentVariables);
+        $body = $this->conteoTemplate(
+            $nombre_cliente,
+            $numero_ticket,
+            $prendas,
+            $fecha_entrega
+        );
 
         try {
             $twilio->messages->create(
                 "whatsapp:{$recipientNumber}",
                 [
-                    'contentSid' => $templateSid,
-                    'from' => $messagingServiceId,
-                    'contentVariables' => $contentVariables
+                    'from' => "whatsapp:$whatsappSender",
+                    'body' => $body,
+                    'messagingServiceSid' => $messagingServiceId
                 ]
             );
 
@@ -119,41 +177,39 @@ class WhatsAppController extends Controller
 
         $numero_ticket = $r->ticket_id;
 
-        $ticket = Ticket::where('id', $numero_ticket)->with('prendasTicket.prenda')->first();
+        $ticket = Ticket::where('id', $numero_ticket)->first();
 
         if (!$ticket) {
             return response()->json('Ticket no encontrado', 404);
         }
 
-        $template = $this->entregaTemplate($numero_ticket); // array, 0 => SID, 1=> variables
-
-
         $cliente = Cliente::where('id', $ticket->id_cliente)->first();
+
+        if (!$cliente) {
+            return response()->json('Cliente no encontrado', 404);
+        }
 
         $twilioSid = env('TWILIO_SID');
         $twilioToken = env('TWILIO_AUTH_TOKEN');
-        $twilioWhatsAppNumber = env('TWILIO_WHATSAPP_SENDER_ID');
 
         $numeroCliente = $cliente->telefono;
         $recipientNumber = "+521{$numeroCliente}"; // Replace with the recipient's phone number in WhatsApp format (e.g., "whatsapp:+1234567890")
 
         $twilio = new Client($twilioSid, $twilioToken);
+        $whatsappSender = env('TWILIO_WHATSAPP_NUMBER');
+        $messagingServiceId = env('TWILIO_WHATSAPP_MESSAGING_SERVICE_SID');
 
-        Log::info($template[0]);
-        Log::info($template[1]);
-        Log::info(json_encode($template[1]));
-        Log::info("'".json_encode($template[1])."'");
+        $body = $this->entregaTemplate($numero_ticket);
 
         try {
-            $twilio->messages
-                ->create(
-                    "whatsapp:{$recipientNumber}",
-                    [
-                        'contentSid' => $template[0],
-                        'from' => "$twilioWhatsAppNumber",
-                        'contentVariables' => "'".json_encode($template[1])."'"
-                    ]
-                );
+            $twilio->messages->create(
+                "whatsapp:{$recipientNumber}",
+                [
+                    'from' => "whatsapp:$whatsappSender",
+                    'body' => $body,
+                    'messagingServiceSid' => $messagingServiceId
+                ]
+            );
 
             return response()->json(['message' => 'WhatsApp message sent successfully']);
         } catch (\Exception $e) {

@@ -26,6 +26,7 @@ import { StatsService } from 'src/app/services/stats-service.service';
 import { Secadora } from 'src/app/dtos/secadora';
 import { TicketPreviewComponent } from '../ticket-preview/ticket-preview.component';
 import { Servicio } from 'src/app/dtos/servicio';
+import { WhatsappService } from 'src/app/services/whatsapp.service';
 
 @Component({
   selector: 'app-detalles-ticket',
@@ -111,6 +112,7 @@ export class DetallesTicketComponent
     private pagosModalFactory: ComponentFactoryResolver,
     private statsService: StatsService,
     private ticketPreviewFactory: ComponentFactoryResolver,
+    private whatsAppService: WhatsappService,
   )
   {
     const ticketId = this.route.snapshot.params['id'];
@@ -309,6 +311,11 @@ export class DetallesTicketComponent
     case 0:
       // update in DB
       this.isLoading = true;
+      // send whatsapp template
+      this.whatsAppService.sendMensajeConteo(this.ticketId).subscribe({
+        next: () => {},
+        error: (e) => { console.error(e) }
+      });
       this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe({
         next: () =>
         {
@@ -417,6 +424,11 @@ export class DetallesTicketComponent
     // Entrega
     case 4:
       this.isLoading = true;
+      // send whatsapp template
+      this.whatsAppService.sendMensajeEntrega(this.ticketId).subscribe({
+        next: () => {},
+        error: (e) => { console.error(e) }
+      });
       this.ticketService.updateProceso(this.currentProcesoTicket?.id ?? 0).subscribe(
         {
           next: () =>

@@ -55,7 +55,6 @@ export class ClientesComponent
 
   eliminarCliente(id:number)
   {
-    console.log('ID => ', id);
     if(id)
     {
       this.clientesService.eliminarCliente(id).subscribe({
