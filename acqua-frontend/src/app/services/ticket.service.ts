@@ -94,10 +94,10 @@ export class TicketService
     (`${API_URL}/tickets/${id}`, { headers: this.authService.getHeaders() });
   }
 
-  getTodasLasPrendas()
+  getTodasLasPrendas(ticketId: number)
   {
     return this.httpClient.get<Prenda[]>
-    (`${API_URL}/prendas`, { headers: this.authService.getHeaders() });
+    (`${API_URL}/prendas?idTicket=${ticketId}`, { headers: this.authService.getHeaders() });
   }
 
   agregarPrendaAlTicket(id_prenda: number, id_ticket: number, total_inicial: number)

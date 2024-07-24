@@ -168,7 +168,7 @@ export class DetallesTicketComponent
 
   fetchPrendas()
   {
-    this.ticketService.getTodasLasPrendas().subscribe({
+    this.ticketService.getTodasLasPrendas(this.ticketId).subscribe({
       next: (prendas) => this.prendas = prendas,
     });
   }
