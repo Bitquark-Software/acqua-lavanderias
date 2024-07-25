@@ -14,10 +14,14 @@ class Sucursales extends Seeder
      */
     public function run()
     {
-        Sucursal::create(
-            [
-                "nombre" => "MATRIZ"
-            ]
-        );
+        $existeSucursal = Sucursal::where('nombre', 'MATRIZ')->exists();
+
+        if (!$existeSucursal) {
+            Sucursal::create(
+                [
+                    "nombre" => "MATRIZ"
+                ]
+            );
+        }
     }
 }

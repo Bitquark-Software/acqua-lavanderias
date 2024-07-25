@@ -1,0 +1,144 @@
+<app-drawer>
+  <div
+  class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 rounded-3xl shadow-2xl min-h-full"
+  >
+    <div class="card w-11/12 bg-base-100 shadow-sm p-0 my-4 mx-auto">
+      <button
+      class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
+      (click)="requestCurrentAdminCode()" [disabled]="is_requesting"
+      >
+      <svg
+          width="24"
+          height="24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+      >
+          <path class="fill-current" d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 3c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z"/>
+      </svg>
+      Obtener Código Actual
+      </button>
+      <button
+      class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
+      (click)="requestGenerateAdminCode()" [disabled]="is_requesting"
+      >
+        <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path class="fill-current" d="M8.617 5.795l-2.828 2.828 15.382 15.377 2.829-2.824-15.383-15.381zm2.119 6.362l-3.533-3.535 1.412-1.414 3.535 3.535-1.414 1.414zm-5.021 3.439l-1.344-4.363-4.371-1.327 3.111-3.35-1.035-4.453 4.455 1.02 3.338-3.123 1.344 4.363 4.371 1.328-2.043 2.199-.708-.708.929-1-2.84-.862-.508-.154-.157-.508-.873-2.834-2.169 2.03-.389.363-.517-.119-2.897-.662.674 2.894.121.518-.363.39-2.022 2.176 2.839.862.509.154.156.508.873 2.835.987-.923.708.708-2.179 2.038z"/>
+        </svg>
+        Generar Nuevo Código
+      </button>
+      <button
+        class="btn bg-teal-600 hover:bg-teal-500 text-white w-8/10 md:w-1/2 lg:w-2/5 xl:w-1/3 rounded m-4"
+        (click)="requestUpdateAdminCode()" [disabled]="is_requesting" *ngIf="false"
+      >
+        <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path class="fill-current" d="M5 18c4.667 4.667 12 1.833 12-4.042h-3l5-6 5 6h-3c-1.125 7.98-11.594 11.104-16 4.042zm14-11.984c-4.667-4.667-12-1.834-12 4.041h3l-5 6-5-6h3c1.125-7.979 11.594-11.104 16-4.041z"/>
+        </svg>
+        Actualizar Estado Del Código Actual
+      </button>
+
+      <dialog id="code_reason_modal_id" class="modal" hidden>
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">{{current_process_name}}</h3>
+          <p class="py-4">Ingrese el motivo del código generado: </p>
+          <input type="text" [(ngModel)]="code_reason_input" id="code_reason_input_id" placeholder="Ingrese el motivo..." class="input w-full mt-2">
+          <div class="modal-action">
+            <form method="dialog">
+              <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="abort_process('code_reason_modal_id')">
+                Cancelar
+              </button>
+              <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="closeModal('code_reason_modal_id')" [disabled]="isInputEmpty('code_reason_input_id')">
+                Continuar
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="ticket_id_modal_id" class="modal" hidden>
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">{{current_process_name}}</h3>
+          <p class="py-4">Ingrese el id del Ticket: </p>
+          <input type="text" [(ngModel)]="ticket_id_input" id="ticket_id_input_id" placeholder="Solo números" class="input w-full mt-2">
+          <div class="modal-action">
+            <form method="dialog">
+              <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="abort_process('ticket_id_modal_id')">
+                Cancelar
+              </button>
+              <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="closeModal('ticket_id_modal_id')" [disabled]="isInputEmpty('ticket_id_input_id')">
+                Continuar
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="show_code_modal_id" class="modal" hidden>
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">{{current_process_name}}</h3>
+          <p class="py-4"><br />{{msg_success_modal!}}</p>
+          <div class="modal-action">
+            <button class="btn text-white bg-indigo-600 hover:bg-indigo-400 m-2" (click)="copyCodeToClipboard(); $event.stopPropagation()" [disabled]="current_code == null || (current_code != null && current_code!.usado) || copied_clipboard">
+              Copiar
+            </button>
+            <button class="btn text-white bg-orange-600 hover:bg-orange-400 m-2" (click)="clearClipboard(); $event.stopPropagation()" [disabled]="!copied_clipboard">
+              Borrar
+            </button>
+            <form method="dialog">
+              <button class="btn text-white bg-teal-600 hover:bg-teal-400 m-2" (click)="closeModal('show_code_modal_id')">
+                Cerrar
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="success_modal_id" class="modal" hidden>
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">{{current_process_name}}</h3>
+          <p class="py-4"><br />{{msg_success_modal!}}</p>
+          <div class="modal-action">
+            <form method="dialog">
+              <button class="btn text-white bg-teal-600 hover:bg-teal-400 m-2" (click)="closeModal('success_modal_id')">
+                Cerrar
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="error_modal_id" class="modal" hidden>
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">{{current_process_name}}</h3>
+          <p class="py-4"><br />{{msg_error_modal!}}</p>
+          <div class="modal-action">
+            <form method="dialog">
+              <button class="btn text-white bg-orange-600 hover:bg-orange-400 m2" (click)="closeModal('error_modal_id')">
+                Cerrra
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+    </div>
+  </div>
+</app-drawer>

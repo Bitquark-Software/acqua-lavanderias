@@ -1,0 +1,86 @@
+<app-drawer>
+    <div
+      class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl"
+    >
+      <div class="flex flex-col-reverse md:flex-row justify-between px-5">
+        <h1 class="font-medium text-2xl text-primary dark:text-white">
+          Cortes de caja
+        </h1>
+      </div>
+
+      <div class="overflow-x-auto mt-4">
+        <p class="text-center w-full" *ngIf="cortes_de_caja != null && cortes_de_caja.length == 0">Sin registros</p>
+        <table class="table table-zebra w-full" *ngIf="cortes_de_caja != null && cortes_de_caja.length > 0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fecha de apertura</th>
+              <th>Fecha de cierre</th>
+              <th>Ganancias</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let caja of cortes_de_caja">
+              <th class="text-primary dark:text-white">{{ caja.id }}</th>
+              <td class="text-primary dark:text-white">{{ caja.fecha_inicio }}</td>
+              <td class="text-primary dark:text-white">{{ caja.fecha_fin }}</td>
+              <td class="text-primary dark:text-white">
+                <button
+                data-tip="Ver Ganancias"
+                class="btn btn-sm btn-info btn-square btn-outline m-auto lg:tooltip"
+                (click)="validateAndFetchCashierClosureProfits(caja.id, 'modal_get_profits', 'modal_error')"
+                [disabled]="is_requesting"
+                >
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                  <path
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="w-full flex mt-4 justify-center" *ngIf="cortes_de_caja_structure != null && cortes_de_caja_structure.total > 0">
+        <div class="join">
+          <button
+            class="join-item btn"
+            (click)="fetchPreviousPage()"
+            [disabled]="(cortes_de_caja_structure != null && !cortes_de_caja_structure.prev_page_url) || is_requesting"
+          >«</button>
+          <button class="join-item btn">Pág. {{cortes_de_caja_structure.current_page}}</button>
+          <button
+            class="join-item btn"
+            (click)="fetchNextPage()"
+            [disabled]="(cortes_de_caja_structure != null && !cortes_de_caja_structure.next_page_url) || is_requesting"
+          >»</button>
+        </div>
+      </div>
+    </div>
+
+    <app-modal-ganancias-caja
+    [name_current_process]="name_current_process"
+    [id_caja]="id_caja"
+    [ganancias_caja]="ganancias_caja"
+    [ganancias_caja_anticipos]="ganancias_caja_anticipos"
+    [msg_success]="msg_success"
+    [msg_error]="msg_error"
+    ></app-modal-ganancias-caja>
+
+</app-drawer>

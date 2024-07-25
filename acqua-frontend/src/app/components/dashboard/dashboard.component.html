@@ -1,8 +1,15 @@
 <app-drawer>
-    <div
-      class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 rounded-3xl shadow-2xl min-h-full"
+    <div *ngIf="caja_abierta"
+      class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl min-h-full"
     >
       <app-caja></app-caja>
+    </div>
+    <div *ngIf="!caja_abierta"
+      class="w-11/12 md:w-11/12 m-auto mt-2 md:mt-4 py-9 px-9 h-fit rounded-3xl shadow-2xl min-h-full"
+    >
+      <p>
+        La caja se encuentra cerrada! La caja debe abrirla el administrador o encargado de la sucursal.
+      </p>
     </div>
 </app-drawer>
   

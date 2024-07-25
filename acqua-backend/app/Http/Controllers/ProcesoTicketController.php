@@ -122,6 +122,15 @@ class ProcesoTicketController extends Controller
             ],
         )->first();
 
+        $idProceso = Proceso::where('id', $request->id_proceso)->first();
+        $rolUsuarioActual = $request->user()->role;
+
+        if ($idProceso->nombre === 'ENTREGA' && $rolUsuarioActual === 'operativo') {
+            return response()->json([
+                'mensaje' => 'Operativo sin privilegios para este Proceso'
+            ]);
+        }
+
         if ($yaExisteProceso) {
             return response()->json([
                 'mensaje' => "Proceso ticket ya existente",

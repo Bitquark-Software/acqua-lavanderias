@@ -24,6 +24,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role,
+                'id_sucursal' => $user->id_sucursal
             ];
             
             return new Response([
