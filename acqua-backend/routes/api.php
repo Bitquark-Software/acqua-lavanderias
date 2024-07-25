@@ -171,8 +171,9 @@ Route::prefix('stats')->middleware(['auth:api', 'role:administrador'])->group(fu
     Route::post('/reporte-produccion-usuario-pdf', [ProdPersonalReportController::class, 'repProdUsuarioPdf'])->name('stats.rep-prod-usua-pdf');
 });
 
-Route::prefix('whatsapp')->group(function () {
+Route::prefix('whatsapp')->middleware('auth:api')->group(function () {
     // Enviar mensaje
+    Route::post('/preflight', [WhatsAppController::class, 'sendInitialWhatsAppTemplate'])->name('whatsapp.mensaje-inicial');
     Route::post('/enviar-mensaje-conteo', [WhatsAppController::class, 'mensajeConteo'])->name('whatsapp.mensaje-conteo');
     Route::post('/enviar-mensaje-entrega', [WhatsAppController::class, 'mensajeEntrega'])->name('whatsapp.mensaje-entrega');
 });

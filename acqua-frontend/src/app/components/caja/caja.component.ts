@@ -29,6 +29,7 @@ import {
   ModalAgregarDireccionComponent,
 } from '../clientes/modal-agregar-direccion/modal-agregar-direccion.component';
 import * as moment from 'moment';
+import { WhatsappService } from 'src/app/services/whatsapp.service';
 
 @Component({
   selector: 'app-caja',
@@ -134,6 +135,7 @@ export class CajaComponent
     private router: Router,
     private ticketPreviewFactory: ComponentFactoryResolver,
     private ticketService: TicketService,
+    private whatsAppService: WhatsappService,
   )
   {
     this.route.queryParams.subscribe({
@@ -1397,6 +1399,14 @@ export class CajaComponent
             this.ticketService.agregarComentario(c, ticketResponse.data.id);
           }
         });
+
+        const newTicketId = ticketResponse.data.id;
+        // send whatsapp preflight
+        this.whatsAppService.sendPreflight(newTicketId).subscribe({
+          next: () => {},
+          error: (e) => { console.error(e) }
+        });
+
         this.toastService.success('¡Ticket creado!');
         this.clearCaja();
       },
